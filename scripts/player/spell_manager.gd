@@ -1,0 +1,419 @@
+extends RefCounted
+
+signal spell_cast(payload: Dictionary)
+
+var player: CharacterBody2D = null
+var slot_bindings: Array = []
+var slot_cooldowns: Dictionary = {
+	"fire_bolt": 0.0,
+	"frost_nova": 0.0,
+	"volt_spear": 0.0,
+	"holy_mana_veil": 0.0,
+	"fire_pyre_heart": 0.0,
+	"ice_frostblood_ward": 0.0
+}
+var active_toggles: Dictionary = {}
+var last_failure_reason := ""
+var last_feedback_text := "Ready"
+
+func setup(player_node: CharacterBody2D) -> void:
+	player = player_node
+	slot_bindings = GameState.get_spell_hotbar()
+	_sync_buff_cooldowns()
+
+func tick(delta: float) -> void:
+	for spell_id in slot_cooldowns.keys():
+		slot_cooldowns[spell_id] = max(float(slot_cooldowns[spell_id]) - delta, 0.0)
+	_tick_toggles(delta)
+	_sync_buff_cooldowns()
+
+func handle_input() -> void:
+	for slot in slot_bindings:
+		var action := str(slot.get("action", ""))
+		if action != "" and Input.is_action_just_pressed(action):
+			attempt_cast_by_action(action)
+
+func attempt_cast_by_action(action: String) -> bool:
+	for slot in slot_bindings:
+		if str(slot.get("action", "")) == action:
+			return attempt_cast(str(slot.get("skill_id", "")))
+	last_failure_reason = "empty_slot"
+	last_feedback_text = "Empty slot"
+	_announce_failure()
+	return false
+
+func attempt_cast(skill_id: String) -> bool:
+	last_failure_reason = ""
+	if skill_id == "":
+		last_failure_reason = "empty_slot"
+		last_feedback_text = "Empty slot"
+		_announce_failure()
+		return false
+	var skill_data: Dictionary = GameDatabase.get_skill_data(skill_id)
+	if not skill_data.is_empty() and str(skill_data.get("skill_type", "")) == "toggle" and active_toggles.has(skill_id):
+		return _cast_toggle(skill_id, skill_data)
+	if not can_cast(skill_id):
+		_announce_failure()
+		return false
+	if not skill_data.is_empty():
+		var skill_type := str(skill_data.get("skill_type", ""))
+		if skill_type == "buff":
+			var activated := GameState.try_activate_buff(skill_id)
+			_sync_buff_cooldowns()
+			if not activated:
+				last_failure_reason = "buff_rejected"
+				last_feedback_text = "Buff rejected"
+			else:
+				last_feedback_text = "%s activated" % _get_skill_display_name(skill_id)
+			return activated
+		if skill_type == "deploy":
+			return _cast_deploy(skill_id, skill_data)
+		if skill_type == "toggle":
+			return _cast_toggle(skill_id, skill_data)
+	if not GameState.consume_skill_mana(skill_id):
+		last_failure_reason = "mana"
+		last_feedback_text = "Need more mana"
+		_announce_failure()
+		return false
+	var runtime: Dictionary = GameState.get_spell_runtime(skill_id)
+	slot_cooldowns[skill_id] = float(runtime.get("cooldown", 0.3))
+	GameState.register_spell_use(skill_id, runtime.get("school", "fire"))
+	var velocity_value := Vector2(float(runtime.get("speed", 0.0)) * player.facing, 0.0)
+	var spawn_pos := player.global_position + Vector2(34 * player.facing, -18)
+	if skill_id == "frost_nova":
+		velocity_value = Vector2.ZERO
+		spawn_pos = player.global_position + Vector2(0, -6)
+	var payload := runtime.duplicate(true)
+	payload["spell_id"] = skill_id
+	payload["position"] = spawn_pos
+	payload["velocity"] = velocity_value
+	payload["team"] = "player"
+	payload["owner"] = player
+	GameState.consume_spell_cast(skill_id)
+	spell_cast.emit(payload)
+	last_feedback_text = "%s cast" % _get_skill_display_name(skill_id)
+	return true
+
+func can_cast(skill_id: String) -> bool:
+	if player == null:
+		last_failure_reason = "missing_player"
+		return false
+	if not player.can_cast_spell():
+		last_failure_reason = "player_locked"
+		return false
+	var skill_data: Dictionary = GameDatabase.get_skill_data(skill_id)
+	if not GameState.has_enough_mana(skill_id):
+		last_failure_reason = "mana"
+		last_feedback_text = "Need more mana"
+		return false
+	if not skill_data.is_empty() and str(skill_data.get("skill_type", "")) == "buff":
+		if float(GameState.buff_cooldowns.get(skill_id, 0.0)) > 0.0 and not GameState.admin_ignore_cooldowns:
+			last_failure_reason = "cooldown"
+			return false
+		if GameState.active_buffs.size() >= GameState.get_buff_slot_limit() and not GameState.admin_ignore_buff_slot_limit:
+			last_failure_reason = "buff_slots_full"
+			return false
+		return true
+	if float(slot_cooldowns.get(skill_id, 0.0)) > 0.0 and not GameState.admin_ignore_cooldowns:
+		last_failure_reason = "cooldown"
+		return false
+	return true
+
+func get_cooldown(skill_id: String) -> float:
+	var skill_data: Dictionary = GameDatabase.get_skill_data(skill_id)
+	if not skill_data.is_empty() and str(skill_data.get("skill_type", "")) == "buff":
+		return float(GameState.buff_cooldowns.get(skill_id, 0.0))
+	return float(slot_cooldowns.get(skill_id, 0.0))
+
+func get_slot_bindings() -> Array:
+	slot_bindings = GameState.get_spell_hotbar()
+	return slot_bindings.duplicate(true)
+
+func assign_skill_to_slot(slot_index: int, skill_id: String) -> bool:
+	var changed := GameState.set_hotbar_skill(slot_index, skill_id)
+	if changed:
+		slot_bindings = GameState.get_spell_hotbar()
+	return changed
+
+func get_hotbar_summary() -> String:
+	var parts: Array[String] = []
+	for slot in slot_bindings:
+		var skill_id := str(slot.get("skill_id", ""))
+		var label := str(slot.get("label", "?"))
+		if skill_id == "":
+			parts.append("%s [empty]" % label)
+			continue
+		var cooldown := get_cooldown(skill_id)
+		var display_name := _get_skill_display_name(skill_id)
+		if active_toggles.has(skill_id):
+			display_name = "%s ON" % display_name
+		var cooldown_text := "---" if cooldown <= 0.0 else "cd:%.1f" % cooldown
+		parts.append("%s %s %s" % [label, display_name, cooldown_text])
+	return "Hotbar  %s" % " | ".join(parts)
+
+func get_hotbar_mastery_summary() -> String:
+	var parts: Array[String] = []
+	for slot in slot_bindings:
+		var skill_id := str(slot.get("skill_id", ""))
+		var label := str(slot.get("label", "?"))
+		if skill_id == "":
+			parts.append("%s [empty]" % label)
+			continue
+		var display_name := _get_skill_display_name(skill_id)
+		var short_name: String = display_name.split(" ")[0]
+		var level := GameState.get_spell_level(skill_id)
+		var xp: int = int(GameState.spell_mastery.get(skill_id, 0))
+		parts.append("%s %s Lv.%d (%d)" % [label, short_name, level, xp])
+	return "Skills  %s" % "   ".join(parts)
+
+func get_last_failure_reason() -> String:
+	return last_failure_reason
+
+func get_feedback_summary() -> String:
+	return "Cast  %s" % last_feedback_text
+
+func get_toggle_summary() -> String:
+	if active_toggles.is_empty():
+		return "Toggles  none"
+	var parts: Array[String] = []
+	for skill_id in active_toggles.keys():
+		var toggle_data: Dictionary = active_toggles[skill_id]
+		var tag_text := ""
+		var tags: Array = toggle_data.get("tags", [])
+		if not tags.is_empty():
+			tag_text = " [%s]" % "/".join(tags)
+		var extra_detail := ""
+		if skill_id == "dark_soul_dominion":
+			var dmg_pct := int(round((GameState.SOUL_DOMINION_DAMAGE_TAKEN_MULT - 1.0) * 100.0))
+			extra_detail = " [MP-LOCK DMG+%d%%]" % dmg_pct
+		elif skill_id == "ice_glacial_dominion":
+			var utility_effects: Array = toggle_data.get("utility_effects", [])
+			for eff in utility_effects:
+				if str(eff.get("type", "")) == "slow":
+					var slow_pct := int(round(float(eff.get("value", 0.0)) * 100.0))
+					extra_detail = " [slow %d%%]" % slow_pct
+					break
+		elif skill_id == "lightning_tempest_crown":
+			var pierce_count: int = int(toggle_data.get("pierce", 0))
+			if pierce_count > 0:
+				extra_detail = " [pierce x%d]" % pierce_count
+		parts.append("%s%s%s tick %.1f drain %.1f" % [
+			_get_skill_display_name(skill_id),
+			tag_text,
+			extra_detail,
+			float(toggle_data.get("tick_remaining", 0.0)),
+			float(toggle_data.get("mana_drain_per_tick", 0.0))
+		])
+	return "Toggles  %s" % " | ".join(parts)
+
+func reset_all_cooldowns() -> void:
+	for skill_id in slot_cooldowns.keys():
+		slot_cooldowns[skill_id] = 0.0
+	for skill_id in GameState.buff_cooldowns.keys():
+		GameState.buff_cooldowns[skill_id] = 0.0
+
+func _sync_buff_cooldowns() -> void:
+	for skill_id in GameState.buff_cooldowns.keys():
+		slot_cooldowns[skill_id] = float(GameState.buff_cooldowns.get(skill_id, 0.0))
+
+func _get_skill_display_name(skill_id: String) -> String:
+	var skill_data: Dictionary = GameDatabase.get_skill_data(skill_id)
+	if not skill_data.is_empty():
+		return str(skill_data.get("display_name", skill_id))
+	var runtime_data: Dictionary = GameDatabase.get_spell(skill_id)
+	if not runtime_data.is_empty():
+		return str(runtime_data.get("name", skill_id))
+	return skill_id
+
+func _announce_failure() -> void:
+	match last_failure_reason:
+		"empty_slot":
+			GameState.push_message("That hotbar slot is empty.", 1.0)
+		"player_locked":
+			GameState.push_message("You cannot cast while staggered or collapsed.", 1.0)
+		"cooldown":
+			GameState.push_message("That spell pattern has not recovered yet.", 1.0)
+		"mana":
+			GameState.push_message("Your mana lattice is too dry for that cast.", 1.0)
+		"buff_slots_full":
+			GameState.push_message("Your current circle cannot hold another active buff.", 1.2)
+
+func _cast_deploy(skill_id: String, skill_data: Dictionary) -> bool:
+	for penalty in GameState.active_penalties:
+		if str(penalty.get("stat", "")) == "deploy_recast_delay":
+			last_failure_reason = "blocked"
+			last_feedback_text = "Deploy patterns still recalibrating"
+			_announce_failure()
+			return false
+	var runtime := _build_skill_runtime(skill_id, skill_data)
+	runtime = GameState.apply_deploy_buff_modifiers(runtime)
+	if not GameState.consume_skill_mana(skill_id):
+		last_failure_reason = "mana"
+		last_feedback_text = "Need more mana"
+		_announce_failure()
+		return false
+	slot_cooldowns[skill_id] = float(runtime.get("cooldown", 0.8))
+	GameState.register_spell_use(skill_id, str(skill_data.get("element", "earth")))
+	var payload := {
+		"spell_id": skill_id,
+		"position": player.global_position + Vector2(48 * player.facing, -4),
+		"velocity": Vector2.ZERO,
+		"range": 1.0,
+		"team": "player",
+		"damage": int(runtime.get("damage", 20)),
+		"knockback": 180.0,
+		"school": str(skill_data.get("element", "earth")),
+		"size": float(runtime.get("size", 40.0)),
+		"duration": float(runtime.get("duration", 0.8)),
+		"color": _get_skill_color(skill_data),
+		"owner": player
+	}
+	GameState.consume_spell_cast(skill_id)
+	spell_cast.emit(payload)
+	last_feedback_text = "%s deployed" % _get_skill_display_name(skill_id)
+	return true
+
+func _cast_toggle(skill_id: String, skill_data: Dictionary) -> bool:
+	if active_toggles.has(skill_id):
+		active_toggles.erase(skill_id)
+		if skill_id == "dark_soul_dominion":
+			GameState.soul_dominion_active = false
+			GameState.soul_dominion_aftershock_timer = GameState.SOUL_DOMINION_AFTERSHOCK_DURATION
+			GameState.push_message("Soul Dominion recedes. Aftershock lingers.", 1.5)
+		else:
+			GameState.push_message("%s fades." % _get_skill_display_name(skill_id), 1.0)
+		last_feedback_text = "%s off" % _get_skill_display_name(skill_id)
+		return true
+	if not GameState.consume_skill_mana(skill_id):
+		last_failure_reason = "mana"
+		last_feedback_text = "Need more mana"
+		_announce_failure()
+		return false
+	var runtime := _build_skill_runtime(skill_id, skill_data)
+	slot_cooldowns[skill_id] = float(runtime.get("cooldown", 1.0))
+	active_toggles[skill_id] = {
+		"tick_interval": float(runtime.get("tick_interval", 1.0)),
+		"tick_remaining": 0.01,
+		"damage": int(runtime.get("damage", 12)),
+		"size": float(runtime.get("size", 60.0)),
+		"mana_drain_per_tick": float(runtime.get("mana_drain_per_tick", 0.0)),
+		"pierce": int(runtime.get("pierce", 0)),
+		"tags": _get_toggle_runtime_tags(skill_data, runtime),
+		"utility_effects": runtime.get("utility_effects", []).duplicate(true),
+		"school": str(skill_data.get("element", "dark")),
+		"color": _get_skill_color(skill_data)
+	}
+	if skill_id == "dark_soul_dominion":
+		GameState.soul_dominion_active = true
+		GameState.soul_dominion_aftershock_timer = 0.0
+	GameState.register_spell_use(skill_id, str(skill_data.get("element", "dark")))
+	GameState.push_message("%s hums into an active aura." % _get_skill_display_name(skill_id), 1.2)
+	last_feedback_text = "%s on" % _get_skill_display_name(skill_id)
+	return true
+
+func _tick_toggles(delta: float) -> void:
+	for skill_id in active_toggles.keys():
+		var toggle_data: Dictionary = active_toggles[skill_id]
+		toggle_data["tick_remaining"] = max(float(toggle_data.get("tick_remaining", 0.0)) - delta, 0.0)
+		if float(toggle_data.get("tick_remaining", 0.0)) <= 0.0:
+			var mana_drain_per_tick: float = float(toggle_data.get("mana_drain_per_tick", 0.0))
+			if not GameState.consume_mana_amount(mana_drain_per_tick):
+				active_toggles.erase(skill_id)
+				if skill_id == "dark_soul_dominion":
+					GameState.soul_dominion_active = false
+					GameState.soul_dominion_aftershock_timer = GameState.SOUL_DOMINION_AFTERSHOCK_DURATION
+					GameState.push_message("Soul Dominion collapses — aftershock persists.", 1.5)
+				else:
+					GameState.push_message("%s collapses as your mana runs dry." % _get_skill_display_name(skill_id), 1.2)
+				last_feedback_text = "%s off (mana)" % _get_skill_display_name(skill_id)
+				continue
+			toggle_data["tick_remaining"] = float(toggle_data.get("tick_interval", 1.0))
+			var payload := {
+				"spell_id": skill_id,
+				"position": player.global_position + Vector2(0, -10),
+				"velocity": Vector2.ZERO,
+				"range": 1.0,
+				"team": "player",
+				"damage": int(toggle_data.get("damage", 10)),
+				"knockback": 70.0,
+				"pierce": int(toggle_data.get("pierce", 0)),
+				"school": str(toggle_data.get("school", "dark")),
+				"size": float(toggle_data.get("size", 48.0)),
+				"duration": 0.12,
+				"utility_effects": toggle_data.get("utility_effects", []).duplicate(true),
+				"color": str(toggle_data.get("color", "#8f77d8")),
+				"owner": player
+			}
+			payload = GameState.apply_spell_modifiers(payload)
+			spell_cast.emit(payload)
+		active_toggles[skill_id] = toggle_data
+
+func _build_skill_runtime(skill_id: String, skill_data: Dictionary) -> Dictionary:
+	var level: int = GameState.get_skill_level(skill_id)
+	var level_delta: int = max(level - 1, 0)
+	var damage_formula: Dictionary = skill_data.get("damage_formula", {})
+	var coefficient: float = float(damage_formula.get("coefficient_base", 1.0)) + float(damage_formula.get("coefficient_per_level", 0.0)) * float(level_delta)
+	var flat_damage: float = float(damage_formula.get("flat_base", 0.0)) + float(damage_formula.get("flat_per_level", 0.0)) * float(level_delta)
+	var damage: int = int(round(coefficient * 10.0 + flat_damage))
+	var cooldown_scale: float = maxf(0.45, 1.0 - float(skill_data.get("cooldown_reduction_per_level", 0.0)) * float(level_delta))
+	var duration_scale: float = 1.0 + float(skill_data.get("duration_scale_per_level", 0.0)) * float(level_delta)
+	var range_scale: float = 1.0 + float(skill_data.get("range_scale_per_level", 0.0)) * float(level_delta)
+	return {
+		"damage": int(round(float(damage) * GameState.get_equipment_damage_multiplier(str(skill_data.get("element", "arcane"))))),
+		"cooldown": float(skill_data.get("cooldown_base", 1.0)) * cooldown_scale * GameState.get_equipment_cooldown_multiplier(),
+		"duration": float(skill_data.get("duration_base", 0.0)) * duration_scale * GameState.get_equipment_install_duration_multiplier(),
+		"size": float(skill_data.get("range_base", 40.0)) * range_scale * GameState.get_equipment_aoe_multiplier(),
+		"tick_interval": float(skill_data.get("tick_interval", 1.0)) * maxf(0.6, 1.0 - GameState.get_equipment_cast_speed_bonus()),
+		"pierce": int(skill_data.get("pierce_count_base", 0)) + _get_runtime_bonus(skill_data, "pierce_count", level),
+		"utility_effects": skill_data.get("utility_effects", []).duplicate(true),
+		"mana_drain_per_tick": _get_toggle_mana_drain_per_tick(skill_id, skill_data)
+	}
+
+func _get_toggle_mana_drain_per_tick(skill_id: String, skill_data: Dictionary) -> float:
+	var base_value: float = float(skill_data.get("sustain_mana_cost_base", -1.0))
+	if base_value < 0.0:
+		var mana_cost: float = GameState.get_skill_mana_cost(skill_id)
+		return maxf(1.0, mana_cost * 0.35)
+	var level_delta: int = max(GameState.get_skill_level(skill_id) - 1, 0)
+	var reduction_per_level: float = float(skill_data.get("sustain_mana_reduction_per_level", 0.0))
+	var min_ratio: float = float(skill_data.get("sustain_mana_min_ratio", 0.65))
+	var scaled_ratio: float = maxf(min_ratio, 1.0 - reduction_per_level * float(level_delta))
+	return maxf(1.0, base_value * scaled_ratio)
+
+func _get_runtime_bonus(skill_data: Dictionary, stat_name: String, level: int) -> int:
+	var total_bonus := 0
+	for bonus in skill_data.get("milestone_bonuses", []):
+		if str(bonus.get("stat", "")) != stat_name:
+			continue
+		if level >= int(bonus.get("level", 99)):
+			total_bonus += int(bonus.get("value", 0))
+	return total_bonus
+
+func _get_toggle_runtime_tags(skill_data: Dictionary, runtime: Dictionary) -> Array[String]:
+	var tags: Array[String] = []
+	for effect in runtime.get("utility_effects", []):
+		var effect_type := str(effect.get("type", ""))
+		if effect_type != "" and not tags.has(effect_type):
+			tags.append(effect_type)
+	if int(runtime.get("pierce", 0)) > 0 and not tags.has("pierce"):
+		tags.append("pierce")
+	var role_tags: Array = skill_data.get("role_tags", [])
+	if role_tags.has("finisher") or role_tags.has("rule_break"):
+		if not tags.has("risk"):
+			tags.append("risk")
+	return tags
+
+func _get_skill_color(skill_data: Dictionary) -> String:
+	var element := str(skill_data.get("element", "arcane"))
+	match element:
+		"earth":
+			return "#c8a56a"
+		"dark":
+			return "#8e6bd1"
+		"fire":
+			return "#ff8f45"
+		"ice":
+			return "#8cecff"
+		"lightning":
+			return "#f7ef6a"
+	return "#ffffff"

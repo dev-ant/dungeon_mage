@@ -1,0 +1,238 @@
+{
+  "equipment": [
+    {
+      "item_id": "weapon_ember_staff",
+      "display_name": "Ember Staff",
+      "slot_type": "weapon",
+      "rarity": "rare",
+      "description": "화염 계열 마법 출력을 끌어올리는 지팡이",
+      "stat_modifiers": {
+        "magic_attack": 4.0,
+        "fire_damage_multiplier": 1.18
+      },
+      "tags": ["fire", "burst"],
+      "icon_path": ""
+    },
+    {
+      "item_id": "focus_storm_orb",
+      "display_name": "Storm Orb",
+      "slot_type": "offhand",
+      "rarity": "rare",
+      "description": "번개 마법의 재가동을 빠르게 만든다",
+      "stat_modifiers": {
+        "lightning_damage_multiplier": 1.15,
+        "cooldown_recovery": 0.1,
+        "max_mp": 18.0
+      },
+      "tags": ["lightning", "tempo"],
+      "icon_path": ""
+    },
+    {
+      "item_id": "focus_ash_tome",
+      "display_name": "Ash Tome",
+      "slot_type": "offhand",
+      "rarity": "rare",
+      "description": "화염과 흑마법의 여진을 강화하는 보조서",
+      "stat_modifiers": {
+        "fire_damage_multiplier": 1.1,
+        "dark_damage_multiplier": 1.1
+      },
+      "tags": ["fire", "dark"],
+      "icon_path": ""
+    },
+    {
+      "item_id": "helm_ritual_circlet",
+      "display_name": "Ritual Circlet",
+      "slot_type": "head",
+      "rarity": "rare",
+      "description": "버프와 의식 마법의 유지력을 늘리는 관",
+      "stat_modifiers": {
+        "buff_duration_multiplier": 1.18
+      },
+      "tags": ["buff", "ritual"],
+      "icon_path": ""
+    },
+    {
+      "item_id": "helm_spark_diadem",
+      "display_name": "Spark Diadem",
+      "slot_type": "head",
+      "rarity": "rare",
+      "description": "번개 연쇄와 시전 템포를 높이는 관",
+      "stat_modifiers": {
+        "lightning_damage_multiplier": 1.12,
+        "cast_speed": 0.06
+      },
+      "tags": ["lightning", "tempo"],
+      "icon_path": ""
+    },
+    {
+      "item_id": "armor_mage_coat",
+      "display_name": "Mage Coat",
+      "slot_type": "body",
+      "rarity": "uncommon",
+      "description": "마력 회로를 안정화하는 로브",
+      "stat_modifiers": {
+        "max_hp": 15.0,
+        "damage_taken_multiplier": 0.94
+      },
+      "tags": ["defense"],
+      "icon_path": ""
+    },
+    {
+      "item_id": "armor_ember_robe",
+      "display_name": "Ember Robe",
+      "slot_type": "body",
+      "rarity": "rare",
+      "description": "공격적인 화염 술식을 선호하는 전투 로브",
+      "stat_modifiers": {
+        "magic_attack": 2.0,
+        "fire_damage_multiplier": 1.12,
+        "max_mp": 12.0
+      },
+      "tags": ["fire", "burst"],
+      "icon_path": ""
+    },
+    {
+      "item_id": "greaves_strider_boots",
+      "display_name": "Strider Boots",
+      "slot_type": "legs",
+      "rarity": "uncommon",
+      "description": "짧은 시전과 회피를 보조하는 부츠",
+      "stat_modifiers": {
+        "cast_speed": 0.08,
+        "mp_regen": 3.0
+      },
+      "tags": ["tempo"],
+      "icon_path": ""
+    },
+    {
+      "item_id": "greaves_root_step",
+      "display_name": "Root Step Boots",
+      "slot_type": "legs",
+      "rarity": "rare",
+      "description": "설치형 마법과 유지력을 지지하는 부츠",
+      "stat_modifiers": {
+        "installation_duration_multiplier": 1.12,
+        "buff_duration_multiplier": 1.06
+      },
+      "tags": ["deploy", "ritual"],
+      "icon_path": ""
+    },
+    {
+      "item_id": "ring_earth_seed",
+      "display_name": "Earth Seed Ring",
+      "slot_type": "accessory_1",
+      "rarity": "rare",
+      "description": "설치형 마법의 유지력과 범위를 늘리는 반지",
+      "stat_modifiers": {
+        "installation_duration_multiplier": 1.22,
+        "aoe_radius_multiplier": 1.12,
+        "earth_damage_multiplier": 1.14
+      },
+      "tags": ["deploy", "earth"],
+      "icon_path": ""
+    },
+    {
+      "item_id": "ring_chain_arc",
+      "display_name": "Chain Arc Ring",
+      "slot_type": "accessory_1",
+      "rarity": "rare",
+      "description": "연쇄 번개와 투사체 전개를 강화하는 반지",
+      "stat_modifiers": {
+        "lightning_damage_multiplier": 1.14,
+        "aoe_radius_multiplier": 1.08
+      },
+      "tags": ["lightning", "chain"],
+      "icon_path": ""
+    },
+    {
+      "item_id": "ring_grave_whisper",
+      "display_name": "Grave Whisper Ring",
+      "slot_type": "accessory_2",
+      "rarity": "rare",
+      "description": "어둠 계열 오라와 지속 피해를 강화하는 반지",
+      "stat_modifiers": {
+        "dark_damage_multiplier": 1.16,
+        "buff_duration_multiplier": 1.08
+      },
+      "tags": ["dark", "toggle"],
+      "icon_path": ""
+    },
+    {
+      "item_id": "ring_sanctum_loop",
+      "display_name": "Sanctum Loop",
+      "slot_type": "accessory_2",
+      "rarity": "rare",
+      "description": "방어 버프와 보호막 계열 출력을 늘리는 반지",
+      "stat_modifiers": {
+        "holy_damage_multiplier": 1.1,
+        "barrier_power_multiplier": 1.15,
+        "buff_duration_multiplier": 1.08
+      },
+      "tags": ["holy", "guard"],
+      "icon_path": ""
+    },
+    {
+      "item_id": "weapon_tempest_rod",
+      "display_name": "Tempest Rod",
+      "slot_type": "weapon",
+      "rarity": "rare",
+      "description": "번개와 속사 운용에 특화된 지팡이",
+      "stat_modifiers": {
+        "magic_attack": 3.0,
+        "lightning_damage_multiplier": 1.16,
+        "cooldown_recovery": 0.04
+      },
+      "tags": ["lightning", "tempo"],
+      "icon_path": ""
+    },
+    {
+      "item_id": "weapon_worn_focus",
+      "display_name": "Worn Focus",
+      "slot_type": "weapon",
+      "rarity": "common",
+      "description": "낡았지만 기본적인 마력 집중에 쓰이는 지팡이",
+      "stat_modifiers": {
+        "magic_attack": 1.5
+      },
+      "tags": [],
+      "icon_path": ""
+    },
+    {
+      "item_id": "armor_cloth_wrap",
+      "display_name": "Cloth Wrap",
+      "slot_type": "body",
+      "rarity": "common",
+      "description": "최소한의 마력 완충재가 짜여진 기본 방어복",
+      "stat_modifiers": {
+        "max_hp": 8.0
+      },
+      "tags": ["defense"],
+      "icon_path": ""
+    },
+    {
+      "item_id": "ring_copper_band",
+      "display_name": "Copper Band",
+      "slot_type": "accessory_1",
+      "rarity": "common",
+      "description": "마나 흐름을 미약하게 돕는 구리 반지",
+      "stat_modifiers": {
+        "mp_regen": 2.0
+      },
+      "tags": [],
+      "icon_path": ""
+    },
+    {
+      "item_id": "helm_iron_band",
+      "display_name": "Iron Band",
+      "slot_type": "head",
+      "rarity": "common",
+      "description": "충격을 조금 줄여주는 기본 철제 머리띠",
+      "stat_modifiers": {
+        "damage_taken_multiplier": 0.97
+      },
+      "tags": ["defense"],
+      "icon_path": ""
+    }
+  ]
+}

@@ -1,0 +1,58 @@
+{
+  "fire_bolt": {
+    "id": "fire_bolt",
+    "name": "Fire Bolt",
+    "school": "fire",
+    "color": "#ff8f45",
+    "damage": 18,
+    "speed": 760,
+    "range": 340,
+    "cooldown": 0.22,
+    "knockback": 260,
+    "size": 16,
+    "mastery_threshold": 5,
+    "mastery_bonus": {
+      "damage": 8,
+      "speed": 70,
+      "size": 4
+    }
+  },
+  "frost_nova": {
+    "id": "frost_nova",
+    "name": "Frost Nova",
+    "school": "ice",
+    "color": "#8cecff",
+    "damage": 14,
+    "speed": 0,
+    "range": 76,
+    "cooldown": 0.8,
+    "knockback": 120,
+    "size": 72,
+    "duration": 0.2,
+    "mastery_threshold": 4,
+    "mastery_bonus": {
+      "damage": 6,
+      "range": 20,
+      "duration": 0.08
+    }
+  },
+  "volt_spear": {
+    "id": "volt_spear",
+    "name": "Volt Spear",
+    "school": "lightning",
+    "color": "#f7ef6a",
+    "damage": 22,
+    "speed": 1020,
+    "range": 440,
+    "cooldown": 0.55,
+    "knockback": 320,
+    "size": 12,
+    "pierce": 2,
+    "mastery_threshold": 4,
+    "mastery_bonus": {
+      "damage": 10,
+      "pierce": 1,
+      "speed": 120
+    }
+  }
+}

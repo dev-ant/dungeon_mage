@@ -1,0 +1,101 @@
+{
+  "rooms": [
+    {
+      "id": "entrance",
+      "title": "Collapsed Test Wing",
+      "width": 1600,
+      "spawn": [140, 480],
+      "background": "#132033",
+      "floor_segments": [
+        [800, 664, 1600, 112],
+        [980, 520, 260, 24],
+        [1280, 430, 220, 24]
+      ],
+      "objects": [
+        {
+          "type": "rest",
+          "position": [240, 562],
+          "text": "A maintenance seal still answers your crest. You can stabilize your mana here."
+        },
+        {
+          "type": "echo",
+          "position": [690, 470],
+          "text": "Mira's ribbon is caught in the broken railing. She made it this far... and kept moving upward."
+        },
+        {
+          "type": "echo",
+          "position": [1320, 380],
+          "text": "Residual magic hums in a looping rhythm. The labyrinth is listening to which spell you favor."
+        },
+        {
+          "type": "rope",
+          "position": [540, 560],
+          "height": 160.0
+        }
+      ],
+      "spawns": [
+        {"type": "brute", "position": [880, 600]},
+        {"type": "ranged", "position": [1220, 390]}
+      ],
+      "entry_text": "The fall should have killed the exam. Instead, the labyrinth seals the breach and leaves one corridor lit above you."
+    },
+    {
+      "id": "conduit",
+      "title": "Resonance Conduit",
+      "width": 1920,
+      "spawn": [120, 480],
+      "background": "#24193b",
+      "floor_segments": [
+        [960, 664, 1920, 112],
+        [520, 510, 250, 24],
+        [980, 430, 240, 24],
+        [1450, 350, 240, 24]
+      ],
+      "objects": [
+        {
+          "type": "echo",
+          "position": [1040, 380],
+          "text": "Record fragment: 'Upper channel restoration initiated.' The same line repeats, but each glyph angles downward."
+        }
+      ],
+      "spawns": [
+        {"type": "brute", "position": [620, 470]},
+        {"type": "ranged", "position": [980, 390]},
+        {"type": "boss", "position": [1580, 300]}
+      ],
+      "core_position": [1770, 276],
+      "entry_text": "The conduit answers your spells. Every surge that should lift rubble aside instead rotates the corridor below your feet."
+    },
+    {
+      "id": "deep_gate",
+      "title": "Deep Alignment Gate",
+      "width": 1840,
+      "spawn": [180, 520],
+      "background": "#102a24",
+      "floor_segments": [
+        [920, 664, 1840, 112],
+        [620, 540, 260, 24],
+        [1080, 430, 260, 24],
+        [1470, 320, 220, 24]
+      ],
+      "objects": [
+        {
+          "type": "echo",
+          "position": [760, 500],
+          "text": "Your own footsteps answer a fraction too late. The maze is rehearsing you."
+        },
+        {
+          "type": "echo",
+          "position": [1490, 290],
+          "text": "A wall inscription stops mid-sentence: 'The path to the surface is now...' The last word is scratched into a spiral."
+        }
+      ],
+      "spawns": [
+        {"type": "brute", "position": [690, 500]},
+        {"type": "ranged", "position": [1100, 390]},
+        {"type": "ranged", "position": [1510, 280]}
+      ],
+      "entry_text": "The chamber claims to be an ascent lock. Yet the air grows colder, older, and far heavier than the floors above."
+    }
+  ]
+}

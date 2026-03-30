@@ -1,0 +1,113 @@
+{
+  "combos": [
+    {
+      "combo_id": "combo_prismatic_guard",
+      "display_name": "Prismatic Guard",
+      "required_buffs": ["holy_mana_veil", "holy_crystal_aegis"],
+      "priority": 100,
+      "combo_type": "sustain",
+      "internal_cooldown": 0.0,
+      "active_window": 0.0,
+      "effect_tags": ["poise_ignore", "shield", "shockwave"],
+      "applied_effects": [
+        { "stat": "hitstun_resist_mode", "mode": "set", "value": "ignore_light_hits" },
+        { "stat": "max_hp_barrier_ratio", "mode": "add", "value": 0.18 }
+      ],
+      "trigger_rules": [
+        { "event": "on_barrier_break", "cooldown": 0.0, "spawn_effect": "guard_shockwave", "radius": 110 }
+      ],
+      "penalties": [],
+      "visual_profile": "holy_prism",
+      "notes": "방어 버프 2개 유지 시 안정 돌파용 조합"
+    },
+    {
+      "combo_id": "combo_overclock_circuit",
+      "display_name": "Overclock Circuit",
+      "required_buffs": ["wind_tempest_drive", "lightning_conductive_surge"],
+      "priority": 120,
+      "combo_type": "sustain",
+      "internal_cooldown": 0.0,
+      "active_window": 0.0,
+      "effect_tags": ["aftercast_cut", "chain_up", "dash_cast"],
+      "applied_effects": [
+        { "stat": "lightning_aftercast_multiplier", "mode": "mul", "value": 0.88 },
+        { "stat": "lightning_chain_bonus", "mode": "add", "value": 1 },
+        { "stat": "dash_cast_speed_multiplier", "mode": "mul", "value": 1.18 }
+      ],
+      "trigger_rules": [],
+      "penalties": [],
+      "visual_profile": "storm_overclock",
+      "notes": "손이 빠를수록 체감이 큰 번개 연계 조합"
+    },
+    {
+      "combo_id": "combo_funeral_bloom",
+      "display_name": "Funeral Bloom",
+      "required_buffs": ["dark_grave_pact", "plant_verdant_overflow"],
+      "priority": 140,
+      "combo_type": "trigger",
+      "internal_cooldown": 1.5,
+      "active_window": 0.0,
+      "effect_tags": ["deploy_kill_burst", "snare", "chain_clear"],
+      "applied_effects": [],
+      "trigger_rules": [
+        {
+          "event": "on_deploy_kill",
+          "cooldown": 1.5,
+          "spawn_effect": "corruption_burst",
+          "radius": 96,
+          "damage_school": "dark",
+          "apply_status": "snare"
+        }
+      ],
+      "penalties": [],
+      "visual_profile": "funeral_vines",
+      "notes": "설치형 빌드 연쇄 폭발용 조합"
+    },
+    {
+      "combo_id": "combo_time_collapse",
+      "display_name": "Time Collapse",
+      "required_buffs": ["arcane_astral_compression", "arcane_world_hourglass"],
+      "priority": 160,
+      "combo_type": "sustain",
+      "internal_cooldown": 0.0,
+      "active_window": 0.0,
+      "effect_tags": ["final_damage_up", "cast_speed_up", "cheap_first_casts"],
+      "applied_effects": [
+        { "stat": "final_damage_multiplier", "mode": "mul", "value": 1.18 },
+        { "stat": "cast_speed_multiplier", "mode": "mul", "value": 1.15 },
+        { "stat": "discounted_cast_charges", "mode": "set", "value": 3 },
+        { "stat": "discounted_cooldown_spend_multiplier", "mode": "mul", "value": 0.5 }
+      ],
+      "trigger_rules": [],
+      "penalties": [],
+      "visual_profile": "time_fracture",
+      "notes": "속성 공통 극딜 조합"
+    },
+    {
+      "combo_id": "combo_ashen_rite",
+      "display_name": "Ashen Rite",
+      "required_buffs": ["dark_grave_pact", "arcane_world_hourglass", "dark_throne_of_ash"],
+      "priority": 300,
+      "combo_type": "ritual",
+      "internal_cooldown": 6.0,
+      "active_window": 0.0,
+      "effect_tags": ["fire_dark_finisher", "ash_stack", "ending_burst"],
+      "applied_effects": [
+        { "stat": "fire_final_damage_multiplier", "mode": "mul", "value": 1.22 },
+        { "stat": "dark_final_damage_multiplier", "mode": "mul", "value": 1.22 },
+        { "stat": "ash_residue_interval", "mode": "set", "value": 1.25 }
+      ],
+      "trigger_rules": [
+        { "event": "on_spell_hit", "cooldown": 0.0, "stack_name": "ash", "max_stacks": 20 },
+        { "event": "on_combo_end", "cooldown": 0.0, "spawn_effect": "ash_detonation", "scales_with_stack": "ash" }
+      ],
+      "penalties": [
+        { "stat": "mana_percent", "mode": "set", "value": 0.0 },
+        { "stat": "defense_multiplier", "mode": "mul", "value": 0.75, "duration": 10.0 },
+        { "stat": "ritual_recast_lock", "mode": "set", "value": 1, "duration": 6.0 }
+      ],
+      "visual_profile": "ashen_ritual",
+      "notes": "최종 필살 조합"
+    }
+  ]
+}

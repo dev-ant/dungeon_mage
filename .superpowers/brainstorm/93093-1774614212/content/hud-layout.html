@@ -1,0 +1,136 @@
+<h2>전투 HUD 레이아웃</h2>
+<p class="subtitle">인게임 화면에서 HP/마나/스킬 슬롯이 어디에 어떻게 보일지 선택해주세요</p>
+
+<div class="options">
+
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>메이플 스타일 — 하단 바</h3>
+      <p>HP/MP 바가 하단 좌측. 스킬 슬롯이 하단 중앙에 가로 배열.</p>
+      <div style="background:#0d1117; border-radius:8px; padding:8px; margin-top:8px; position:relative; height:130px; overflow:hidden;">
+        <!-- 게임 화면 -->
+        <div style="color:#333; font-size:10px; text-align:center; padding-top:20px;">게임 화면 영역</div>
+        <div style="position:absolute; bottom:0; left:0; right:0; background:#111827; padding:8px; border-top:1px solid #2d3748;">
+          <div style="display:flex; align-items:center; gap:12px;">
+            <!-- HP/MP 바 -->
+            <div style="min-width:130px;">
+              <div style="display:flex; align-items:center; gap:4px; margin-bottom:3px;">
+                <span style="color:#f87171; font-size:9px; font-weight:bold;">HP</span>
+                <div style="flex:1; background:#1f2937; height:8px; border-radius:4px;">
+                  <div style="background:linear-gradient(90deg,#ef4444,#f87171); width:72%; height:100%; border-radius:4px;"></div>
+                </div>
+                <span style="color:#9ca3af; font-size:8px;">360/500</span>
+              </div>
+              <div style="display:flex; align-items:center; gap:4px;">
+                <span style="color:#60a5fa; font-size:9px; font-weight:bold;">MP</span>
+                <div style="flex:1; background:#1f2937; height:8px; border-radius:4px;">
+                  <div style="background:linear-gradient(90deg,#3b82f6,#60a5fa); width:90%; height:100%; border-radius:4px;"></div>
+                </div>
+                <span style="color:#9ca3af; font-size:8px;">90/100</span>
+              </div>
+            </div>
+            <!-- 스킬 슬롯 -->
+            <div style="display:flex; gap:3px; flex:1; justify-content:center;">
+              <div style="text-align:center;">
+                <div style="background:#1e3a5f; border:1px solid #3b82f6; border-radius:4px; width:28px; height:28px; display:flex; align-items:center; justify-content:center; font-size:8px; color:#60a5fa;">🔥</div>
+                <div style="color:#6b7280; font-size:7px; margin-top:1px;">Z</div>
+              </div>
+              <div style="text-align:center;">
+                <div style="background:#1e3a5f; border:1px solid #3b82f6; border-radius:4px; width:28px; height:28px; display:flex; align-items:center; justify-content:center; font-size:8px; color:#60a5fa;">❄</div>
+                <div style="color:#6b7280; font-size:7px; margin-top:1px;">X</div>
+              </div>
+              <div style="text-align:center;">
+                <div style="background:#1e3a5f; border:1px solid #3b82f6; border-radius:4px; width:28px; height:28px; display:flex; align-items:center; justify-content:center; font-size:8px; color:#93c5fd; opacity:0.4;">⚡</div>
+                <div style="color:#6b7280; font-size:7px; margin-top:1px;">C</div>
+              </div>
+              <div style="text-align:center;">
+                <div style="background:#1e3a5f; border:1px solid #3b82f6; border-radius:4px; width:28px; height:28px; display:flex; align-items:center; justify-content:center; font-size:8px; color:#60a5fa;">🛡</div>
+                <div style="color:#6b7280; font-size:7px; margin-top:1px;">A</div>
+              </div>
+              <div style="text-align:center;">
+                <div style="background:#1e3a5f; border:1px solid #3b82f6; border-radius:4px; width:28px; height:28px; display:flex; align-items:center; justify-content:center; font-size:8px; color:#60a5fa;">🌑</div>
+                <div style="color:#6b7280; font-size:7px; margin-top:1px;">S</div>
+              </div>
+              <div style="text-align:center;">
+                <div style="background:#1e3a5f; border:1px solid #3b82f6; border-radius:4px; width:28px; height:28px; display:flex; align-items:center; justify-content:center; font-size:8px; color:#60a5fa;">🔥</div>
+                <div style="color:#6b7280; font-size:7px; margin-top:1px;">D</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>좌상단 스탯 + 하단 스킬 분리</h3>
+      <p>HP/MP는 좌상단 고정. 스킬 슬롯만 하단에. 화면이 더 넓게 느껴짐.</p>
+      <div style="background:#0d1117; border-radius:8px; padding:8px; margin-top:8px; position:relative; height:130px; overflow:hidden;">
+        <!-- 좌상단 HP/MP -->
+        <div style="position:absolute; top:6px; left:8px; background:rgba(0,0,0,0.7); border-radius:6px; padding:5px 8px;">
+          <div style="display:flex; align-items:center; gap:4px; margin-bottom:2px;">
+            <span style="color:#f87171; font-size:8px;">HP</span>
+            <div style="width:70px; background:#1f2937; height:6px; border-radius:3px;">
+              <div style="background:#ef4444; width:72%; height:100%; border-radius:3px;"></div>
+            </div>
+          </div>
+          <div style="display:flex; align-items:center; gap:4px;">
+            <span style="color:#60a5fa; font-size:8px;">MP</span>
+            <div style="width:70px; background:#1f2937; height:6px; border-radius:3px;">
+              <div style="background:#3b82f6; width:90%; height:100%; border-radius:3px;"></div>
+            </div>
+          </div>
+        </div>
+        <div style="color:#333; font-size:10px; text-align:center; padding-top:20px;">게임 화면 영역</div>
+        <!-- 하단 스킬만 -->
+        <div style="position:absolute; bottom:0; left:0; right:0; background:#111827; padding:6px; border-top:1px solid #2d3748; display:flex; justify-content:center; gap:3px;">
+          <div style="text-align:center;"><div style="background:#1e3a5f; border:1px solid #3b82f6; border-radius:4px; width:26px; height:26px; display:flex; align-items:center; justify-content:center; font-size:9px;">🔥</div><div style="color:#6b7280; font-size:7px;">Z</div></div>
+          <div style="text-align:center;"><div style="background:#1e3a5f; border:1px solid #3b82f6; border-radius:4px; width:26px; height:26px; display:flex; align-items:center; justify-content:center; font-size:9px;">❄</div><div style="color:#6b7280; font-size:7px;">X</div></div>
+          <div style="text-align:center;"><div style="background:#1e3a5f; border:1px solid #3b82f6; border-radius:4px; width:26px; height:26px; display:flex; align-items:center; justify-content:center; font-size:9px; opacity:0.4;">⚡</div><div style="color:#6b7280; font-size:7px;">C</div></div>
+          <div style="text-align:center;"><div style="background:#1e3a5f; border:1px solid #3b82f6; border-radius:4px; width:26px; height:26px; display:flex; align-items:center; justify-content:center; font-size:9px;">🛡</div><div style="color:#6b7280; font-size:7px;">A</div></div>
+          <div style="text-align:center;"><div style="background:#1e3a5f; border:1px solid #3b82f6; border-radius:4px; width:26px; height:26px; display:flex; align-items:center; justify-content:center; font-size:9px;">🌑</div><div style="color:#6b7280; font-size:7px;">S</div></div>
+          <div style="text-align:center;"><div style="background:#1e3a5f; border:1px solid #3b82f6; border-radius:4px; width:26px; height:26px; display:flex; align-items:center; justify-content:center; font-size:9px;">🔥</div><div style="color:#6b7280; font-size:7px;">D</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="c" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>좌하단 원형 스탯 + 우하단 스킬</h3>
+      <p>HP/MP를 원형 게이지로. 스킬 슬롯은 우하단. Skul/산나비 느낌.</p>
+      <div style="background:#0d1117; border-radius:8px; padding:8px; margin-top:8px; position:relative; height:130px; overflow:hidden;">
+        <div style="color:#333; font-size:10px; text-align:center; padding-top:10px;">게임 화면 영역</div>
+        <!-- 좌하단 원형 게이지 -->
+        <div style="position:absolute; bottom:8px; left:10px;">
+          <svg width="50" height="50" viewBox="0 0 50 50">
+            <circle cx="25" cy="25" r="20" fill="none" stroke="#1f2937" stroke-width="4"/>
+            <circle cx="25" cy="25" r="20" fill="none" stroke="#ef4444" stroke-width="4" stroke-dasharray="90 126" stroke-dashoffset="31" transform="rotate(-90 25 25)"/>
+            <text x="25" y="22" text-anchor="middle" fill="#f87171" font-size="7">HP</text>
+            <text x="25" y="30" text-anchor="middle" fill="#f87171" font-size="6">72%</text>
+          </svg>
+          <svg width="50" height="50" viewBox="0 0 50 50" style="margin-left:2px;">
+            <circle cx="25" cy="25" r="20" fill="none" stroke="#1f2937" stroke-width="4"/>
+            <circle cx="25" cy="25" r="20" fill="none" stroke="#3b82f6" stroke-width="4" stroke-dasharray="113 126" stroke-dashoffset="31" transform="rotate(-90 25 25)"/>
+            <text x="25" y="22" text-anchor="middle" fill="#60a5fa" font-size="7">MP</text>
+            <text x="25" y="30" text-anchor="middle" fill="#60a5fa" font-size="6">90%</text>
+          </svg>
+        </div>
+        <!-- 우하단 스킬 -->
+        <div style="position:absolute; bottom:8px; right:8px; display:flex; gap:3px; align-items:flex-end;">
+          <div style="text-align:center;"><div style="background:#1e3a5f; border:1px solid #3b82f6; border-radius:4px; width:24px; height:24px; display:flex; align-items:center; justify-content:center; font-size:8px;">🔥</div><div style="color:#6b7280; font-size:7px;">Z</div></div>
+          <div style="text-align:center;"><div style="background:#1e3a5f; border:1px solid #3b82f6; border-radius:4px; width:24px; height:24px; display:flex; align-items:center; justify-content:center; font-size:8px;">❄</div><div style="color:#6b7280; font-size:7px;">X</div></div>
+          <div style="text-align:center;"><div style="background:#1e3a5f; border:1px solid #3b82f6; border-radius:4px; width:24px; height:24px; display:flex; align-items:center; justify-content:center; font-size:8px; opacity:0.4;">⚡</div><div style="color:#6b7280; font-size:7px;">C</div></div>
+          <div style="text-align:center;"><div style="background:#1e3a5f; border:1px solid #3b82f6; border-radius:4px; width:24px; height:24px; display:flex; align-items:center; justify-content:center; font-size:8px;">🛡</div><div style="color:#6b7280; font-size:7px;">A</div></div>
+          <div style="text-align:center;"><div style="background:#1e3a5f; border:1px solid #3b82f6; border-radius:4px; width:24px; height:24px; display:flex; align-items:center; justify-content:center; font-size:8px;">🌑</div><div style="color:#6b7280; font-size:7px;">S</div></div>
+          <div style="text-align:center;"><div style="background:#1e3a5f; border:1px solid #3b82f6; border-radius:4px; width:24px; height:24px; display:flex; align-items:center; justify-content:center; font-size:8px;">🔥</div><div style="color:#6b7280; font-size:7px;">D</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
