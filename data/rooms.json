@@ -34,8 +34,9 @@
         }
       ],
       "spawns": [
-        {"type": "brute", "position": [880, 600]},
-        {"type": "ranged", "position": [1220, 390]}
+        {"type": "worm", "position": [880, 600]},
+        {"type": "bat", "position": [1220, 390]},
+        {"type": "mushroom", "position": [640, 600]}
       ],
       "entry_text": "The fall should have killed the exam. Instead, the labyrinth seals the breach and leaves one corridor lit above you."
     },
@@ -61,7 +62,12 @@
       "spawns": [
         {"type": "brute", "position": [620, 470]},
         {"type": "ranged", "position": [980, 390]},
-        {"type": "boss", "position": [1580, 300]}
+        {"type": "boss", "position": [1580, 300]},
+        {"type": "rat", "position": [400, 650]},
+        {"type": "tooth_walker", "position": [780, 650]},
+        {"type": "eyeball", "position": [1120, 370]},
+        {"type": "trash_monster", "position": [1300, 650]},
+        {"type": "sword", "position": [1700, 310]}
       ],
       "core_position": [1770, 276],
       "entry_text": "The conduit answers your spells. Every surge that should lift rubble aside instead rotates the corridor below your feet."
@@ -96,6 +102,140 @@
         {"type": "ranged", "position": [1510, 280]}
       ],
       "entry_text": "The chamber claims to be an ascent lock. Yet the air grows colder, older, and far heavier than the floors above."
+    },
+    {
+      "id": "vault_sector",
+      "title": "Sealed Vault Sector",
+      "width": 2000,
+      "spawn": [160, 520],
+      "background": "#1a1226",
+      "floor_segments": [
+        [1000, 664, 2000, 112],
+        [460, 530, 240, 24],
+        [880, 440, 260, 24],
+        [1320, 350, 260, 24],
+        [1720, 270, 200, 24]
+      ],
+      "objects": [
+        {
+          "type": "echo",
+          "position": [480, 500],
+          "text": "Containment seals line the walls in repeating sequences. Each one is signed with a different mage's crest."
+        },
+        {
+          "type": "echo",
+          "position": [1340, 320],
+          "text": "A cracked slate reads: 'Third batch cleared. Fourth batch shows anomalous growth patterns.' The rest is burned away."
+        },
+        {
+          "type": "rest",
+          "position": [1900, 240],
+          "text": "A faint ley-line thread remains active. Enough to recover your mana before the next seal."
+        }
+      ],
+      "spawns": [
+        {"type": "mushroom", "position": [500, 490]},
+        {"type": "charger", "position": [920, 400]},
+        {"type": "mushroom", "position": [1140, 400]},
+        {"type": "elite", "position": [1560, 300]},
+        {"type": "bat", "position": [1760, 200]}
+      ],
+      "entry_text": "The vault doors were meant to keep something in. The lock mechanism on the inside tells you which side lost."
+    },
+    {
+      "id": "arcane_core",
+      "title": "Arcane Core Chamber",
+      "width": 2200,
+      "spawn": [200, 500],
+      "background": "#0d0d1f",
+      "floor_segments": [
+        [1100, 664, 2200, 112],
+        [380, 540, 240, 24],
+        [760, 450, 280, 24],
+        [1180, 360, 280, 24],
+        [1620, 270, 240, 24],
+        [1980, 180, 180, 24]
+      ],
+      "objects": [
+        {
+          "type": "echo",
+          "position": [400, 510],
+          "text": "The air here bends the light wrong. Every syllable you speak arrives a half-second before you speak it."
+        },
+        {
+          "type": "echo",
+          "position": [1200, 330],
+          "text": "A name is scratched into the wall, then crossed out. Beneath it: 'Do not remember this place.'"
+        },
+        {
+          "type": "echo",
+          "position": [1640, 240],
+          "text": "The core hums at a frequency that disagrees with your bones. You have heard this sound before, in dreams."
+        },
+        {
+          "type": "rest",
+          "position": [340, 510],
+          "text": "A fissure leaks raw mana. Old, pressurized, and entirely unsanctioned. It will serve."
+        },
+        {
+          "type": "rope",
+          "position": [900, 420],
+          "height": 160.0
+        }
+      ],
+      "spawns": [
+        {"type": "bat", "position": [600, 410]},
+        {"type": "ranged", "position": [900, 370]},
+        {"type": "worm", "position": [1280, 320]},
+        {"type": "elite", "position": [1660, 230]},
+        {"type": "boss", "position": [2020, 150]}
+      ],
+      "core_position": [2120, 156],
+      "entry_text": "Something in this chamber already knows you are here. It has been counting your steps since the first floor."
+    },
+    {
+      "id": "void_rift",
+      "title": "Void Rift Passage",
+      "width": 1800,
+      "background": "#080010",
+      "spawn": [160, 520],
+      "floor_segments": [
+        [900, 680, 1800, 112],
+        [240, 540, 200, 24],
+        [560, 440, 200, 24],
+        [940, 340, 220, 24],
+        [1380, 240, 200, 24],
+        [1640, 160, 160, 24]
+      ],
+      "spawns": [
+        {"type": "eyeball", "position": [420, 410]},
+        {"type": "rat", "position": [700, 320]},
+        {"type": "sword", "position": [1100, 300]},
+        {"type": "trash_monster", "position": [1440, 200]},
+        {"type": "elite", "position": [1680, 120]}
+      ],
+      "objects": [
+        {
+          "type": "echo",
+          "position": [260, 510],
+          "text": "The void does not destroy. It reassigns. Your spells leave marks here that persist after you are gone."
+        },
+        {
+          "type": "echo",
+          "position": [600, 410],
+          "text": "Dark resonance accumulates in sealed chambers. The walls have been learning what passes through them."
+        },
+        {
+          "type": "rest",
+          "position": [980, 310]
+        },
+        {
+          "type": "rope",
+          "position": [1260, 310],
+          "height": 140.0
+        }
+      ],
+      "entry_text": "The air here resists your presence. Whatever shaped this corridor did not account for you."
     }
   ]
 }

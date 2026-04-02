@@ -1,7 +1,14 @@
 extends Node
 
 const SAVE_PATH := "user://savegame.json"
-const SCHOOL_ORDER := ["fire", "ice", "lightning"]
+const SCHOOL_ORDER := [
+	"fire", "ice", "lightning", "wind", "water", "plant", "earth", "holy", "dark", "arcane"
+]
+const RESONANCE_MILESTONES := {
+	5: "%s resonance sharpens. The pattern is beginning to take hold.",
+	15: "Deep %s resonance. Your spells carry a crystallized edge.",
+	30: "Peak %s resonance. The maze reshapes around your casting pattern."
+}
 const BASE_MAX_HEALTH := 100
 const BASE_MAX_MANA := 180.0
 const BASE_MANA_REGEN_PER_SECOND := 14.0
@@ -11,12 +18,22 @@ const SOUL_DOMINION_AFTERSHOCK_DAMAGE_MULT := 1.2
 const LEGACY_SPELL_TO_SKILL := {
 	"fire_bolt": "fire_ember_dart",
 	"frost_nova": "ice_frost_needle",
-	"volt_spear": "lightning_thunder_lance"
+	"volt_spear": "lightning_thunder_lance",
+	"earth_tremor": "earth_terra_break",
+	"holy_radiant_burst": "holy_healing_pulse",
+	"dark_void_bolt": "dark_abyss_gate"
 }
 const DEFAULT_SPELL_HOTBAR := [
 	{"action": "spell_fire", "skill_id": "fire_bolt", "label": "Z"},
 	{"action": "spell_ice", "skill_id": "frost_nova", "label": "C"},
 	{"action": "spell_lightning", "skill_id": "volt_spear", "label": "V"},
+	{"action": "spell_water", "skill_id": "water_aqua_bullet", "label": "U"},
+	{"action": "spell_wind", "skill_id": "wind_gale_cutter", "label": "I"},
+	{"action": "spell_plant", "skill_id": "plant_vine_snare", "label": "P"},
+	{"action": "spell_earth", "skill_id": "earth_tremor", "label": "O"},
+	{"action": "spell_holy", "skill_id": "holy_radiant_burst", "label": "K"},
+	{"action": "spell_dark", "skill_id": "dark_void_bolt", "label": "L"},
+	{"action": "spell_arcane", "skill_id": "arcane_force_pulse", "label": "M"},
 	{"action": "buff_guard", "skill_id": "holy_mana_veil", "label": "Q"},
 	{"action": "buff_power", "skill_id": "fire_pyre_heart", "label": "R"},
 	{"action": "buff_ward", "skill_id": "ice_frostblood_ward", "label": "F"}
@@ -31,7 +48,8 @@ const DEFAULT_EQUIPMENT_PRESET := {
 	"accessory_2": ""
 }
 const EQUIPMENT_PRESETS := {
-	"fire_burst": {
+	"fire_burst":
+	{
 		"weapon": "weapon_ember_staff",
 		"offhand": "focus_storm_orb",
 		"head": "helm_ritual_circlet",
@@ -40,7 +58,8 @@ const EQUIPMENT_PRESETS := {
 		"accessory_1": "ring_earth_seed",
 		"accessory_2": "ring_grave_whisper"
 	},
-	"ritual_control": {
+	"ritual_control":
+	{
 		"weapon": "weapon_ember_staff",
 		"offhand": "focus_storm_orb",
 		"head": "helm_ritual_circlet",
@@ -49,7 +68,8 @@ const EQUIPMENT_PRESETS := {
 		"accessory_1": "ring_grave_whisper",
 		"accessory_2": "ring_earth_seed"
 	},
-	"storm_tempo": {
+	"storm_tempo":
+	{
 		"weapon": "weapon_ember_staff",
 		"offhand": "focus_storm_orb",
 		"head": "helm_ritual_circlet",
@@ -57,6 +77,66 @@ const EQUIPMENT_PRESETS := {
 		"legs": "greaves_strider_boots",
 		"accessory_1": "ring_earth_seed",
 		"accessory_2": "ring_grave_whisper"
+	},
+	"earth_deploy":
+	{
+		"weapon": "weapon_ember_staff",
+		"offhand": "focus_storm_orb",
+		"head": "helm_ritual_circlet",
+		"body": "armor_mage_coat",
+		"legs": "greaves_earthen_stride",
+		"accessory_1": "ring_earth_seed",
+		"accessory_2": "ring_verdant_coil"
+	},
+	"wind_tempo":
+	{
+		"weapon": "weapon_worn_focus",
+		"offhand": "focus_gale_shard",
+		"head": "helm_ritual_circlet",
+		"body": "armor_mage_coat",
+		"legs": "greaves_strider_boots",
+		"accessory_1": "ring_flux_band",
+		"accessory_2": "accessory_split_lens"
+	},
+	"holy_guard":
+	{
+		"weapon": "weapon_ember_staff",
+		"offhand": "focus_swift_prism",
+		"head": "helm_holy_halo",
+		"body": "armor_guardian_coat",
+		"legs": "greaves_strider_boots",
+		"accessory_1": "ring_flux_band",
+		"accessory_2": "ring_sanctum_loop"
+	},
+	"sanctum_sustain":
+	{
+		"weapon": "weapon_worn_focus",
+		"offhand": "focus_storm_orb",
+		"head": "helm_holy_halo",
+		"body": "armor_soul_weave",
+		"legs": "greaves_strider_boots",
+		"accessory_1": "ring_copper_band",
+		"accessory_2": "ring_sanctum_loop"
+	},
+	"dark_shadow":
+	{
+		"weapon": "weapon_ember_staff",
+		"offhand": "focus_void_lens",
+		"head": "helm_ritual_circlet",
+		"body": "armor_mage_coat",
+		"legs": "greaves_strider_boots",
+		"accessory_1": "ring_abyss_signet",
+		"accessory_2": "ring_grave_whisper"
+	},
+	"arcane_pulse":
+	{
+		"weapon": "weapon_ember_staff",
+		"offhand": "focus_arcane_prism",
+		"head": "helm_ritual_circlet",
+		"body": "armor_mage_coat",
+		"legs": "greaves_strider_boots",
+		"accessory_1": "ring_chain_arc",
+		"accessory_2": "ring_arcane_coil"
 	}
 }
 const BUFF_KEY_LOADOUT := [
@@ -80,8 +160,12 @@ const SCHOOL_TO_MASTERY := {
 	"wind": "wind_mastery",
 	"earth": "earth_mastery",
 	"plant": "plant_mastery",
-	"dark": "dark_magic_mastery"
+	"dark": "dark_magic_mastery",
+	"arcane": "arcane_magic_mastery"
 }
+
+const CombatRuntimeStateScript := preload("res://scripts/autoload/combat_runtime_state.gd")
+const ProgressionSaveStateScript := preload("res://scripts/autoload/progression_save_state.gd")
 
 signal room_changed(room_id: String)
 signal ui_message_changed(text: String, duration: float)
@@ -89,59 +173,226 @@ signal stats_changed
 signal player_died
 signal combo_effect_requested(payload: Dictionary)
 
-var max_health := BASE_MAX_HEALTH
-var health := BASE_MAX_HEALTH
-var max_mana := BASE_MAX_MANA
-var mana := BASE_MAX_MANA
-var mana_regen_per_second := BASE_MANA_REGEN_PER_SECOND
+var _combat_state = CombatRuntimeStateScript.new(
+	BASE_MAX_HEALTH, BASE_MAX_MANA, BASE_MANA_REGEN_PER_SECOND
+)
+var _progress_state = ProgressionSaveStateScript.new()
+
+var max_health: int:
+	get:
+		return _combat_state.max_health
+	set(value):
+		_combat_state.max_health = value
+
+var health: int:
+	get:
+		return _combat_state.health
+	set(value):
+		_combat_state.health = value
+
+var max_mana: float:
+	get:
+		return _combat_state.max_mana
+	set(value):
+		_combat_state.max_mana = value
+
+var mana: float:
+	get:
+		return _combat_state.mana
+	set(value):
+		_combat_state.mana = value
+
+var mana_regen_per_second: float:
+	get:
+		return _combat_state.mana_regen_per_second
+	set(value):
+		_combat_state.mana_regen_per_second = value
+
 var admin_infinite_health := false
 var admin_infinite_mana := false
 var admin_ignore_cooldowns := false
 var admin_ignore_buff_slot_limit := false
 var admin_freeze_ai := false
-var session_damage_dealt: int = 0
-var session_hit_count: int = 0
-var session_kills: int = 0
-var session_drops: int = 0
-var last_drop_display: String = ""
-var current_room_id := "entrance"
-var save_room_id := "entrance"
-var save_spawn_position := Vector2(140, 480)
-var core_activated := false
-var boss_defeated := false
-var seen_room_texts: Dictionary = {}
-var seen_echoes: Dictionary = {}
-var progression_flags: Dictionary = {}
+var session_damage_dealt: int:
+	get:
+		return _combat_state.session_damage_dealt
+	set(value):
+		_combat_state.session_damage_dealt = value
+
+var session_hit_count: int:
+	get:
+		return _combat_state.session_hit_count
+	set(value):
+		_combat_state.session_hit_count = value
+
+var session_kills: int:
+	get:
+		return _combat_state.session_kills
+	set(value):
+		_combat_state.session_kills = value
+
+var session_drops: int:
+	get:
+		return _combat_state.session_drops
+	set(value):
+		_combat_state.session_drops = value
+
+var last_drop_display: String:
+	get:
+		return _combat_state.last_drop_display
+	set(value):
+		_combat_state.last_drop_display = value
+
+var current_room_id: String:
+	get:
+		return _progress_state.current_room_id
+	set(value):
+		_progress_state.current_room_id = value
+
+var save_room_id: String:
+	get:
+		return _progress_state.save_room_id
+	set(value):
+		_progress_state.save_room_id = value
+
+var save_spawn_position: Vector2:
+	get:
+		return _progress_state.save_spawn_position
+	set(value):
+		_progress_state.save_spawn_position = value
+
+var core_activated: bool:
+	get:
+		return _progress_state.core_activated
+	set(value):
+		_progress_state.core_activated = value
+
+var boss_defeated: bool:
+	get:
+		return _progress_state.boss_defeated
+	set(value):
+		_progress_state.boss_defeated = value
+
+var seen_room_texts: Dictionary:
+	get:
+		return _progress_state.seen_room_texts
+	set(value):
+		_progress_state.seen_room_texts = value
+
+var seen_echoes: Dictionary:
+	get:
+		return _progress_state.seen_echoes
+	set(value):
+		_progress_state.seen_echoes = value
+
+var progression_flags: Dictionary:
+	get:
+		return _progress_state.progression_flags
+	set(value):
+		_progress_state.progression_flags = value
+
 var ui_message := ""
 var ui_message_time := 0.0
-var spell_mastery := {
-	"fire_bolt": 0,
-	"frost_nova": 0,
-	"volt_spear": 0
-}
-var spell_level := {
-	"fire_bolt": 1,
-	"frost_nova": 1,
-	"volt_spear": 1
-}
+var spell_mastery := {"fire_bolt": 0, "frost_nova": 0, "volt_spear": 0}
+var spell_level := {"fire_bolt": 1, "frost_nova": 1, "volt_spear": 1}
 var skill_experience: Dictionary = {}
 var skill_level_data: Dictionary = {}
-var buff_cooldowns: Dictionary = {}
-var active_buffs: Array = []
-var active_penalties: Array = []
-var combo_barrier := 0.0
-var combo_barrier_combo_id := ""
-var time_collapse_charges := 0
-var time_collapse_active := false
-var overclock_circuit_active := false
-var funeral_bloom_active := false
-var funeral_bloom_icd_timer := 0.0
-var ashen_rite_active := false
-var ash_stacks := 0
-var ash_residue_timer := 0.0
-var soul_dominion_active := false
-var soul_dominion_aftershock_timer := 0.0
-var last_combo_effect: Dictionary = {}
+var buff_cooldowns: Dictionary:
+	get:
+		return _combat_state.buff_cooldowns
+	set(value):
+		_combat_state.buff_cooldowns = value
+
+var active_buffs: Array:
+	get:
+		return _combat_state.active_buffs
+	set(value):
+		_combat_state.active_buffs = value
+
+var active_penalties: Array:
+	get:
+		return _combat_state.active_penalties
+	set(value):
+		_combat_state.active_penalties = value
+
+var combo_barrier: float:
+	get:
+		return _combat_state.combo_barrier
+	set(value):
+		_combat_state.combo_barrier = value
+
+var combo_barrier_combo_id: String:
+	get:
+		return _combat_state.combo_barrier_combo_id
+	set(value):
+		_combat_state.combo_barrier_combo_id = value
+
+var time_collapse_charges: int:
+	get:
+		return _combat_state.time_collapse_charges
+	set(value):
+		_combat_state.time_collapse_charges = value
+
+var time_collapse_active: bool:
+	get:
+		return _combat_state.time_collapse_active
+	set(value):
+		_combat_state.time_collapse_active = value
+
+var overclock_circuit_active: bool:
+	get:
+		return _combat_state.overclock_circuit_active
+	set(value):
+		_combat_state.overclock_circuit_active = value
+
+var funeral_bloom_active: bool:
+	get:
+		return _combat_state.funeral_bloom_active
+	set(value):
+		_combat_state.funeral_bloom_active = value
+
+var funeral_bloom_icd_timer: float:
+	get:
+		return _combat_state.funeral_bloom_icd_timer
+	set(value):
+		_combat_state.funeral_bloom_icd_timer = value
+
+var ashen_rite_active: bool:
+	get:
+		return _combat_state.ashen_rite_active
+	set(value):
+		_combat_state.ashen_rite_active = value
+
+var ash_stacks: int:
+	get:
+		return _combat_state.ash_stacks
+	set(value):
+		_combat_state.ash_stacks = value
+
+var ash_residue_timer: float:
+	get:
+		return _combat_state.ash_residue_timer
+	set(value):
+		_combat_state.ash_residue_timer = value
+
+var soul_dominion_active: bool:
+	get:
+		return _combat_state.soul_dominion_active
+	set(value):
+		_combat_state.soul_dominion_active = value
+
+var soul_dominion_aftershock_timer: float:
+	get:
+		return _combat_state.soul_dominion_aftershock_timer
+	set(value):
+		_combat_state.soul_dominion_aftershock_timer = value
+
+var last_combo_effect: Dictionary:
+	get:
+		return _combat_state.last_combo_effect
+	set(value):
+		_combat_state.last_combo_effect = value
+
 var current_circle := 4
 var circle_progress_score := 1.0
 var spell_hotbar: Array = []
@@ -151,12 +402,37 @@ var current_equipment_preset := "default"
 var resonance := {
 	"fire": 0,
 	"ice": 0,
-	"lightning": 0
+	"lightning": 0,
+	"wind": 0,
+	"water": 0,
+	"plant": 0,
+	"earth": 0,
+	"holy": 0,
+	"dark": 0,
+	"arcane": 0
 }
 var last_spell_school := "fire"
-var last_damage_amount := 0
-var last_damage_school := ""
-var last_damage_display_timer := 0.0
+var last_damage_amount: int:
+	get:
+		return _combat_state.last_damage_amount
+	set(value):
+		_combat_state.last_damage_amount = value
+
+var last_damage_school: String:
+	get:
+		return _combat_state.last_damage_school
+	set(value):
+		_combat_state.last_damage_school = value
+
+var last_damage_display_timer: float:
+	get:
+		return _combat_state.last_damage_display_timer
+	set(value):
+		_combat_state.last_damage_display_timer = value
+
+var resonance_bonus_school := ""
+var resonance_bonus_timer := 0.0
+
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -169,6 +445,7 @@ func _ready() -> void:
 	recalculate_circle_progression(false)
 	stats_changed.emit()
 
+
 func _process(delta: float) -> void:
 	_tick_buff_runtime(delta)
 	_tick_mana_regeneration(delta)
@@ -179,6 +456,11 @@ func _process(delta: float) -> void:
 			ui_message_changed.emit("", 0.0)
 	if last_damage_display_timer > 0.0:
 		last_damage_display_timer = max(last_damage_display_timer - delta, 0.0)
+	if resonance_bonus_timer > 0.0:
+		resonance_bonus_timer = max(resonance_bonus_timer - delta, 0.0)
+		if resonance_bonus_timer == 0.0:
+			resonance_bonus_school = ""
+
 
 func ensure_input_map() -> void:
 	_add_action("move_left", [KEY_LEFT, KEY_A])
@@ -190,6 +472,13 @@ func ensure_input_map() -> void:
 	_add_action("spell_fire", [KEY_Z])
 	_add_action("spell_ice", [KEY_C])
 	_add_action("spell_lightning", [KEY_V])
+	_add_action("spell_water", [KEY_U])
+	_add_action("spell_wind", [KEY_I])
+	_add_action("spell_plant", [KEY_P])
+	_add_action("spell_earth", [KEY_O])
+	_add_action("spell_holy", [KEY_K])
+	_add_action("spell_dark", [KEY_L])
+	_add_action("spell_arcane", [KEY_M])
 	_add_action("buff_guard", [KEY_Q])
 	_add_action("buff_power", [KEY_R])
 	_add_action("buff_ward", [KEY_F])
@@ -203,9 +492,17 @@ func ensure_input_map() -> void:
 	_add_action("interact", [KEY_E, KEY_ENTER])
 	_add_action("admin_menu", [KEY_ESCAPE])
 
+
 func heal_full() -> void:
 	health = max_health
 	mana = max_mana
+	_reset_transient_combat_runtime()
+	stats_changed.emit()
+
+
+func _reset_transient_combat_runtime(
+	clear_effects: bool = false, clear_hit_feedback: bool = false
+) -> void:
 	combo_barrier = 0.0
 	combo_barrier_combo_id = ""
 	time_collapse_charges = 0
@@ -219,11 +516,20 @@ func heal_full() -> void:
 	soul_dominion_active = false
 	soul_dominion_aftershock_timer = 0.0
 	last_combo_effect = {}
-	stats_changed.emit()
+	if clear_effects:
+		active_buffs.clear()
+		active_penalties.clear()
+		buff_cooldowns.clear()
+	if clear_hit_feedback:
+		last_damage_amount = 0
+		last_damage_school = ""
+		last_damage_display_timer = 0.0
+
 
 func restore_mana_full() -> void:
 	mana = max_mana
 	stats_changed.emit()
+
 
 func damage(amount: int, school: String = "") -> void:
 	if admin_infinite_health:
@@ -248,36 +554,51 @@ func damage(amount: int, school: String = "") -> void:
 	health = max(health - reduced_amount, 0)
 	stats_changed.emit()
 	if health <= 0:
-		push_message("Your focus shatters. The rest seal drags you back before the maze can finish the ritual.", 3.0)
+		push_message(
+			"Your focus shatters. The rest seal drags you back before the maze can finish the ritual.",
+			3.0
+		)
 		player_died.emit()
 
+
 func save_progress(room_id: String, spawn_position: Vector2) -> void:
-	save_room_id = room_id
-	save_spawn_position = spawn_position
+	_progress_state.save_progress(room_id, spawn_position)
 	heal_full()
 	save_to_disk()
 	push_message("Mana stabilized. The seal records your route.", 2.4)
 
+
 func restore_after_death() -> Dictionary:
+	_progress_state.restore_current_room()
 	health = max_health
-	current_room_id = save_room_id
+	mana = max_mana
+	_reset_transient_combat_runtime(true, true)
 	stats_changed.emit()
-	return {
-		"room_id": save_room_id,
-		"spawn_position": save_spawn_position
-	}
+	return {"room_id": save_room_id, "spawn_position": save_spawn_position}
+
 
 func set_room(room_id: String) -> void:
 	current_room_id = room_id
 	room_changed.emit(room_id)
 	save_to_disk()
 
+
 func register_spell_use(spell_id: String, school: String) -> void:
 	last_spell_school = school
 	spell_mastery[spell_id] = int(spell_mastery.get(spell_id, 0)) + 1
 	resonance[school] = int(resonance.get(school, 0)) + 1
+	_check_resonance_milestone(school, int(resonance.get(school, 0)))
 	_sync_legacy_spell_level(spell_id)
 	stats_changed.emit()
+
+
+func _check_resonance_milestone(school: String, new_value: int) -> void:
+	if RESONANCE_MILESTONES.has(new_value):
+		push_message(RESONANCE_MILESTONES[new_value] % school.capitalize(), 2.4)
+	if new_value == 30:
+		resonance_bonus_school = school
+		resonance_bonus_timer = 15.0
+
 
 func get_spell_runtime(spell_id: String) -> Dictionary:
 	var data: Dictionary = GameDatabase.get_spell(spell_id)
@@ -298,12 +619,15 @@ func get_spell_runtime(spell_id: String) -> Dictionary:
 			data["size"] = float(data.get("size", 0.0)) * (1.0 + 0.006 * level_delta)
 		if not linked_skill.is_empty():
 			data["linked_skill_name"] = linked_skill.get("display_name", data.get("name", spell_id))
-		data["damage"] = int(round(float(data.get("damage", 0.0)) * get_equipment_damage_multiplier(school)))
+		data["damage"] = int(
+			round(float(data.get("damage", 0.0)) * get_equipment_damage_multiplier(school))
+		)
 		data["cooldown"] = float(data.get("cooldown", 0.0)) * get_equipment_cooldown_multiplier()
 		if data.has("size"):
 			data["size"] = float(data.get("size", 0.0)) * get_equipment_aoe_multiplier()
 		data = _apply_buff_runtime_modifiers(data)
 	return data
+
 
 func consume_spell_cast(spell_id: String) -> void:
 	if time_collapse_active and time_collapse_charges > 0:
@@ -311,6 +635,7 @@ func consume_spell_cast(spell_id: String) -> void:
 		if time_collapse_charges == 0:
 			push_message("Time Collapse exhausts its free casting window.", 1.0)
 	stats_changed.emit()
+
 
 func register_skill_damage(spell_id: String, amount: float) -> void:
 	var linked_skill_id: String = get_skill_id_for_spell(spell_id)
@@ -331,6 +656,7 @@ func register_skill_damage(spell_id: String, amount: float) -> void:
 	_sync_legacy_spell_level(spell_id)
 	stats_changed.emit()
 
+
 func get_dominant_school() -> String:
 	var best_school := SCHOOL_ORDER[0]
 	var best_value := -1
@@ -341,13 +667,10 @@ func get_dominant_school() -> String:
 			best_school = school
 	return best_school
 
+
 func get_room_variant(room_id: String) -> Dictionary:
 	var dominant := get_dominant_school()
-	var variant := {
-		"tint": Color("#ffffff"),
-		"extra_spawns": [],
-		"label": ""
-	}
+	var variant := {"tint": Color("#ffffff"), "extra_spawns": [], "label": ""}
 	match dominant:
 		"fire":
 			variant.tint = Color("#2b1710")
@@ -359,56 +682,67 @@ func get_room_variant(room_id: String) -> Dictionary:
 			variant.label = "Ice resonance thickens the chamber into slower, heavier resistance."
 		"lightning":
 			variant.tint = Color("#2a2b10")
-			variant.extra_spawns = [{"type": "ranged", "position": [900, 260]}, {"type": "brute", "position": [1420, 600]}]
+			variant.extra_spawns = [
+				{"type": "ranged", "position": [900, 260]},
+				{"type": "brute", "position": [1420, 600]}
+			]
 			variant.label = "Lightning resonance makes the maze feel alert and over-responsive."
 	return variant
+
 
 func mark_echo_seen(echo_id: String) -> void:
 	seen_echoes[echo_id] = true
 	save_to_disk()
 
+
 func has_seen_echo(echo_id: String) -> bool:
 	return seen_echoes.get(echo_id, false)
+
 
 func mark_room_text_seen(room_id: String) -> void:
 	seen_room_texts[room_id] = true
 	save_to_disk()
 
+
 func has_seen_room_text(room_id: String) -> bool:
 	return seen_room_texts.get(room_id, false)
+
 
 func push_message(text: String, duration: float = 2.0) -> void:
 	ui_message = text
 	ui_message_time = duration
 	ui_message_changed.emit(text, duration)
 
+
 func save_to_disk() -> void:
-	var payload := {
-			"health": health,
-			"mana": mana,
-			"current_room_id": current_room_id,
-		"save_room_id": save_room_id,
-		"save_spawn_x": save_spawn_position.x,
-		"save_spawn_y": save_spawn_position.y,
-		"core_activated": core_activated,
-		"boss_defeated": boss_defeated,
-		"progression_flags": progression_flags,
-		"spell_mastery": spell_mastery,
-		"spell_level": spell_level,
-		"skill_experience": skill_experience,
-		"skill_level_data": skill_level_data,
-		"spell_hotbar": spell_hotbar,
-		"equipped_items": equipped_items,
-		"equipment_inventory": equipment_inventory,
-		"current_equipment_preset": current_equipment_preset,
-		"resonance": resonance,
-		"last_spell_school": last_spell_school,
-		"seen_room_texts": seen_room_texts,
-		"seen_echoes": seen_echoes
-	}
+	var payload := _combat_state.build_resource_save_payload()
+	payload["current_room_id"] = current_room_id
+	payload["save_room_id"] = save_room_id
+	payload["save_spawn_x"] = save_spawn_position.x
+	payload["save_spawn_y"] = save_spawn_position.y
+	payload["core_activated"] = core_activated
+	payload["boss_defeated"] = boss_defeated
+	payload["progression_flags"] = progression_flags
+	payload["seen_room_texts"] = seen_room_texts
+	payload["seen_echoes"] = seen_echoes
+	payload.merge(
+		{
+			"spell_mastery": spell_mastery,
+			"spell_level": spell_level,
+			"skill_experience": skill_experience,
+			"skill_level_data": skill_level_data,
+			"spell_hotbar": spell_hotbar,
+			"equipped_items": equipped_items,
+			"equipment_inventory": equipment_inventory,
+			"current_equipment_preset": current_equipment_preset,
+			"resonance": resonance,
+			"last_spell_school": last_spell_school
+		}
+	)
 	var file := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
 	if file:
 		file.store_string(JSON.stringify(payload))
+
 
 func load_save() -> void:
 	if not FileAccess.file_exists(SAVE_PATH):
@@ -417,14 +751,8 @@ func load_save() -> void:
 	var parsed = JSON.parse_string(raw)
 	if typeof(parsed) != TYPE_DICTIONARY:
 		return
-	health = int(parsed.get("health", health))
-	mana = float(parsed.get("mana", mana))
-	current_room_id = str(parsed.get("current_room_id", current_room_id))
-	save_room_id = str(parsed.get("save_room_id", save_room_id))
-	save_spawn_position = Vector2(float(parsed.get("save_spawn_x", save_spawn_position.x)), float(parsed.get("save_spawn_y", save_spawn_position.y)))
-	core_activated = bool(parsed.get("core_activated", core_activated))
-	boss_defeated = bool(parsed.get("boss_defeated", boss_defeated))
-	progression_flags = parsed.get("progression_flags", progression_flags)
+	_combat_state.load_resource_save_payload(parsed)
+	_progress_state.load_save_payload(parsed)
 	spell_mastery = parsed.get("spell_mastery", spell_mastery)
 	spell_level = parsed.get("spell_level", spell_level)
 	skill_experience = parsed.get("skill_experience", skill_experience)
@@ -435,11 +763,10 @@ func load_save() -> void:
 	current_equipment_preset = str(parsed.get("current_equipment_preset", current_equipment_preset))
 	resonance = parsed.get("resonance", resonance)
 	last_spell_school = str(parsed.get("last_spell_school", last_spell_school))
-	seen_room_texts = parsed.get("seen_room_texts", seen_room_texts)
-	seen_echoes = parsed.get("seen_echoes", seen_echoes)
 	_initialize_spell_hotbar()
 	_initialize_equipment_state()
 	_recalculate_derived_stats(false)
+
 
 func _add_action(action: String, keys: Array) -> void:
 	if not InputMap.has_action(action):
@@ -450,6 +777,7 @@ func _add_action(action: String, keys: Array) -> void:
 			event.physical_keycode = keycode
 			InputMap.action_add_event(action, event)
 
+
 func get_skill_id_for_spell(spell_id: String) -> String:
 	var mapped: String = str(LEGACY_SPELL_TO_SKILL.get(spell_id, ""))
 	if mapped != "":
@@ -459,12 +787,15 @@ func get_skill_id_for_spell(spell_id: String) -> String:
 		return spell_id
 	return ""
 
+
 func get_spell_level(spell_id: String) -> int:
 	return int(spell_level.get(spell_id, 1))
+
 
 func get_spell_hotbar() -> Array:
 	_initialize_spell_hotbar()
 	return spell_hotbar.duplicate(true)
+
 
 func set_hotbar_skill(slot_index: int, skill_id: String) -> bool:
 	_initialize_spell_hotbar()
@@ -482,6 +813,7 @@ func set_hotbar_skill(slot_index: int, skill_id: String) -> bool:
 	stats_changed.emit()
 	return true
 
+
 func apply_equipment_preset(preset_id: String) -> bool:
 	if not EQUIPMENT_PRESETS.has(preset_id):
 		return false
@@ -492,12 +824,15 @@ func apply_equipment_preset(preset_id: String) -> bool:
 	stats_changed.emit()
 	return true
 
+
 func get_equipped_items() -> Dictionary:
 	_initialize_equipment_state()
 	return equipped_items.duplicate(true)
 
+
 func get_equipment_inventory() -> Array:
 	return equipment_inventory.duplicate()
+
 
 func get_equipment_inventory_for_slot(slot_name: String) -> Array:
 	var filtered_inventory: Array = []
@@ -510,8 +845,10 @@ func get_equipment_inventory_for_slot(slot_name: String) -> Array:
 			filtered_inventory.append(item_id)
 	return filtered_inventory
 
+
 func has_equipment_in_inventory(item_id: String) -> bool:
 	return equipment_inventory.has(item_id)
+
 
 func grant_equipment_item(item_id: String) -> bool:
 	if item_id == "":
@@ -523,6 +860,7 @@ func grant_equipment_item(item_id: String) -> bool:
 	save_to_disk()
 	stats_changed.emit()
 	return true
+
 
 func set_equipped_item(slot_name: String, item_id: String) -> bool:
 	_initialize_equipment_state()
@@ -540,6 +878,7 @@ func set_equipped_item(slot_name: String, item_id: String) -> bool:
 	save_to_disk()
 	stats_changed.emit()
 	return true
+
 
 func equip_inventory_item(slot_name: String, item_id: String) -> bool:
 	_initialize_equipment_state()
@@ -563,6 +902,7 @@ func equip_inventory_item(slot_name: String, item_id: String) -> bool:
 	stats_changed.emit()
 	return true
 
+
 func unequip_item_to_inventory(slot_name: String) -> bool:
 	_initialize_equipment_state()
 	if not equipped_items.has(slot_name):
@@ -578,11 +918,13 @@ func unequip_item_to_inventory(slot_name: String) -> bool:
 	stats_changed.emit()
 	return true
 
+
 func get_equipment_summary() -> String:
 	_initialize_equipment_state()
 	var weapon_name := _get_equipment_display_name(str(equipped_items.get("weapon", "")))
 	var offhand_name := _get_equipment_display_name(str(equipped_items.get("offhand", "")))
 	return "Gear  %s / %s  Preset:%s" % [weapon_name, offhand_name, current_equipment_preset]
+
 
 func get_equipment_inventory_summary() -> String:
 	if equipment_inventory.is_empty():
@@ -597,6 +939,7 @@ func get_equipment_inventory_summary() -> String:
 	if remainder > 0:
 		preview_text += " +%d" % remainder
 	return "Inventory  %s" % preview_text
+
 
 func get_equipment_slot_inventory_summary(slot_name: String) -> String:
 	var slot_inventory: Array = get_equipment_inventory_for_slot(slot_name)
@@ -613,6 +956,7 @@ func get_equipment_slot_inventory_summary(slot_name: String) -> String:
 		preview_text += " +%d" % remainder
 	return "Owned  %s" % preview_text
 
+
 func get_equipment_damage_multiplier(school: String) -> float:
 	var total := 1.0 + _get_equipment_stat_total("magic_attack") * 0.03
 	match school:
@@ -628,43 +972,73 @@ func get_equipment_damage_multiplier(school: String) -> float:
 			total *= _get_equipment_stat_product("dark_damage_multiplier")
 		"holy":
 			total *= _get_equipment_stat_product("holy_damage_multiplier")
+		"wind":
+			total *= _get_equipment_stat_product("wind_damage_multiplier")
+		"water":
+			total *= _get_equipment_stat_product("water_damage_multiplier")
+		"plant":
+			total *= _get_equipment_stat_product("plant_damage_multiplier")
+		"arcane":
+			total *= _get_equipment_stat_product("arcane_damage_multiplier")
+	if resonance_bonus_timer > 0.0 and resonance_bonus_school == school:
+		total *= 1.10
 	return total
+
 
 func get_equipment_cooldown_multiplier() -> float:
 	return maxf(0.65, 1.0 - _get_equipment_stat_total("cooldown_recovery"))
 
+
 func get_equipment_damage_taken_multiplier() -> float:
 	return maxf(0.6, _get_equipment_stat_product("damage_taken_multiplier"))
+
 
 func get_equipment_bonus_max_health() -> int:
 	return int(round(_get_equipment_stat_total("max_hp")))
 
+
 func get_equipment_bonus_max_mana() -> float:
 	return _get_equipment_stat_total("max_mp")
+
 
 func get_equipment_bonus_mana_regen() -> float:
 	return _get_equipment_stat_total("mp_regen")
 
+
 func get_equipment_buff_duration_multiplier() -> float:
 	return maxf(1.0, _get_equipment_stat_product("buff_duration_multiplier"))
+
 
 func get_equipment_install_duration_multiplier() -> float:
 	return maxf(1.0, _get_equipment_stat_product("installation_duration_multiplier"))
 
+
 func get_equipment_aoe_multiplier() -> float:
 	return maxf(1.0, _get_equipment_stat_product("aoe_radius_multiplier"))
+
 
 func get_equipment_barrier_power_multiplier() -> float:
 	return maxf(1.0, _get_equipment_stat_product("barrier_power_multiplier"))
 
+
 func get_equipment_cast_speed_bonus() -> float:
 	return _get_equipment_stat_total("cast_speed")
+
+
+func get_equipment_projectile_speed_multiplier() -> float:
+	return maxf(1.0, _get_equipment_stat_product("projectile_speed_multiplier"))
+
+
+func get_equipment_projectile_count_bonus() -> int:
+	return int(round(_get_equipment_stat_total("projectile_count_bonus")))
+
 
 func get_skill_level(skill_id: String) -> int:
 	var mapped_skill_id: String = get_skill_id_for_spell(skill_id)
 	if mapped_skill_id != "":
 		skill_id = mapped_skill_id
 	return int(skill_level_data.get(skill_id, 1))
+
 
 func set_skill_level(skill_id: String, level: int) -> bool:
 	if skill_id == "":
@@ -686,69 +1060,46 @@ func set_skill_level(skill_id: String, level: int) -> bool:
 	stats_changed.emit()
 	return true
 
+
 func get_skill_experience(skill_id: String) -> float:
 	var mapped_skill_id: String = get_skill_id_for_spell(skill_id)
 	if mapped_skill_id != "":
 		skill_id = mapped_skill_id
 	return float(skill_experience.get(skill_id, 0.0))
 
+
 func reset_progress_for_tests() -> void:
-	max_health = BASE_MAX_HEALTH
-	max_mana = BASE_MAX_MANA
-	mana_regen_per_second = BASE_MANA_REGEN_PER_SECOND
-	health = max_health
-	mana = max_mana
-	spell_mastery = {
-		"fire_bolt": 0,
-		"frost_nova": 0,
-		"volt_spear": 0
-	}
-	spell_level = {
-		"fire_bolt": 1,
-		"frost_nova": 1,
-		"volt_spear": 1
-	}
+	_combat_state.reset(BASE_MAX_HEALTH, BASE_MAX_MANA, BASE_MANA_REGEN_PER_SECOND)
+	_progress_state.reset()
+	ui_message = ""
+	ui_message_time = 0.0
+	spell_mastery = {"fire_bolt": 0, "frost_nova": 0, "volt_spear": 0}
+	spell_level = {"fire_bolt": 1, "frost_nova": 1, "volt_spear": 1}
 	skill_experience.clear()
 	skill_level_data.clear()
-	buff_cooldowns.clear()
-	active_buffs.clear()
-	active_penalties.clear()
-	combo_barrier = 0.0
-	combo_barrier_combo_id = ""
-	time_collapse_charges = 0
-	time_collapse_active = false
-	overclock_circuit_active = false
-	funeral_bloom_active = false
-	funeral_bloom_icd_timer = 0.0
-	ashen_rite_active = false
-	ash_stacks = 0
-	ash_residue_timer = 0.0
-	soul_dominion_active = false
-	soul_dominion_aftershock_timer = 0.0
-	last_combo_effect = {}
 	admin_infinite_health = false
 	admin_infinite_mana = false
 	admin_ignore_cooldowns = false
 	admin_ignore_buff_slot_limit = false
 	admin_freeze_ai = false
-	session_damage_dealt = 0
-	session_hit_count = 0
-	session_kills = 0
-	session_drops = 0
-	last_drop_display = ""
 	equipped_items.clear()
 	equipment_inventory.clear()
 	current_equipment_preset = "default"
 	resonance = {
 		"fire": 0,
 		"ice": 0,
-		"lightning": 0
+		"lightning": 0,
+		"wind": 0,
+		"water": 0,
+		"plant": 0,
+		"earth": 0,
+		"holy": 0,
+		"dark": 0,
+		"arcane": 0
 	}
-	progression_flags = {}
 	last_spell_school = "fire"
-	last_damage_amount = 0
-	last_damage_school = ""
-	last_damage_display_timer = 0.0
+	resonance_bonus_school = ""
+	resonance_bonus_timer = 0.0
 	spell_hotbar = DEFAULT_SPELL_HOTBAR.duplicate(true)
 	_initialize_skill_progress()
 	_initialize_buff_runtime()
@@ -757,11 +1108,13 @@ func reset_progress_for_tests() -> void:
 	_recalculate_derived_stats(false)
 	recalculate_circle_progression(false)
 
+
 func set_admin_infinite_health(enabled: bool) -> void:
 	admin_infinite_health = enabled
 	if admin_infinite_health:
 		health = max_health
 	stats_changed.emit()
+
 
 func set_admin_infinite_mana(enabled: bool) -> void:
 	admin_infinite_mana = enabled
@@ -769,13 +1122,16 @@ func set_admin_infinite_mana(enabled: bool) -> void:
 		mana = max_mana
 	stats_changed.emit()
 
+
 func set_admin_ignore_cooldowns(enabled: bool) -> void:
 	admin_ignore_cooldowns = enabled
 	stats_changed.emit()
 
+
 func set_admin_ignore_buff_slot_limit(enabled: bool) -> void:
 	admin_ignore_buff_slot_limit = enabled
 	stats_changed.emit()
+
 
 func get_admin_status_summary() -> String:
 	var resource_parts: Array[String] = []
@@ -790,10 +1146,15 @@ func get_admin_status_summary() -> String:
 		combat_parts.append("FreeBuffSlots")
 	var resource_text := "-" if resource_parts.is_empty() else "/".join(resource_parts)
 	var combat_text := "-" if combat_parts.is_empty() else "/".join(combat_parts)
-	return "Admin  Resources[%s] Combat[%s] Gear[%s]" % [resource_text, combat_text, current_equipment_preset]
+	return (
+		"Admin  Resources[%s] Combat[%s] Gear[%s]"
+		% [resource_text, combat_text, current_equipment_preset]
+	)
+
 
 func get_resource_summary() -> String:
 	return "MP %.0f/%.0f" % [mana, max_mana]
+
 
 func _initialize_skill_progress() -> void:
 	for skill in GameDatabase.get_all_skills():
@@ -812,10 +1173,12 @@ func _initialize_skill_progress() -> void:
 		_sync_legacy_spell_level(legacy_spell_id)
 	recalculate_circle_progression(false)
 
+
 func _initialize_buff_runtime() -> void:
 	for skill_id in BUFF_KEY_LOADOUT:
 		if not buff_cooldowns.has(skill_id):
 			buff_cooldowns[skill_id] = 0.0
+
 
 func _initialize_spell_hotbar() -> void:
 	if spell_hotbar.is_empty():
@@ -830,6 +1193,7 @@ func _initialize_spell_hotbar() -> void:
 			slot["skill_id"] = str(existing.get("skill_id", slot.get("skill_id", "")))
 		normalized.append(slot)
 	spell_hotbar = normalized
+
 
 func _initialize_equipment_state() -> void:
 	if equipped_items.is_empty():
@@ -847,6 +1211,7 @@ func _initialize_equipment_state() -> void:
 		normalized_inventory.append(item_id)
 	equipment_inventory = normalized_inventory
 
+
 func _get_equipment_stat_total(stat_name: String) -> float:
 	_initialize_equipment_state()
 	var total := 0.0
@@ -855,6 +1220,7 @@ func _get_equipment_stat_total(stat_name: String) -> float:
 		var stats: Dictionary = item.get("stat_modifiers", {})
 		total += float(stats.get(stat_name, 0.0))
 	return total
+
 
 func _get_equipment_stat_product(stat_name: String) -> float:
 	_initialize_equipment_state()
@@ -866,11 +1232,13 @@ func _get_equipment_stat_product(stat_name: String) -> float:
 			total *= float(stats.get(stat_name, 1.0))
 	return total
 
+
 func _get_equipment_display_name(item_id: String) -> String:
 	var item: Dictionary = GameDatabase.get_equipment(item_id)
 	if item.is_empty():
 		return "(none)"
 	return str(item.get("display_name", item_id))
+
 
 func _add_skill_experience(skill_id: String, amount: float) -> void:
 	if not skill_level_data.has(skill_id):
@@ -879,16 +1247,30 @@ func _add_skill_experience(skill_id: String, amount: float) -> void:
 		skill_experience[skill_id] = 0.0
 	skill_experience[skill_id] = float(skill_experience[skill_id]) + amount
 	var leveled_up := false
-	while int(skill_level_data[skill_id]) < 30 and float(skill_experience[skill_id]) >= _required_experience_for_next_level(int(skill_level_data[skill_id])):
+	while (
+		int(skill_level_data[skill_id]) < 30
+		and (
+			float(skill_experience[skill_id])
+			>= _required_experience_for_next_level(int(skill_level_data[skill_id]))
+		)
+	):
 		skill_level_data[skill_id] = int(skill_level_data[skill_id]) + 1
 		leveled_up = true
 	if leveled_up:
 		var skill_data := GameDatabase.get_skill_data(skill_id)
-		push_message("%s reaches Lv.%d. The spell form sharpens." % [skill_data.get("display_name", skill_id), int(skill_level_data[skill_id])], 2.4)
+		push_message(
+			(
+				"%s reaches Lv.%d. The spell form sharpens."
+				% [skill_data.get("display_name", skill_id), int(skill_level_data[skill_id])]
+			),
+			2.4
+		)
 		recalculate_circle_progression()
+
 
 func _required_experience_for_next_level(current_level: int) -> float:
 	return 120.0 + float(max(current_level - 1, 0) * 55)
+
 
 func _required_experience_for_level(target_level: int) -> float:
 	var total := 0.0
@@ -896,11 +1278,13 @@ func _required_experience_for_level(target_level: int) -> float:
 		total += _required_experience_for_next_level(current_level)
 	return total
 
+
 func _sync_legacy_spell_level(spell_id: String) -> void:
 	var linked_skill_id := get_skill_id_for_spell(spell_id)
 	if linked_skill_id == "":
 		return
 	spell_level[spell_id] = get_skill_level(linked_skill_id)
+
 
 func try_activate_buff(skill_id: String) -> bool:
 	var skill_data: Dictionary = GameDatabase.get_skill_data(skill_id)
@@ -913,28 +1297,56 @@ func try_activate_buff(skill_id: String) -> bool:
 	if not admin_ignore_cooldowns:
 		for penalty in active_penalties:
 			if str(penalty.get("stat", "")) == "ritual_recast_lock":
-				push_message("The ritual's aftermath seals your casting patterns for %.1fs." % float(penalty.get("remaining", 0.0)), 1.6)
+				push_message(
+					(
+						"The ritual's aftermath seals your casting patterns for %.1fs."
+						% float(penalty.get("remaining", 0.0))
+					),
+					1.6
+				)
 				return false
 	if active_buffs.size() >= get_buff_slot_limit() and not admin_ignore_buff_slot_limit:
-		push_message("Your current circle can only stabilize %d buff patterns at once." % get_buff_slot_limit(), 1.6)
+		push_message(
+			(
+				"Your current circle can only stabilize %d buff patterns at once."
+				% get_buff_slot_limit()
+			),
+			1.6
+		)
 		return false
 	if not consume_skill_mana(skill_id):
-		push_message("You do not have enough mana to stabilize %s." % skill_data.get("display_name", skill_id), 1.2)
+		push_message(
+			(
+				"You do not have enough mana to stabilize %s."
+				% skill_data.get("display_name", skill_id)
+			),
+			1.2
+		)
 		return false
-	active_buffs.append({
-		"skill_id": skill_id,
-		"display_name": skill_data.get("display_name", skill_id),
-		"remaining": _get_scaled_buff_duration(skill_id, float(skill_data.get("duration_base", 0.0))),
-		"effects": skill_data.get("buff_effects", [])
-	})
-	buff_cooldowns[skill_id] = _get_scaled_buff_cooldown(skill_id, float(skill_data.get("cooldown_base", 0.0)))
+	active_buffs.append(
+		{
+			"skill_id": skill_id,
+			"display_name": skill_data.get("display_name", skill_id),
+			"remaining":
+			_get_scaled_buff_duration(skill_id, float(skill_data.get("duration_base", 0.0))),
+			"effects": skill_data.get("buff_effects", [])
+		}
+	)
+	buff_cooldowns[skill_id] = _get_scaled_buff_cooldown(
+		skill_id, float(skill_data.get("cooldown_base", 0.0))
+	)
 	for effect in skill_data.get("downside_effects", []):
-		if str(effect.get("stat", "")) == "mana_percent" and str(effect.get("mode", "")) == "set" and float(effect.get("duration", 0.0)) == 0.0:
+		if (
+			str(effect.get("stat", "")) == "mana_percent"
+			and str(effect.get("mode", "")) == "set"
+			and float(effect.get("duration", 0.0)) == 0.0
+		):
 			mana = clampf(max_mana * float(effect.get("value", 1.0)), 0.0, max_mana)
 	_refresh_combo_runtime()
 	push_message("%s flares to life." % skill_data.get("display_name", skill_id), 1.4)
 	stats_changed.emit()
 	return true
+
 
 func get_buff_slot_limit() -> int:
 	if current_circle >= 10:
@@ -945,11 +1357,14 @@ func get_buff_slot_limit() -> int:
 		return 3
 	return 2
 
+
 func get_current_circle() -> int:
 	return current_circle
 
+
 func get_circle_progress_score() -> float:
 	return circle_progress_score
+
 
 func recalculate_circle_progression(announce: bool = true) -> void:
 	var previous_circle: int = current_circle
@@ -992,7 +1407,9 @@ func recalculate_circle_progression(announce: bool = true) -> void:
 	var average_level: float = 1.0
 	if skill_count > 0:
 		average_level = round(float(total_levels) / float(skill_count))
-	var bonus_score: float = float(level20_count) * 0.2 + float(level25_count) * 0.2 + float(level30_count) * 0.3
+	var bonus_score: float = (
+		float(level20_count) * 0.2 + float(level25_count) * 0.2 + float(level30_count) * 0.3
+	)
 	circle_progress_score = average_level + bonus_score
 	current_circle = 4
 	if circle_progress_score >= 19.0 and level26_count >= 8:
@@ -1009,8 +1426,15 @@ func recalculate_circle_progression(announce: bool = true) -> void:
 		current_circle = 5
 	current_circle = max(current_circle, 4)
 	if announce and current_circle > previous_circle:
-		push_message("Your spell lattice stabilizes at %d-circle. More simultaneous buffs become possible." % current_circle, 2.6)
+		push_message(
+			(
+				"Your spell lattice stabilizes at %d-circle. More simultaneous buffs become possible."
+				% current_circle
+			),
+			2.6
+		)
 	stats_changed.emit()
+
 
 func grant_progression_event(event_id: String) -> bool:
 	if progression_flags.get(event_id, false):
@@ -1022,7 +1446,10 @@ func grant_progression_event(event_id: String) -> bool:
 			_grant_skill_level_bonus("ice_frost_needle", 4)
 			_grant_skill_level_bonus("lightning_thunder_lance", 4)
 			_grant_skill_level_bonus("arcane_magic_mastery", 4)
-			push_message("The maintenance seal stabilizes your spell lattice. Your core techniques sharpen together.", 2.8)
+			push_message(
+				"The maintenance seal stabilizes your spell lattice. Your core techniques sharpen together.",
+				2.8
+			)
 		"echo_entrance_1":
 			_grant_skill_level_bonus("fire_ember_dart", 2)
 			push_message("Mira's trace leaves behind a hotter casting rhythm.", 2.4)
@@ -1031,21 +1458,34 @@ func grant_progression_event(event_id: String) -> bool:
 			push_message("The looping residue teaches you how to hold colder shapes in place.", 2.4)
 		"boss_conduit":
 			_grant_all_skill_levels(3)
-			push_message("The fallen guardian's core releases a surge of forced understanding through every spell you know.", 3.0)
+			push_message(
+				"The fallen guardian's core releases a surge of forced understanding through every spell you know.",
+				3.0
+			)
 		"core_conduit":
 			_grant_all_skill_levels(2)
-			push_message("The floor core drags your spell lattice deeper, refining every practiced pattern at once.", 3.0)
+			push_message(
+				"The floor core drags your spell lattice deeper, refining every practiced pattern at once.",
+				3.0
+			)
 		"echo_deep_0":
 			_grant_skill_level_bonus("lightning_thunder_lance", 2)
-			push_message("The delayed footsteps teach you to release lightning a breath earlier than instinct.", 2.4)
+			push_message(
+				"The delayed footsteps teach you to release lightning a breath earlier than instinct.",
+				2.4
+			)
 		"echo_deep_1":
 			_grant_skill_level_bonus("arcane_magic_mastery", 2)
-			push_message("The scratched spiral settles into your focus. Even your foundational control grows denser.", 2.4)
+			push_message(
+				"The scratched spiral settles into your focus. Even your foundational control grows denser.",
+				2.4
+			)
 		_:
 			return false
 	recalculate_circle_progression()
 	save_to_disk()
 	return true
+
 
 func _grant_all_skill_levels(amount: int) -> void:
 	for skill in GameDatabase.get_all_skills():
@@ -1053,6 +1493,7 @@ func _grant_all_skill_levels(amount: int) -> void:
 		if skill_id == "":
 			continue
 		_grant_skill_level_bonus(skill_id, amount)
+
 
 func _grant_skill_level_bonus(skill_id: String, amount: int) -> void:
 	if not skill_level_data.has(skill_id):
@@ -1062,12 +1503,14 @@ func _grant_skill_level_bonus(skill_id: String, amount: int) -> void:
 		if get_skill_id_for_spell(legacy_spell_id) == skill_id:
 			_sync_legacy_spell_level(legacy_spell_id)
 
+
 func get_player_move_multiplier() -> float:
 	var total := 1.0
 	for effect in _collect_active_effects():
 		if str(effect.get("stat", "")) == "move_speed_multiplier":
 			total = _apply_multiplier_effect(total, effect)
 	return total
+
 
 func get_damage_taken_multiplier() -> float:
 	var total := get_equipment_damage_taken_multiplier()
@@ -1084,6 +1527,7 @@ func get_damage_taken_multiplier() -> float:
 	elif soul_dominion_aftershock_timer > 0.0:
 		total *= SOUL_DOMINION_AFTERSHOCK_DAMAGE_MULT
 	return total
+
 
 func get_active_buff_summary() -> String:
 	if active_buffs.is_empty():
@@ -1111,6 +1555,7 @@ func get_active_buff_summary() -> String:
 	var limit_text := "INF" if admin_ignore_buff_slot_limit else str(get_buff_slot_limit())
 	return "Buffs  %s / %s  %s" % [active_buffs.size(), limit_text, " | ".join(parts)]
 
+
 func get_buff_cooldown_summary() -> String:
 	var parts: Array[String] = []
 	for skill_id in BUFF_KEY_LOADOUT:
@@ -1124,15 +1569,18 @@ func get_buff_cooldown_summary() -> String:
 		return "Cooldowns  all ready"
 	return "Cooldowns  %s" % " | ".join(parts)
 
+
 func get_active_combo_names() -> Array[String]:
 	var names: Array[String] = []
 	for combo in _get_active_combos():
 		names.append(str(combo.get("display_name", combo.get("combo_id", "?"))))
 	return names
 
+
 func get_combo_summary() -> String:
 	var names := get_active_combo_names()
-	if names.is_empty():
+	var ritual_text := _get_ashen_rite_aftermath_summary()
+	if names.is_empty() and ritual_text.is_empty():
 		return "Combos  none"
 	# [BURST] prefix makes the burst window immediately visible during sandbox play
 	var burst_prefix := "[BURST] " if (time_collapse_active or ashen_rite_active) else ""
@@ -1156,8 +1604,27 @@ func get_combo_summary() -> String:
 		ash_text = "  Ash %d" % ash_stacks
 	var funeral_text := ""
 	if funeral_bloom_active:
-		funeral_text = "  Bloom" + ("  ICD %.1fs" % funeral_bloom_icd_timer if funeral_bloom_icd_timer > 0.0 else "  ready")
-	return "%sCombos  %s%s%s%s%s" % [burst_prefix, ", ".join(names), barrier_text, time_text, ash_text, funeral_text]
+		funeral_text = (
+			"  Bloom"
+			+ (
+				"  ICD %.1fs" % funeral_bloom_icd_timer
+				if funeral_bloom_icd_timer > 0.0
+				else "  ready"
+			)
+		)
+	return (
+		"%sCombos  %s%s%s%s%s%s"
+		% [
+			burst_prefix,
+			", ".join(names) if not names.is_empty() else "none",
+			barrier_text,
+			time_text,
+			ash_text,
+			funeral_text,
+			ritual_text
+		]
+	)
+
 
 func get_resource_status_line() -> String:
 	var dmg_suffix := ""
@@ -1168,17 +1635,35 @@ func get_resource_status_line() -> String:
 			dmg_suffix = " [←%d]" % last_damage_amount
 	var soul_suffix := ""
 	if soul_dominion_active:
-		soul_suffix = "  [!MP-LOCK +%d%% DMG]" % int(round((SOUL_DOMINION_DAMAGE_TAKEN_MULT - 1.0) * 100.0))
+		soul_suffix = (
+			"  [!MP-LOCK +%d%% DMG]" % int(round((SOUL_DOMINION_DAMAGE_TAKEN_MULT - 1.0) * 100.0))
+		)
 	elif soul_dominion_aftershock_timer > 0.0:
-		soul_suffix = "  [!SHOCK %.1fs +%d%% DMG]" % [soul_dominion_aftershock_timer, int(round((SOUL_DOMINION_AFTERSHOCK_DAMAGE_MULT - 1.0) * 100.0))]
-	return "HP %d/%d%s   MP %.0f/%.0f%s" % [health, max_health, dmg_suffix, mana, max_mana, soul_suffix]
+		soul_suffix = (
+			"  [!SHOCK %.1fs +%d%% DMG]"
+			% [
+				soul_dominion_aftershock_timer,
+				int(round((SOUL_DOMINION_AFTERSHOCK_DAMAGE_MULT - 1.0) * 100.0))
+			]
+		)
+	return (
+		"HP %d/%d%s   MP %.0f/%.0f%s"
+		% [health, max_health, dmg_suffix, mana, max_mana, soul_suffix]
+	)
+
 
 func get_soul_dominion_risk_summary() -> String:
 	if soul_dominion_active:
-		return "Soul Dominion ACTIVE  [MP Regen LOCKED | DMG x%.2f]" % SOUL_DOMINION_DAMAGE_TAKEN_MULT
+		return (
+			"Soul Dominion ACTIVE  [MP Regen LOCKED | DMG x%.2f]" % SOUL_DOMINION_DAMAGE_TAKEN_MULT
+		)
 	if soul_dominion_aftershock_timer > 0.0:
-		return "Soul Dominion AFTERSHOCK  %.1fs  [MP Regen LOCKED | DMG x%.2f]" % [soul_dominion_aftershock_timer, SOUL_DOMINION_AFTERSHOCK_DAMAGE_MULT]
+		return (
+			"Soul Dominion AFTERSHOCK  %.1fs  [MP Regen LOCKED | DMG x%.2f]"
+			% [soul_dominion_aftershock_timer, SOUL_DOMINION_AFTERSHOCK_DAMAGE_MULT]
+		)
 	return ""
+
 
 func _tick_buff_runtime(delta: float) -> void:
 	for skill_id in buff_cooldowns.keys():
@@ -1193,32 +1678,40 @@ func _tick_buff_runtime(delta: float) -> void:
 		active_buffs.erase(buff)
 	for penalty in active_penalties:
 		penalty["remaining"] = max(float(penalty.get("remaining", 0.0)) - delta, 0.0)
-	active_penalties = active_penalties.filter(func(entry: Dictionary) -> bool: return float(entry.get("remaining", 0.0)) > 0.0)
+	active_penalties = active_penalties.filter(
+		func(entry: Dictionary) -> bool: return float(entry.get("remaining", 0.0)) > 0.0
+	)
 	if soul_dominion_aftershock_timer > 0.0:
 		soul_dominion_aftershock_timer = maxf(soul_dominion_aftershock_timer - delta, 0.0)
 	if funeral_bloom_icd_timer > 0.0:
 		funeral_bloom_icd_timer = maxf(funeral_bloom_icd_timer - delta, 0.0)
-	var _has_ash_burst := ashen_rite_active
-	if not _has_ash_burst:
+	var has_ash_burst := ashen_rite_active
+	if not has_ash_burst:
 		for _effect in _collect_active_effects():
-			if str(_effect.get("stat", "")) == "ash_residue_burst" and int(_effect.get("value", 0)) > 0:
-				_has_ash_burst = true
+			if (
+				str(_effect.get("stat", "")) == "ash_residue_burst"
+				and int(_effect.get("value", 0)) > 0
+			):
+				has_ash_burst = true
 				break
-	if _has_ash_burst:
+	if has_ash_burst:
 		ash_residue_timer = max(ash_residue_timer - delta, 0.0)
 		if ash_residue_timer <= 0.0:
 			ash_residue_timer = 1.25
-			_emit_combo_effect({
-				"effect_id": "ash_residue_burst",
-				"damage": 16 + ash_stacks * 2,
-				"radius": 54.0,
-				"school": "fire",
-				"color": "#ff9a54"
-			})
+			_emit_combo_effect(
+				{
+					"effect_id": "ash_residue_burst",
+					"damage": 16 + ash_stacks * 2,
+					"radius": 54.0,
+					"school": "fire",
+					"color": "#ff9a54"
+				}
+			)
 	_tick_active_buff_drains(delta)
 	_refresh_combo_runtime()
 	if not expired.is_empty():
 		stats_changed.emit()
+
 
 func _tick_active_buff_drains(delta: float) -> void:
 	if admin_infinite_health:
@@ -1226,17 +1719,25 @@ func _tick_active_buff_drains(delta: float) -> void:
 	for buff in active_buffs:
 		var skill_data: Dictionary = GameDatabase.get_skill_data(str(buff.get("skill_id", "")))
 		for effect in skill_data.get("downside_effects", []):
-			if str(effect.get("stat", "")) == "hp_drain_percent_per_second" and float(effect.get("duration", 0.0)) == 0.0:
-				var drain: int = int(round(float(max_health) * float(effect.get("value", 0.0)) * delta))
+			if (
+				str(effect.get("stat", "")) == "hp_drain_percent_per_second"
+				and float(effect.get("duration", 0.0)) == 0.0
+			):
+				var drain: int = int(
+					round(float(max_health) * float(effect.get("value", 0.0)) * delta)
+				)
 				if drain > 0 and health > 1:
 					health = max(health - drain, 1)
 					stats_changed.emit()
 	for penalty in active_penalties:
 		if str(penalty.get("stat", "")) == "self_burn":
-			var burn_damage: int = int(round(float(max_health) * float(penalty.get("value", 0)) * 0.01 * delta))
+			var burn_damage: int = int(
+				round(float(max_health) * float(penalty.get("value", 0)) * 0.01 * delta)
+			)
 			if burn_damage > 0 and health > 1:
 				health = max(health - burn_damage, 1)
 				stats_changed.emit()
+
 
 func get_poise_bonus() -> float:
 	var total: float = 0.0
@@ -1245,12 +1746,14 @@ func get_poise_bonus() -> float:
 			total += float(effect.get("value", 0.0))
 	return total
 
+
 func get_super_armor_charges() -> int:
 	var total: int = 0
 	for effect in _collect_active_effects():
 		if str(effect.get("stat", "")) == "super_armor_charges":
 			total += int(effect.get("value", 0))
 	return total
+
 
 func get_stagger_taken_multiplier() -> float:
 	var total: float = 1.0
@@ -1259,6 +1762,7 @@ func get_stagger_taken_multiplier() -> float:
 			total *= float(effect.get("value", 1.0))
 	return total
 
+
 func record_enemy_hit(amount: int, school: String) -> void:
 	session_damage_dealt += amount
 	session_hit_count += 1
@@ -1266,8 +1770,10 @@ func record_enemy_hit(amount: int, school: String) -> void:
 		var key := "school_hits_" + school
 		progression_flags[key] = int(progression_flags.get(key, 0)) + 1
 
+
 func get_combat_stats_summary() -> String:
 	return "Hits: %d  DMG: %d" % [session_hit_count, session_damage_dealt]
+
 
 func _tick_mana_regeneration(delta: float) -> void:
 	if admin_infinite_mana:
@@ -1289,6 +1795,7 @@ func _tick_mana_regeneration(delta: float) -> void:
 	mana = min(mana + mana_regen_per_second * regen_multiplier * delta, max_mana)
 	if absf(mana - previous_mana) > 0.001:
 		stats_changed.emit()
+
 
 func _recalculate_derived_stats(keep_ratios: bool = true) -> void:
 	_initialize_equipment_state()
@@ -1312,6 +1819,7 @@ func _recalculate_derived_stats(keep_ratios: bool = true) -> void:
 	if admin_infinite_mana:
 		mana = max_mana
 
+
 func _expire_buff(buff: Dictionary) -> void:
 	var skill_id := str(buff.get("skill_id", ""))
 	var skill_data: Dictionary = GameDatabase.get_skill_data(skill_id)
@@ -1319,6 +1827,7 @@ func _expire_buff(buff: Dictionary) -> void:
 		var penalty: Dictionary = effect.duplicate(true)
 		penalty["remaining"] = float(effect.get("duration", 0.0))
 		active_penalties.append(penalty)
+
 
 func _collect_active_effects() -> Array:
 	var effects: Array = []
@@ -1331,6 +1840,28 @@ func _collect_active_effects() -> Array:
 	for penalty in active_penalties:
 		effects.append(penalty)
 	return effects
+
+
+func _get_penalty_remaining(stat_name: String) -> float:
+	var remaining := 0.0
+	for penalty in active_penalties:
+		if str(penalty.get("stat", "")) == stat_name:
+			remaining = max(remaining, float(penalty.get("remaining", 0.0)))
+	return remaining
+
+
+func _get_ashen_rite_aftermath_summary() -> String:
+	var guard_break_remaining := _get_penalty_remaining("defense_multiplier")
+	var recast_lock_remaining := _get_penalty_remaining("ritual_recast_lock")
+	if guard_break_remaining <= 0.0 and recast_lock_remaining <= 0.0:
+		return ""
+	var parts: Array[String] = ["  Aftermath"]
+	if guard_break_remaining > 0.0:
+		parts.append("GuardBreak %.1fs" % guard_break_remaining)
+	if recast_lock_remaining > 0.0:
+		parts.append("Lock %.1fs" % recast_lock_remaining)
+	return "  ".join(parts)
+
 
 func _get_active_combos() -> Array:
 	var active_ids: Array[String] = []
@@ -1346,8 +1877,12 @@ func _get_active_combos() -> Array:
 				break
 		if valid:
 			combos.append(combo)
-	combos.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return int(a.get("priority", 0)) > int(b.get("priority", 0)))
+	combos.sort_custom(
+		func(a: Dictionary, b: Dictionary) -> bool:
+			return int(a.get("priority", 0)) > int(b.get("priority", 0))
+	)
 	return combos
+
 
 func _refresh_combo_runtime() -> void:
 	var prismatic_combo: Dictionary = {}
@@ -1413,21 +1948,31 @@ func _refresh_combo_runtime() -> void:
 		push_message("Ashen Rite begins. Spell impacts now feed the ritual.", 1.2)
 	elif not ashen_found and ashen_rite_active:
 		if ash_stacks > 0:
-			_emit_combo_effect({
-				"effect_id": "ash_detonation",
-				"damage": 24 + ash_stacks * 7,
-				"radius": 68.0 + ash_stacks * 3.0,
-				"school": "fire",
-				"color": "#ff7446",
-				"stacks": ash_stacks
-			})
+			_emit_combo_effect(
+				{
+					"effect_id": "ash_detonation",
+					"damage": 24 + ash_stacks * 7,
+					"radius": 68.0 + ash_stacks * 3.0,
+					"school": "fire",
+					"color": "#ff7446",
+					"stacks": ash_stacks
+				}
+			)
 		mana = 0.0
-		active_penalties.append({"stat": "defense_multiplier", "mode": "mul", "value": 0.75, "remaining": 10.0})
-		active_penalties.append({"stat": "ritual_recast_lock", "mode": "set", "value": 1, "remaining": 6.0})
-		push_message("The Ashen Rite consumes your reserves. Defense broken for 10s, recasting locked for 6s.", 2.0)
+		active_penalties.append(
+			{"stat": "defense_multiplier", "mode": "mul", "value": 0.75, "remaining": 10.0}
+		)
+		active_penalties.append(
+			{"stat": "ritual_recast_lock", "mode": "set", "value": 1, "remaining": 6.0}
+		)
+		push_message(
+			"The Ashen Rite consumes your reserves. Defense broken for 10s, recasting locked for 6s.",
+			2.0
+		)
 		ashen_rite_active = false
 		ash_stacks = 0
 		ash_residue_timer = 0.0
+
 
 func _apply_buff_runtime_modifiers(data: Dictionary) -> Dictionary:
 	var school: String = str(data.get("school", ""))
@@ -1436,21 +1981,33 @@ func _apply_buff_runtime_modifiers(data: Dictionary) -> Dictionary:
 		match stat:
 			"fire_final_damage_multiplier":
 				if school == "fire":
-					data["damage"] = int(round(float(data.get("damage", 0.0)) * float(effect.get("value", 1.0))))
+					data["damage"] = int(
+						round(float(data.get("damage", 0.0)) * float(effect.get("value", 1.0)))
+					)
 			"lightning_final_damage_multiplier":
 				if school == "lightning":
-					data["damage"] = int(round(float(data.get("damage", 0.0)) * float(effect.get("value", 1.0))))
+					data["damage"] = int(
+						round(float(data.get("damage", 0.0)) * float(effect.get("value", 1.0)))
+					)
 			"lightning_aftercast_multiplier":
 				if school == "lightning":
-					data["cooldown"] = float(data.get("cooldown", 0.0)) * float(effect.get("value", 1.0))
+					data["cooldown"] = (
+						float(data.get("cooldown", 0.0)) * float(effect.get("value", 1.0))
+					)
 			"ice_status_duration_multiplier":
 				if school == "ice" and data.has("duration"):
-					data["duration"] = float(data.get("duration", 0.0)) * float(effect.get("value", 1.0))
+					data["duration"] = (
+						float(data.get("duration", 0.0)) * float(effect.get("value", 1.0))
+					)
 			"final_damage_multiplier":
-				data["damage"] = int(round(float(data.get("damage", 0.0)) * float(effect.get("value", 1.0))))
+				data["damage"] = int(
+					round(float(data.get("damage", 0.0)) * float(effect.get("value", 1.0)))
+				)
 			"discounted_cooldown_spend_multiplier":
 				if time_collapse_active and time_collapse_charges > 0:
-					data["cooldown"] = float(data.get("cooldown", 0.0)) * float(effect.get("value", 1.0))
+					data["cooldown"] = (
+						float(data.get("cooldown", 0.0)) * float(effect.get("value", 1.0))
+					)
 			"lightning_chain_bonus":
 				if school == "lightning":
 					data["pierce"] = int(data.get("pierce", 0)) + int(effect.get("value", 0))
@@ -1462,26 +2019,35 @@ func _apply_buff_runtime_modifiers(data: Dictionary) -> Dictionary:
 					data["speed"] = float(data.get("speed", 0.0)) * float(effect.get("value", 1.0))
 			"dark_final_damage_multiplier":
 				if school == "dark":
-					data["damage"] = int(round(float(data.get("damage", 0.0)) * float(effect.get("value", 1.0))))
+					data["damage"] = int(
+						round(float(data.get("damage", 0.0)) * float(effect.get("value", 1.0)))
+					)
 			"aftercast_multiplier":
-				data["cooldown"] = float(data.get("cooldown", 0.0)) * float(effect.get("value", 1.0))
+				data["cooldown"] = (
+					float(data.get("cooldown", 0.0)) * float(effect.get("value", 1.0))
+				)
 			"cast_speed_multiplier":
 				var spd := float(effect.get("value", 1.0))
 				if spd > 0.0:
 					data["cooldown"] = float(data.get("cooldown", 0.0)) / spd
 			"cooldown_flow_multiplier":
-				data["cooldown"] = float(data.get("cooldown", 0.0)) * float(effect.get("value", 1.0))
+				data["cooldown"] = (
+					float(data.get("cooldown", 0.0)) * float(effect.get("value", 1.0))
+				)
 			_:
 				pass
 	return data
+
 
 func _get_scaled_buff_duration(skill_id: String, base_value: float) -> float:
 	var level_delta: int = max(get_skill_level(skill_id) - 1, 0)
 	return base_value * (1.0 + 0.01 * level_delta) * get_equipment_buff_duration_multiplier()
 
+
 func _get_scaled_buff_cooldown(skill_id: String, base_value: float) -> float:
 	var level_delta: int = max(get_skill_level(skill_id) - 1, 0)
 	return base_value * max(0.55, 1.0 - 0.045 * level_delta)
+
 
 func _apply_multiplier_effect(current_value: float, effect: Dictionary) -> float:
 	var mode := str(effect.get("mode", "mul"))
@@ -1492,6 +2058,7 @@ func _apply_multiplier_effect(current_value: float, effect: Dictionary) -> float
 		return current_value + value
 	return current_value
 
+
 func record_item_drop(item_id: String) -> void:
 	session_drops += 1
 	var item_data: Dictionary = {}
@@ -1501,6 +2068,7 @@ func record_item_drop(item_id: String) -> void:
 		if db:
 			item_data = db.get_equipment(item_id)
 	last_drop_display = str(item_data.get("display_name", item_id))
+
 
 func notify_enemy_killed() -> void:
 	session_kills += 1
@@ -1515,49 +2083,65 @@ func notify_enemy_killed() -> void:
 			push_message("+%d HP (kill drain)" % heal_amount, 0.8)
 		stats_changed.emit()
 
+
 func notify_deploy_kill() -> void:
 	if not funeral_bloom_active:
 		return
 	if funeral_bloom_icd_timer > 0.0:
 		return
 	funeral_bloom_icd_timer = 1.5
-	_emit_combo_effect({
-		"effect_id": "corruption_burst",
-		"radius": 96.0,
-		"damage_school": "dark",
-		"apply_status": "snare",
-		"color": "#6a1d8a"
-	})
+	_emit_combo_effect(
+		{
+			"effect_id": "corruption_burst",
+			"radius": 96.0,
+			"damage_school": "dark",
+			"apply_status": "snare",
+			"color": "#6a1d8a"
+		}
+	)
+
 
 func _emit_combo_effect(payload: Dictionary) -> void:
 	last_combo_effect = payload.duplicate(true)
 	combo_effect_requested.emit(last_combo_effect)
 
+
 func apply_spell_modifiers(data: Dictionary) -> Dictionary:
 	data = _apply_buff_runtime_modifiers(data)
 	if str(data.get("school", "")) == "lightning":
 		for effect in _collect_active_effects():
-			if str(effect.get("stat", "")) == "extra_lightning_ping" and int(effect.get("value", 0)) > 0:
-				_emit_combo_effect({
-					"effect_id": "lightning_ping",
-					"school": "lightning",
-					"damage": int(round(float(data.get("damage", 10)) * 0.45)),
-					"radius": 52.0,
-					"color": "#a8c8ff"
-				})
+			if (
+				str(effect.get("stat", "")) == "extra_lightning_ping"
+				and int(effect.get("value", 0)) > 0
+			):
+				_emit_combo_effect(
+					{
+						"effect_id": "lightning_ping",
+						"school": "lightning",
+						"damage": int(round(float(data.get("damage", 10)) * 0.45)),
+						"radius": 52.0,
+						"color": "#a8c8ff"
+					}
+				)
 				break
 	if str(data.get("school", "")) == "ice":
 		for effect in _collect_active_effects():
-			if str(effect.get("stat", "")) == "ice_reflect_wave" and int(effect.get("value", 0)) > 0:
-				_emit_combo_effect({
-					"effect_id": "ice_reflect_wave",
-					"school": "ice",
-					"damage": int(round(float(data.get("damage", 10)) * 0.35)),
-					"radius": 60.0,
-					"color": "#b8e8ff"
-				})
+			if (
+				str(effect.get("stat", "")) == "ice_reflect_wave"
+				and int(effect.get("value", 0)) > 0
+			):
+				_emit_combo_effect(
+					{
+						"effect_id": "ice_reflect_wave",
+						"school": "ice",
+						"damage": int(round(float(data.get("damage", 10)) * 0.35)),
+						"radius": 60.0,
+						"color": "#b8e8ff"
+					}
+				)
 				break
 	return data
+
 
 func apply_deploy_buff_modifiers(data: Dictionary) -> Dictionary:
 	for effect in _collect_active_effects():
@@ -1566,10 +2150,15 @@ func apply_deploy_buff_modifiers(data: Dictionary) -> Dictionary:
 			"deploy_range_multiplier":
 				data["size"] = float(data.get("size", 1.0)) * float(effect.get("value", 1.0))
 			"deploy_duration_multiplier":
-				data["duration"] = float(data.get("duration", 1.0)) * float(effect.get("value", 1.0))
+				data["duration"] = (
+					float(data.get("duration", 1.0)) * float(effect.get("value", 1.0))
+				)
 			"deploy_target_bonus":
-				data["target_count"] = int(data.get("target_count", 0)) + int(effect.get("value", 0))
+				data["target_count"] = (
+					int(data.get("target_count", 0)) + int(effect.get("value", 0))
+				)
 	return data
+
 
 func get_skill_mana_cost(skill_id: String) -> float:
 	var skill_data: Dictionary = GameDatabase.get_skill_data(skill_id)
@@ -1583,16 +2172,20 @@ func get_skill_mana_cost(skill_id: String) -> float:
 	var level_delta: int = max(level - 1, 0)
 	var base_value: float = float(skill_data.get("mana_cost_base", 0.0))
 	var reduction_per_level: float = float(skill_data.get("mana_reduction_per_level", 0.0))
-	var cost: float = maxf(0.0, base_value * maxf(0.4, 1.0 - reduction_per_level * float(level_delta)))
+	var cost: float = maxf(
+		0.0, base_value * maxf(0.4, 1.0 - reduction_per_level * float(level_delta))
+	)
 	for effect in _collect_active_effects():
 		if str(effect.get("stat", "")) == "mana_efficiency_multiplier":
 			cost = cost * float(effect.get("value", 1.0))
 	return maxf(0.0, cost)
 
+
 func has_enough_mana(skill_id: String) -> bool:
 	if admin_infinite_mana:
 		return true
 	return mana >= get_skill_mana_cost(skill_id)
+
 
 func consume_skill_mana(skill_id: String) -> bool:
 	var mana_cost: float = get_skill_mana_cost(skill_id)
@@ -1606,6 +2199,7 @@ func consume_skill_mana(skill_id: String) -> bool:
 	mana = maxf(mana - mana_cost, 0.0)
 	stats_changed.emit()
 	return true
+
 
 func consume_mana_amount(amount: float) -> bool:
 	if admin_infinite_mana or amount <= 0.0:

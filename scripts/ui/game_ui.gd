@@ -1,7 +1,7 @@
 extends Control
 
-const BUTTONS_TEX := "res://asset_sample/UI/Free-Basic-Pixel-Art-UI-for-RPG/PNG/Buttons.png"
-const ACTION_PANEL_TEX := "res://asset_sample/UI/Free-Basic-Pixel-Art-UI-for-RPG/PNG/Action_panel.png"
+const BUTTONS_TEX := "res://assets/ui/pixel_rpg/Buttons.png"
+const ACTION_PANEL_TEX := "res://assets/ui/pixel_rpg/Action_panel.png"
 
 @onready var room_label: Label = $Margin/Top/RoomLabel
 @onready var hp_label: Label = $Margin/Top/HpLabel
@@ -22,16 +22,18 @@ var _mp_value_label: Label = null
 var _buff_chip_row: HBoxContainer = null
 
 const SCHOOL_CHIP_COLORS := {
-	"fire":      Color(0.95, 0.38, 0.12),
-	"ice":       Color(0.30, 0.72, 0.95),
+	"fire": Color(0.95, 0.38, 0.12),
+	"ice": Color(0.30, 0.72, 0.95),
 	"lightning": Color(0.95, 0.88, 0.15),
-	"dark":      Color(0.62, 0.22, 0.90),
-	"plant":     Color(0.28, 0.82, 0.30),
-	"":          Color(0.70, 0.70, 0.70),
+	"dark": Color(0.62, 0.22, 0.90),
+	"plant": Color(0.28, 0.82, 0.30),
+	"": Color(0.70, 0.70, 0.70),
 }
+
 
 func _process(_delta: float) -> void:
 	refresh("")
+
 
 func _ready() -> void:
 	GameState.stats_changed.connect(refresh.bind(""))
@@ -40,6 +42,7 @@ func _ready() -> void:
 	_build_hotbar_buttons()
 	_build_buff_chips()
 	refresh("")
+
 
 func _build_resource_bars() -> void:
 	if not has_node("Margin/Top"):
@@ -81,6 +84,7 @@ func _build_resource_bars() -> void:
 	$Margin/Top.add_child(bar_row)
 	$Margin/Top.move_child(bar_row, 1)
 
+
 func _apply_bar_style(bar: ProgressBar, fill_color: Color, bg_color: Color) -> void:
 	var fill := StyleBoxFlat.new()
 	fill.bg_color = fill_color
@@ -97,6 +101,7 @@ func _apply_bar_style(bar: ProgressBar, fill_color: Color, bg_color: Color) -> v
 	bg.corner_radius_bottom_right = 2
 	bar.add_theme_stylebox_override("background", bg)
 
+
 func _refresh_resource_bars() -> void:
 	if _hp_bar != null and GameState.max_health > 0:
 		_hp_bar.value = float(GameState.health) / float(GameState.max_health)
@@ -108,6 +113,7 @@ func _refresh_resource_bars() -> void:
 			_mp_value_label.text = "%d/%d" % [int(GameState.mana), int(GameState.max_mana)]
 		_refresh_mp_bar_color()
 
+
 func _build_buff_chips() -> void:
 	if not has_node("Margin/Top"):
 		return
@@ -115,6 +121,7 @@ func _build_buff_chips() -> void:
 	_buff_chip_row.name = "BuffChipRow"
 	_buff_chip_row.add_theme_constant_override("separation", 4)
 	$Margin/Top.add_child(_buff_chip_row)
+
 
 func _refresh_buff_chips() -> void:
 	if _buff_chip_row == null:
@@ -143,6 +150,7 @@ func _refresh_buff_chips() -> void:
 		cell.add_child(lbl)
 		_buff_chip_row.add_child(cell)
 
+
 func _refresh_mp_bar_color() -> void:
 	if _mp_bar == null:
 		return
@@ -155,6 +163,7 @@ func _refresh_mp_bar_color() -> void:
 	else:
 		# Normal: blue
 		_apply_bar_style(_mp_bar, Color(0.18, 0.45, 0.88), Color(0.06, 0.12, 0.28))
+
 
 func _build_hotbar_buttons() -> void:
 	if not has_node("Margin/Bottom"):
@@ -186,6 +195,7 @@ func _build_hotbar_buttons() -> void:
 		_hotbar_button_bar.add_child(btn)
 		_hotbar_button_nodes.append(btn)
 
+
 func _make_action_panel_style() -> StyleBoxTexture:
 	var tex: Texture2D = load(ACTION_PANEL_TEX)
 	if tex == null:
@@ -205,6 +215,7 @@ func _make_action_panel_style() -> StyleBoxTexture:
 	style.expand_margin_right = 4.0
 	style.expand_margin_bottom = 4.0
 	return style
+
 
 func _apply_hotbar_button_skin(btn: Button) -> void:
 	var tex: Texture2D = load(BUTTONS_TEX)
@@ -254,6 +265,7 @@ func _apply_hotbar_button_skin(btn: Button) -> void:
 	btn.add_theme_stylebox_override("disabled", style_disabled)
 	btn.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 
+
 func _refresh_hotbar_buttons() -> void:
 	if _hotbar_button_bar == null:
 		return
@@ -274,6 +286,7 @@ func _refresh_hotbar_buttons() -> void:
 			else:
 				btn.text = "%s\n%s" % [slot_label, short_name]
 
+
 func _on_hud_hotbar_button_hovered(slot_index: int) -> void:
 	var hotbar := GameState.get_spell_hotbar()
 	if slot_index >= hotbar.size():
@@ -293,8 +306,10 @@ func _on_hud_hotbar_button_hovered(slot_index: int) -> void:
 	var cd_text := "CD %.1fs" % cd_remaining if cd_remaining > 0.0 else "ready"
 	hint_label.text = "%s  MP %d  %s  (base CD %.0fs)" % [display_name, mp_cost, cd_text, cd_base]
 
+
 func _on_hud_hotbar_button_unhovered() -> void:
 	hint_label.text = ""
+
 
 func _on_hud_hotbar_button_pressed(slot_index: int) -> void:
 	var player_nodes := get_tree().get_nodes_in_group("player")
@@ -303,6 +318,7 @@ func _on_hud_hotbar_button_pressed(slot_index: int) -> void:
 	var player := player_nodes[0]
 	if player != null and player.has_method("cast_hotbar_slot"):
 		player.cast_hotbar_slot(slot_index)
+
 
 func _get_skill_short_name(skill_id: String) -> String:
 	var skill_data := GameDatabase.get_skill_data(skill_id)
@@ -313,8 +329,13 @@ func _get_skill_short_name(skill_id: String) -> String:
 		return str(spell_data.get("name", skill_id)).split(" ")[0].left(8)
 	return skill_id.left(8)
 
+
 func set_room_title(title: String) -> void:
-	room_label.text = "%s  Circle %d  Score %.1f" % [title, GameState.get_current_circle(), GameState.get_circle_progress_score()]
+	room_label.text = (
+		"%s  Circle %d  Score %.1f"
+		% [title, GameState.get_current_circle(), GameState.get_circle_progress_score()]
+	)
+
 
 func refresh(_unused: String = "") -> void:
 	_refresh_hotbar_buttons()
@@ -322,22 +343,47 @@ func refresh(_unused: String = "") -> void:
 	_refresh_buff_chips()
 	hp_label.text = GameState.get_resource_status_line()
 	mastery_label.text = _get_player_hotbar_mastery_summary()
-	resonance_label.text = "Resonance  Fire:%d  Ice:%d  Lightning:%d  Dominant:%s" % [
-		GameState.resonance["fire"],
-		GameState.resonance["ice"],
-		GameState.resonance["lightning"],
-		GameState.get_dominant_school().capitalize()
-	]
+	resonance_label.text = (
+		"Resonance  Fire:%d  Ice:%d  Lightning:%d  Dominant:%s"
+		% [
+			GameState.resonance["fire"],
+			GameState.resonance["ice"],
+			GameState.resonance["lightning"],
+			GameState.get_dominant_school().capitalize()
+		]
+	)
 	var hotbar_text := _get_player_hotbar_summary()
 	var cast_feedback_text := _get_player_cast_feedback_summary()
 	var toggle_text := _get_player_toggle_summary()
-	room_label.text = "%s  Circle %d  Score %.1f" % [room_label.text.split("  Circle")[0], GameState.get_current_circle(), GameState.get_circle_progress_score()]
-	buff_label.text = "%s\n%s\n%s\n%s\n%s\n%s" % [hotbar_text, cast_feedback_text, toggle_text, GameState.get_equipment_summary(), GameState.get_active_buff_summary(), GameState.get_buff_cooldown_summary()]
-	combo_label.text = "%s   %s   Keys  Q Veil / R Pyre / F Frost / T Aegis / G Tempest / B Surge / Y Compress / H Hourglass / J Pact / N Throne" % [GameState.get_combo_summary(), GameState.get_combat_stats_summary()]
+	room_label.text = (
+		"%s  Circle %d  Score %.1f"
+		% [
+			room_label.text.split("  Circle")[0],
+			GameState.get_current_circle(),
+			GameState.get_circle_progress_score()
+		]
+	)
+	buff_label.text = (
+		"%s\n%s\n%s\n%s\n%s\n%s"
+		% [
+			hotbar_text,
+			cast_feedback_text,
+			toggle_text,
+			GameState.get_equipment_summary(),
+			GameState.get_active_buff_summary(),
+			GameState.get_buff_cooldown_summary()
+		]
+	)
+	combo_label.text = (
+		"%s   %s   Keys  Q Veil / R Pyre / F Frost / T Aegis / G Tempest / B Surge / Y Compress / H Hourglass / J Pact / N Throne"
+		% [GameState.get_combo_summary(), GameState.get_combat_stats_summary()]
+	)
 	admin_label.text = "%s  %s" % [GameState.get_admin_status_summary(), _get_admin_tab_summary()]
+
 
 func _on_message(text: String, _duration: float) -> void:
 	hint_label.text = text
+
 
 func _get_player_hotbar_summary() -> String:
 	var player_nodes := get_tree().get_nodes_in_group("player")
@@ -348,6 +394,7 @@ func _get_player_hotbar_summary() -> String:
 		return str(player.get_hotbar_summary())
 	return "Hotbar  unavailable"
 
+
 func _get_player_hotbar_mastery_summary() -> String:
 	var player_nodes := get_tree().get_nodes_in_group("player")
 	if player_nodes.is_empty():
@@ -356,6 +403,7 @@ func _get_player_hotbar_mastery_summary() -> String:
 	if player != null and player.has_method("get_hotbar_mastery_summary"):
 		return str(player.get_hotbar_mastery_summary())
 	return "Skills  unavailable"
+
 
 func _get_player_cast_feedback_summary() -> String:
 	var player_nodes := get_tree().get_nodes_in_group("player")
@@ -366,6 +414,7 @@ func _get_player_cast_feedback_summary() -> String:
 		return str(player.get_cast_feedback_summary())
 	return "Cast  unavailable"
 
+
 func _get_player_toggle_summary() -> String:
 	var player_nodes := get_tree().get_nodes_in_group("player")
 	if player_nodes.is_empty():
@@ -374,6 +423,7 @@ func _get_player_toggle_summary() -> String:
 	if player != null and player.has_method("get_toggle_summary"):
 		return str(player.get_toggle_summary())
 	return "Toggles  unavailable"
+
 
 func _get_admin_tab_summary() -> String:
 	var admin_nodes := get_tree().get_nodes_in_group("admin_menu")

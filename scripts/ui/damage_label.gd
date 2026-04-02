@@ -8,12 +8,14 @@ const SCHOOL_COLORS := {
 	"": Color(1.0, 1.0, 1.0),
 }
 
+
 func setup(amount: int, pos: Vector2, school: String = "") -> void:
 	global_position = pos + Vector2(randf_range(-12.0, 12.0), -30.0)
 	text = str(amount)
 	add_theme_font_size_override("font_size", 20)
 	modulate = SCHOOL_COLORS.get(school, Color(1.0, 1.0, 1.0))
 	z_index = 10
+
 
 func _physics_process(delta: float) -> void:
 	global_position.y -= 60.0 * delta

@@ -10,6 +10,8 @@ const CORE_SCRIPT := preload("res://scripts/world/core_device.gd")
 const ROPE_SCRIPT := preload("res://scripts/world/rope.gd")
 const ADMIN_MENU_SCRIPT := preload("res://scripts/admin/admin_menu.gd")
 const DAMAGE_LABEL_SCRIPT := preload("res://scripts/ui/damage_label.gd")
+const ELITE_VARIANT_CHANCE := 0.03
+const ELITE_VARIANT_TYPES := ["brute", "sentinel", "mushroom", "charger", "worm", "trash_monster"]
 
 var room_order := ["entrance", "conduit", "deep_gate"]
 var room_index := 0
@@ -30,6 +32,7 @@ var transitioning := false
 var admin_menu: Control = null
 var damage_layer: Node2D = null
 
+
 func _ready() -> void:
 	GameState.ensure_input_map()
 	damage_layer = Node2D.new()
@@ -42,6 +45,7 @@ func _ready() -> void:
 	GameState.combo_effect_requested.connect(_on_combo_effect_requested)
 	_load_room(GameState.current_room_id, GameState.save_spawn_position)
 
+
 func _load_room(room_id: String, spawn_position: Vector2 = Vector2(-1, -1)) -> void:
 	current_room = GameDatabase.get_room(room_id)
 	if current_room.is_empty():
@@ -49,14 +53,24 @@ func _load_room(room_id: String, spawn_position: Vector2 = Vector2(-1, -1)) -> v
 	room_index = room_order.find(room_id)
 	if room_index == -1:
 		room_index = 0
-	var variant := GameState.get_room_variant(room_id) if room_id != "entrance" else {"tint": Color("#ffffff"), "extra_spawns": [], "label": ""}
+	var variant := (
+		GameState.get_room_variant(room_id)
+		if room_id != "entrance"
+		else {"tint": Color("#ffffff"), "extra_spawns": [], "label": ""}
+	)
 	room_builder.build(room_layer, current_room, variant)
 	_clear_layer(object_layer)
 	_clear_layer(enemy_layer)
 	_clear_layer(projectile_layer)
 	_spawn_objects(current_room)
 	_spawn_enemies(current_room.get("spawns", []) + variant.get("extra_spawns", []))
-	player.reset_at(spawn_position if spawn_position.x >= 0 else Vector2(current_room["spawn"][0], current_room["spawn"][1]))
+	player.reset_at(
+		(
+			spawn_position
+			if spawn_position.x >= 0
+			else Vector2(current_room["spawn"][0], current_room["spawn"][1])
+		)
+	)
 	camera.limit_right = int(current_room.get("width", 1600))
 	camera.limit_left = 0
 	GameState.set_room(room_id)
@@ -65,6 +79,7 @@ func _load_room(room_id: String, spawn_position: Vector2 = Vector2(-1, -1)) -> v
 		GameState.push_message(current_room.get("entry_text", ""), 3.5)
 		GameState.mark_room_text_seen(room_id)
 
+
 func _spawn_objects(room_data: Dictionary) -> void:
 	var index := 0
 	for object_data in room_data.get("objects", []):
@@ -72,13 +87,30 @@ func _spawn_objects(room_data: Dictionary) -> void:
 		match object_data.get("type", ""):
 			"rest":
 				node = REST_SCRIPT.new()
-				node.setup({"position": Vector2(object_data["position"][0], object_data["position"][1]), "text": object_data.get("text", "")})
+				node.setup(
+					{
+						"position": Vector2(object_data["position"][0], object_data["position"][1]),
+						"text": object_data.get("text", "")
+					}
+				)
 			"echo":
 				node = ECHO_SCRIPT.new()
-				node.setup({"position": Vector2(object_data["position"][0], object_data["position"][1]), "text": object_data.get("text", "")}, room_data["id"], index)
+				node.setup(
+					{
+						"position": Vector2(object_data["position"][0], object_data["position"][1]),
+						"text": object_data.get("text", "")
+					},
+					room_data["id"],
+					index
+				)
 			"rope":
 				node = ROPE_SCRIPT.new()
-				node.setup({"position": Vector2(object_data["position"][0], object_data["position"][1]), "height": object_data.get("height", 200.0)})
+				node.setup(
+					{
+						"position": Vector2(object_data["position"][0], object_data["position"][1]),
+						"height": object_data.get("height", 200.0)
+					}
+				)
 		if node:
 			object_layer.add_child(node)
 		index += 1
@@ -88,24 +120,52 @@ func _spawn_objects(room_data: Dictionary) -> void:
 		core.activated.connect(_on_core_activated)
 		object_layer.add_child(core)
 
+
 func _spawn_enemies(spawn_list: Array) -> void:
 	for spawn_data in spawn_list:
 		if spawn_data.get("type") == "boss" and GameState.boss_defeated:
 			continue
-		_spawn_enemy(spawn_data["type"], Vector2(spawn_data["position"][0], spawn_data["position"][1]))
+		_spawn_enemy(
+			spawn_data["type"],
+			Vector2(spawn_data["position"][0], spawn_data["position"][1]),
+			bool(spawn_data.get("allow_elite_roll", true))
+		)
 
-func _spawn_enemy(enemy_type: String, spawn_position: Vector2) -> void:
+
+func _spawn_enemy(enemy_type: String, spawn_position: Vector2, allow_elite_roll: bool = false) -> void:
 	var enemy: CharacterBody2D = ENEMY_SCENE.instantiate()
-	enemy.configure({"type": enemy_type, "position": spawn_position}, player)
+	enemy.configure(_build_enemy_spawn_config(enemy_type, spawn_position, allow_elite_roll), player)
 	enemy.died.connect(_on_enemy_died.bind(enemy))
 	enemy.fire_projectile.connect(_spawn_projectile)
 	enemy.damage_label_requested.connect(_spawn_damage_label)
 	enemy_layer.add_child(enemy)
 
+
+func _build_enemy_spawn_config(
+	enemy_type: String, spawn_position: Vector2, allow_elite_roll: bool
+) -> Dictionary:
+	var config := {"type": enemy_type, "position": spawn_position}
+	if _should_spawn_elite_variant(enemy_type, allow_elite_roll):
+		config["grade"] = "elite"
+		config["base_type"] = enemy_type
+	return config
+
+
+func _should_spawn_elite_variant(enemy_type: String, allow_elite_roll: bool) -> bool:
+	if not allow_elite_roll:
+		return false
+	if enemy_type in ["elite", "boss", "dummy"]:
+		return false
+	if not ELITE_VARIANT_TYPES.has(enemy_type):
+		return false
+	return randf() < ELITE_VARIANT_CHANCE
+
+
 func _spawn_projectile(payload: Dictionary) -> void:
 	var projectile := PROJECTILE_SCRIPT.new()
 	projectile.setup(payload)
 	projectile_layer.add_child(projectile)
+
 
 func _attempt_room_shift(direction: int) -> void:
 	if transitioning:
@@ -113,24 +173,40 @@ func _attempt_room_shift(direction: int) -> void:
 	if direction > 0:
 		if current_room["id"] == "entrance":
 			if enemy_layer.get_child_count() == 0:
-				_transition_to(room_order[min(room_index + 1, room_order.size() - 1)], Vector2(120, 480))
+				_transition_to(
+					room_order[min(room_index + 1, room_order.size() - 1)], Vector2(120, 480)
+				)
 			else:
-				GameState.push_message("The corridor ahead stays sealed until the room falls quiet.", 1.6)
+				GameState.push_message(
+					"The corridor ahead stays sealed until the room falls quiet.", 1.6
+				)
 		elif current_room["id"] == "conduit":
 			if GameState.core_activated:
 				_transition_to("deep_gate", Vector2(180, 520))
 			else:
-				GameState.push_message("A vertical current spins overhead, but the chamber still wants the floor core engaged.", 2.0)
+				(
+					GameState
+					. push_message(
+						"A vertical current spins overhead, but the chamber still wants the floor core engaged.",
+						2.0
+					)
+				)
 	elif direction < 0 and room_index > 0:
 		var previous: String = room_order[room_index - 1]
-		_transition_to(previous, Vector2(GameDatabase.get_room(previous).get("width", 1600) - 120, 480))
+		_transition_to(
+			previous, Vector2(GameDatabase.get_room(previous).get("width", 1600) - 120, 480)
+		)
+
 
 func _transition_to(room_id: String, spawn_position: Vector2) -> void:
 	transitioning = true
-	GameState.push_message("The path folds, pretending to rise while the pressure sinks deeper.", 2.2)
+	GameState.push_message(
+		"The path folds, pretending to rise while the pressure sinks deeper.", 2.2
+	)
 	await get_tree().create_timer(0.35).timeout
 	_load_room(room_id, spawn_position)
 	transitioning = false
+
 
 func _on_enemy_died(enemy: Node) -> void:
 	if not is_instance_valid(enemy):
@@ -139,12 +215,16 @@ func _on_enemy_died(enemy: Node) -> void:
 	GameState.notify_deploy_kill()
 	var enemy_data: Dictionary = GameDatabase.get_enemy_data(enemy.enemy_type)
 	var drop_profile: String = str(enemy_data.get("drop_profile", "none"))
+	if enemy.has_method("get_current_drop_profile"):
+		drop_profile = str(enemy.get_current_drop_profile())
 	var dropped_item: String = GameDatabase.get_drop_for_profile(drop_profile)
 	if dropped_item != "":
 		GameState.grant_equipment_item(dropped_item)
 		GameState.record_item_drop(dropped_item)
 		var item_data: Dictionary = GameDatabase.get_equipment(dropped_item)
-		GameState.push_message("Item drop: %s" % str(item_data.get("display_name", dropped_item)), 2.5)
+		GameState.push_message(
+			"Item drop: %s" % str(item_data.get("display_name", dropped_item)), 2.5
+		)
 	if enemy.enemy_type == "boss":
 		GameState.boss_defeated = true
 		GameState.grant_progression_event("boss_conduit")
@@ -154,10 +234,18 @@ func _on_enemy_died(enemy: Node) -> void:
 	if enemy_layer.get_child_count() <= 1 and current_room["id"] == "entrance":
 		GameState.push_message("The east corridor opens. The maze rewards momentum.", 2.0)
 
+
 func _on_core_activated() -> void:
-	_focus_event(Vector2(current_room["core_position"][0], current_room["core_position"][1]) + Vector2(0, -24), 1.0)
+	_focus_event(
+		(
+			Vector2(current_room["core_position"][0], current_room["core_position"][1])
+			+ Vector2(0, -24)
+		),
+		1.0
+	)
 	await get_tree().create_timer(1.1).timeout
 	_transition_to("deep_gate", Vector2(180, 520))
+
 
 func _on_player_died() -> void:
 	await _fade_screen(0.0, 1.0, 0.6)
@@ -165,6 +253,7 @@ func _on_player_died() -> void:
 	var restore := GameState.restore_after_death()
 	_load_room(restore["room_id"], restore["spawn_position"])
 	await _fade_screen(1.0, 0.0, 0.5)
+
 
 func _fade_screen(from_alpha: float, to_alpha: float, duration: float) -> void:
 	var fade_rect := ColorRect.new()
@@ -180,9 +269,11 @@ func _fade_screen(from_alpha: float, to_alpha: float, duration: float) -> void:
 	if to_alpha <= 0.0:
 		fade_rect.queue_free()
 
+
 func _clear_layer(layer: Node) -> void:
 	for child in layer.get_children():
 		child.queue_free()
+
 
 func _focus_event(world_position: Vector2, duration: float) -> void:
 	event_camera.global_position = world_position
@@ -190,6 +281,7 @@ func _focus_event(world_position: Vector2, duration: float) -> void:
 	event_camera.zoom = Vector2(0.9, 0.9)
 	await get_tree().create_timer(duration).timeout
 	event_camera.priority = 0
+
 
 func _on_combo_effect_requested(payload: Dictionary) -> void:
 	if payload.is_empty():
@@ -213,10 +305,12 @@ func _on_combo_effect_requested(payload: Dictionary) -> void:
 	if effect_id == "ash_detonation":
 		_focus_event(player.global_position + Vector2(0, -8), 0.35)
 
+
 func _spawn_damage_label(amount: int, position: Vector2, school: String) -> void:
 	var label := DAMAGE_LABEL_SCRIPT.new()
 	damage_layer.add_child(label)
 	label.setup(amount, position, school)
+
 
 func _spawn_admin_menu() -> void:
 	admin_menu = ADMIN_MENU_SCRIPT.new()
@@ -226,6 +320,7 @@ func _spawn_admin_menu() -> void:
 	admin_menu.heal_requested.connect(_on_admin_heal_requested)
 	admin_menu.clear_enemies_requested.connect(_on_admin_clear_enemies_requested)
 	admin_menu.freeze_ai_toggled.connect(_on_admin_freeze_ai_toggled)
+
 
 func _on_admin_spawn_enemy_requested(enemy_type: String) -> void:
 	var spawn_position := player.global_position + Vector2(260, 0)
@@ -237,21 +332,25 @@ func _on_admin_spawn_enemy_requested(enemy_type: String) -> void:
 		spawn_position = player.global_position + Vector2(320, 0)
 	elif enemy_type == "sentinel":
 		spawn_position = player.global_position + Vector2(400, 0)
-	_spawn_enemy(enemy_type, spawn_position)
+	_spawn_enemy(enemy_type, spawn_position, false)
 	if enemy_type == "boss":
 		_focus_event(spawn_position + Vector2(0, -24), 0.45)
+
 
 func _on_admin_reset_cooldowns_requested() -> void:
 	if player.has_method("debug_reset_spell_cooldowns"):
 		player.debug_reset_spell_cooldowns()
 	GameState.stats_changed.emit()
 
+
 func _on_admin_heal_requested() -> void:
 	GameState.heal_full()
+
 
 func _on_admin_clear_enemies_requested() -> void:
 	_clear_layer(enemy_layer)
 	GameState.admin_freeze_ai = false
+
 
 func _on_admin_freeze_ai_toggled(frozen: bool) -> void:
 	if frozen:

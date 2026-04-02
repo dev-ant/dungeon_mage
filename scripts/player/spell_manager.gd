@@ -2,6 +2,37 @@ extends RefCounted
 
 signal spell_cast(payload: Dictionary)
 
+const SPLIT_EFFECT_PAYLOADS := {
+	"dark_void_bolt": {
+		"attack": "dark_void_bolt_attack",
+		"hit": "dark_void_bolt_hit"
+	},
+	"earth_tremor": {
+		"attack": "earth_tremor_attack",
+		"hit": "earth_tremor_hit"
+	},
+	"fire_bolt": {
+		"attack": "fire_bolt_attack",
+		"hit": "fire_bolt_hit"
+	},
+	"holy_radiant_burst": {
+		"attack": "holy_radiant_burst_attack",
+		"hit": "holy_radiant_burst_hit"
+	},
+	"water_aqua_bullet": {
+		"attack": "water_aqua_bullet_attack",
+		"hit": "water_aqua_bullet_hit"
+	},
+	"wind_gale_cutter": {
+		"attack": "wind_gale_cutter_attack",
+		"hit": "wind_gale_cutter_hit"
+	},
+	"volt_spear": {
+		"attack": "volt_spear_attack",
+		"hit": "volt_spear_hit"
+	}
+}
+
 var player: CharacterBody2D = null
 var slot_bindings: Array = []
 var slot_cooldowns: Dictionary = {
@@ -78,7 +109,8 @@ func attempt_cast(skill_id: String) -> bool:
 	var runtime: Dictionary = GameState.get_spell_runtime(skill_id)
 	slot_cooldowns[skill_id] = float(runtime.get("cooldown", 0.3))
 	GameState.register_spell_use(skill_id, runtime.get("school", "fire"))
-	var velocity_value := Vector2(float(runtime.get("speed", 0.0)) * player.facing, 0.0)
+	var speed_mult := GameState.get_equipment_projectile_speed_multiplier()
+	var velocity_value := Vector2(float(runtime.get("speed", 0.0)) * player.facing * speed_mult, 0.0)
 	var spawn_pos := player.global_position + Vector2(34 * player.facing, -18)
 	if skill_id == "frost_nova":
 		velocity_value = Vector2.ZERO
@@ -89,8 +121,18 @@ func attempt_cast(skill_id: String) -> bool:
 	payload["velocity"] = velocity_value
 	payload["team"] = "player"
 	payload["owner"] = player
+	_apply_hitstop_policy(payload, "active")
+	_apply_skill_effect_payload(skill_id, payload)
 	GameState.consume_spell_cast(skill_id)
 	spell_cast.emit(payload)
+	var count_bonus := GameState.get_equipment_projectile_count_bonus()
+	if count_bonus > 0 and velocity_value != Vector2.ZERO:
+		for i in range(count_bonus):
+			var angle_sign := 1.0 if i % 2 == 0 else -1.0
+			var angle_deg := angle_sign * (15.0 * (int(i / 2) + 1))
+			var extra := payload.duplicate(true)
+			extra["velocity"] = velocity_value.rotated(deg_to_rad(angle_deg))
+			spell_cast.emit(extra)
 	last_feedback_text = "%s cast" % _get_skill_display_name(skill_id)
 	return true
 
@@ -225,6 +267,23 @@ func _get_skill_display_name(skill_id: String) -> String:
 		return str(runtime_data.get("name", skill_id))
 	return skill_id
 
+func get_split_effect_skill_ids() -> Array[String]:
+	var skill_ids: Array[String] = []
+	for skill_id in SPLIT_EFFECT_PAYLOADS.keys():
+		skill_ids.append(str(skill_id))
+	skill_ids.sort()
+	return skill_ids
+
+func get_split_effect_payload(skill_id: String) -> Dictionary:
+	return SPLIT_EFFECT_PAYLOADS.get(skill_id, {}).duplicate(true)
+
+func _apply_skill_effect_payload(skill_id: String, payload: Dictionary) -> void:
+	var effect_ids: Dictionary = get_split_effect_payload(skill_id)
+	if effect_ids.is_empty():
+		return
+	payload["attack_effect_id"] = str(effect_ids.get("attack", ""))
+	payload["hit_effect_id"] = str(effect_ids.get("hit", ""))
+
 func _announce_failure() -> void:
 	match last_failure_reason:
 		"empty_slot":
@@ -261,13 +320,18 @@ func _cast_deploy(skill_id: String, skill_data: Dictionary) -> bool:
 		"range": 1.0,
 		"team": "player",
 		"damage": int(runtime.get("damage", 20)),
-		"knockback": 180.0,
+		"knockback": float(runtime.get("knockback", 180.0)),
 		"school": str(skill_data.get("element", "earth")),
 		"size": float(runtime.get("size", 40.0)),
 		"duration": float(runtime.get("duration", 0.8)),
+		"tick_interval": float(runtime.get("tick_interval", 0.0)),
+		"target_count": int(skill_data.get("target_count_base", 0))
+		+ _get_runtime_bonus(skill_data, "target_count", GameState.get_skill_level(skill_id)),
+		"utility_effects": runtime.get("utility_effects", []).duplicate(true),
 		"color": _get_skill_color(skill_data),
 		"owner": player
 	}
+	_apply_hitstop_policy(payload, "deploy")
 	GameState.consume_spell_cast(skill_id)
 	spell_cast.emit(payload)
 	last_feedback_text = "%s deployed" % _get_skill_display_name(skill_id)
@@ -344,6 +408,7 @@ func _tick_toggles(delta: float) -> void:
 				"color": str(toggle_data.get("color", "#8f77d8")),
 				"owner": player
 			}
+			_apply_hitstop_policy(payload, "toggle")
 			payload = GameState.apply_spell_modifiers(payload)
 			spell_cast.emit(payload)
 		active_toggles[skill_id] = toggle_data
@@ -364,6 +429,7 @@ func _build_skill_runtime(skill_id: String, skill_data: Dictionary) -> Dictionar
 		"duration": float(skill_data.get("duration_base", 0.0)) * duration_scale * GameState.get_equipment_install_duration_multiplier(),
 		"size": float(skill_data.get("range_base", 40.0)) * range_scale * GameState.get_equipment_aoe_multiplier(),
 		"tick_interval": float(skill_data.get("tick_interval", 1.0)) * maxf(0.6, 1.0 - GameState.get_equipment_cast_speed_bonus()),
+		"knockback": float(skill_data.get("knockback_base", 180.0)),
 		"pierce": int(skill_data.get("pierce_count_base", 0)) + _get_runtime_bonus(skill_data, "pierce_count", level),
 		"utility_effects": skill_data.get("utility_effects", []).duplicate(true),
 		"mana_drain_per_tick": _get_toggle_mana_drain_per_tick(skill_id, skill_data)
@@ -417,3 +483,16 @@ func _get_skill_color(skill_data: Dictionary) -> String:
 		"lightning":
 			return "#f7ef6a"
 	return "#ffffff"
+
+
+func _apply_hitstop_policy(payload: Dictionary, cast_type: String) -> void:
+	if cast_type == "deploy" or cast_type == "toggle":
+		payload["hitstop_mode"] = "none"
+		return
+	var speed := float(payload.get("speed", 0.0))
+	var duration := float(payload.get("duration", 0.0))
+	var size := float(payload.get("size", 0.0))
+	if speed <= 0.0 and duration > 0.0 and size >= 48.0:
+		payload["hitstop_mode"] = "area_burst"
+		return
+	payload["hitstop_mode"] = "default"

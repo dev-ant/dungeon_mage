@@ -1,3 +1,20 @@
+---
+title: Claude Code 스킬 설정 구현 계획
+doc_type: archive
+status: archived
+section: governance
+owner: shared
+source_of_truth: false
+parent: /Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/docs/governance/README.md
+depends_on:
+  - /Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/docs/governance/skills_and_mcp_policy.md
+update_when:
+  - status_changed
+  - structure_changed
+last_updated: 2026-04-02
+last_verified: 2026-04-02
+---
+
 # Claude Code 스킬 설정 구현 계획
 
 > 에이전트 작업자용 메모: 이 문서는 Dungeon Mage 프로젝트에서 Claude용 로컬 스킬과 `CLAUDE.md`를 구성하기 위한 구현 계획입니다.

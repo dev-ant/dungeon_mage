@@ -62,7 +62,9 @@ const PRESET_FUNERAL_BLOOM := [
 	"plant_verdant_overflow",
 	"holy_mana_veil"
 ]
-const HOTBAR_PRESET_IDS := ["default", "ritual", "overclock", "deploy_lab", "ashen_rite", "apex_toggles", "funeral_bloom"]
+const HOTBAR_PRESET_IDS := [
+	"default", "ritual", "overclock", "deploy_lab", "ashen_rite", "apex_toggles", "funeral_bloom"
+]
 const HOTBAR_PRESET_LABELS := {
 	"default": "Default",
 	"ritual": "Ritual",
@@ -73,16 +75,32 @@ const HOTBAR_PRESET_LABELS := {
 	"funeral_bloom": "FuneralBloom"
 }
 const SPAWN_KEY_MAP := {
-	"brute": "C", "ranged": "V", "boss": "G", "dasher": "B",
-	"sentinel": "J", "elite": "H", "leaper": "N",
-	"bomber": "Y", "charger": "R", "dummy": "Q"
+	"brute": "C",
+	"ranged": "V",
+	"boss": "G",
+	"dasher": "B",
+	"sentinel": "J",
+	"elite": "H",
+	"leaper": "N",
+	"bomber": "Y",
+	"charger": "R",
+	"dummy": "Q"
 }
 const SPAWN_BUTTON_LABELS := {
-	"brute": "Brute", "ranged": "Range", "boss": "Boss",
-	"dasher": "Dash", "sentinel": "Sntl", "elite": "Elite",
-	"leaper": "Leap", "bomber": "Bomb", "charger": "Chrg", "dummy": "Dummy"
+	"brute": "Brute",
+	"ranged": "Range",
+	"boss": "Boss",
+	"dasher": "Dash",
+	"sentinel": "Sntl",
+	"elite": "Elite",
+	"leaper": "Leap",
+	"bomber": "Bomb",
+	"charger": "Chrg",
+	"dummy": "Dummy"
 }
-const SPAWN_ENEMY_ORDER := ["brute", "ranged", "boss", "dasher", "sentinel", "elite", "leaper", "bomber", "charger", "dummy"]
+const SPAWN_ENEMY_ORDER := [
+	"brute", "ranged", "boss", "dasher", "sentinel", "elite", "leaper", "bomber", "charger", "dummy"
+]
 const ADMIN_TABS := ["hotbar", "resources", "equipment", "spawn", "buffs"]
 const ADMIN_TAB_LABELS := {
 	"hotbar": "Hotbar",
@@ -91,16 +109,15 @@ const ADMIN_TAB_LABELS := {
 	"spawn": "Spawn",
 	"buffs": "Buffs"
 }
-const EQUIPMENT_RARITY_ORDER := {
-	"common": 0,
-	"uncommon": 1,
-	"rare": 2,
-	"epic": 3,
-	"legendary": 4
-}
+const EQUIPMENT_RARITY_ORDER := {"common": 0, "uncommon": 1, "rare": 2, "epic": 3, "legendary": 4}
 const EQUIPMENT_SLOT_LABELS := {
-	"weapon": "Weapon", "offhand": "Offhand", "head": "Head",
-	"body": "Body", "legs": "Legs", "accessory_1": "Acc 1", "accessory_2": "Acc 2"
+	"weapon": "Weapon",
+	"offhand": "Offhand",
+	"head": "Head",
+	"body": "Body",
+	"legs": "Legs",
+	"accessory_1": "Acc 1",
+	"accessory_2": "Acc 2"
 }
 const EQUIPMENT_FOCUS_MODES := ["candidate", "owned"]
 const EQUIPMENT_SORT_MODES := ["rarity", "name"]
@@ -131,7 +148,9 @@ var recent_granted_item_id := ""
 var skill_catalog: Array = []
 var buff_catalog: Array = []
 var selected_buff_catalog_index := 0
-var equipment_slot_order := ["weapon", "offhand", "head", "body", "legs", "accessory_1", "accessory_2"]
+var equipment_slot_order := [
+	"weapon", "offhand", "head", "body", "legs", "accessory_1", "accessory_2"
+]
 var equipment_catalog_by_slot: Dictionary = {}
 var equipment_candidate_index_by_slot: Dictionary = {}
 var equipment_owned_index_by_slot: Dictionary = {}
@@ -172,6 +191,7 @@ var _library_focus_button: Button = null
 var _equipment_action_button_bar: HBoxContainer = null
 var _equipment_interact_button: Button = null
 
+
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -183,6 +203,7 @@ func _ready() -> void:
 	_build_buff_catalog()
 	_build_equipment_catalog()
 	_refresh()
+
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("admin_menu"):
@@ -207,7 +228,9 @@ func _unhandled_input(event: InputEvent) -> void:
 	elif event.is_action_pressed("move_down"):
 		if edit_mode == "hotbar":
 			if current_tab == "buffs":
-				selected_buff_catalog_index = mini(selected_buff_catalog_index + 1, max(buff_catalog.size() - 1, 0))
+				selected_buff_catalog_index = mini(
+					selected_buff_catalog_index + 1, max(buff_catalog.size() - 1, 0)
+				)
 			elif library_focus:
 				_cycle_library_selection(1)
 			else:
@@ -215,7 +238,9 @@ func _unhandled_input(event: InputEvent) -> void:
 				_sync_library_selection_to_slot()
 		else:
 			_clear_recent_granted_selection()
-			selected_equipment_slot = min(selected_equipment_slot + 1, equipment_slot_order.size() - 1)
+			selected_equipment_slot = min(
+				selected_equipment_slot + 1, equipment_slot_order.size() - 1
+			)
 		_refresh()
 	elif event.is_action_pressed("move_left"):
 		if edit_mode == "hotbar":
@@ -245,7 +270,9 @@ func _unhandled_input(event: InputEvent) -> void:
 			elif current_tab == "spawn":
 				GameState.admin_freeze_ai = not GameState.admin_freeze_ai
 				freeze_ai_toggled.emit(GameState.admin_freeze_ai)
-				GameState.push_message("Enemy AI %s." % ("FROZEN" if GameState.admin_freeze_ai else "ACTIVE"), 1.2)
+				GameState.push_message(
+					"Enemy AI %s." % ("FROZEN" if GameState.admin_freeze_ai else "ACTIVE"), 1.2
+				)
 			elif library_focus:
 				_assign_selected_library_skill_to_slot()
 			else:
@@ -256,7 +283,9 @@ func _unhandled_input(event: InputEvent) -> void:
 		_refresh()
 	elif event.is_action_pressed("dash"):
 		GameState.set_admin_infinite_health(not GameState.admin_infinite_health)
-		GameState.push_message("Infinite HP %s" % ("ON" if GameState.admin_infinite_health else "OFF"), 1.0)
+		GameState.push_message(
+			"Infinite HP %s" % ("ON" if GameState.admin_infinite_health else "OFF"), 1.0
+		)
 		_refresh()
 	elif event.is_action_pressed("spell_fire"):
 		reset_cooldowns_requested.emit()
@@ -293,31 +322,67 @@ func _unhandled_input(event: InputEvent) -> void:
 		if current_tab == "equipment":
 			if equipment_focus_mode == "candidate":
 				_cycle_candidate_window(1)
-				GameState.push_message("Candidate page %s." % _get_candidate_window_short_label(str(equipment_slot_order[selected_equipment_slot])), 1.0)
+				GameState.push_message(
+					(
+						"Candidate page %s."
+						% _get_candidate_window_short_label(
+							str(equipment_slot_order[selected_equipment_slot])
+						)
+					),
+					1.0
+				)
 			else:
 				_cycle_owned_page(1)
-				GameState.push_message("Owned page %s." % _get_owned_page_short_label(str(equipment_slot_order[selected_equipment_slot])), 1.0)
+				GameState.push_message(
+					(
+						"Owned page %s."
+						% _get_owned_page_short_label(
+							str(equipment_slot_order[selected_equipment_slot])
+						)
+					),
+					1.0
+				)
 		elif current_tab == "spawn":
 			spawn_enemy_requested.emit("bomber")
 			GameState.push_message("Bomber spawned.", 1.0)
 		else:
 			GameState.set_admin_infinite_mana(not GameState.admin_infinite_mana)
-			GameState.push_message("Infinite MP %s" % ("ON" if GameState.admin_infinite_mana else "OFF"), 1.0)
+			GameState.push_message(
+				"Infinite MP %s" % ("ON" if GameState.admin_infinite_mana else "OFF"), 1.0
+			)
 		_refresh()
 	elif event.is_action_pressed("buff_hourglass"):
 		if current_tab == "equipment":
 			if equipment_focus_mode == "candidate":
 				_cycle_candidate_window(-1)
-				GameState.push_message("Candidate page %s." % _get_candidate_window_short_label(str(equipment_slot_order[selected_equipment_slot])), 1.0)
+				GameState.push_message(
+					(
+						"Candidate page %s."
+						% _get_candidate_window_short_label(
+							str(equipment_slot_order[selected_equipment_slot])
+						)
+					),
+					1.0
+				)
 			else:
 				_cycle_owned_page(-1)
-				GameState.push_message("Owned page %s." % _get_owned_page_short_label(str(equipment_slot_order[selected_equipment_slot])), 1.0)
+				GameState.push_message(
+					(
+						"Owned page %s."
+						% _get_owned_page_short_label(
+							str(equipment_slot_order[selected_equipment_slot])
+						)
+					),
+					1.0
+				)
 		elif current_tab == "spawn":
 			spawn_enemy_requested.emit("elite")
 			GameState.push_message("Elite spawned.", 1.0)
 		else:
 			GameState.set_admin_ignore_cooldowns(not GameState.admin_ignore_cooldowns)
-			GameState.push_message("No Cooldown %s" % ("ON" if GameState.admin_ignore_cooldowns else "OFF"), 1.0)
+			GameState.push_message(
+				"No Cooldown %s" % ("ON" if GameState.admin_ignore_cooldowns else "OFF"), 1.0
+			)
 		_refresh()
 	elif event.is_action_pressed("buff_pact"):
 		if current_tab == "equipment":
@@ -328,7 +393,10 @@ func _unhandled_input(event: InputEvent) -> void:
 			GameState.push_message("Sentinel spawned.", 1.0)
 		else:
 			GameState.set_admin_ignore_buff_slot_limit(not GameState.admin_ignore_buff_slot_limit)
-			GameState.push_message("Free Buff Slots %s" % ("ON" if GameState.admin_ignore_buff_slot_limit else "OFF"), 1.0)
+			GameState.push_message(
+				"Free Buff Slots %s" % ("ON" if GameState.admin_ignore_buff_slot_limit else "OFF"),
+				1.0
+			)
 		_refresh()
 	elif event.is_action_pressed("buff_tempo"):
 		spawn_enemy_requested.emit("boss")
@@ -339,7 +407,9 @@ func _unhandled_input(event: InputEvent) -> void:
 			var candidate_item_id := _get_selected_equipment_candidate_id()
 			if GameState.grant_equipment_item(candidate_item_id):
 				_apply_post_grant_equipment_selection(slot_name, candidate_item_id)
-				GameState.push_message("%s added to inventory." % _display_name(candidate_item_id), 1.0)
+				GameState.push_message(
+					"%s added to inventory." % _display_name(candidate_item_id), 1.0
+				)
 		elif current_tab == "buffs":
 			_clear_active_buffs()
 		elif current_tab == "spawn":
@@ -371,6 +441,7 @@ func _unhandled_input(event: InputEvent) -> void:
 			spawn_enemy_requested.emit("dummy")
 			GameState.push_message("Training dummy spawned.", 1.0)
 	get_viewport().set_input_as_handled()
+
 
 func _build_ui() -> void:
 	panel = PanelContainer.new()
@@ -608,6 +679,7 @@ func _build_ui() -> void:
 	footer_label.add_theme_font_size_override("font_size", 16)
 	root.add_child(footer_label)
 
+
 func _build_skill_catalog() -> void:
 	skill_catalog = ["", "fire_bolt", "frost_nova", "volt_spear"]
 	for skill in GameDatabase.get_all_skills():
@@ -615,12 +687,16 @@ func _build_skill_catalog() -> void:
 		if skill_type in ["buff", "deploy", "toggle"]:
 			skill_catalog.append(str(skill.get("skill_id", "")))
 
+
 func _build_buff_catalog() -> void:
 	buff_catalog = []
 	for skill in GameDatabase.get_all_skills():
 		if str(skill.get("skill_type", "")) == "buff":
 			buff_catalog.append(str(skill.get("skill_id", "")))
-	selected_buff_catalog_index = clampi(selected_buff_catalog_index, 0, max(buff_catalog.size() - 1, 0))
+	selected_buff_catalog_index = clampi(
+		selected_buff_catalog_index, 0, max(buff_catalog.size() - 1, 0)
+	)
+
 
 func _get_buff_tab_lines() -> Array[String]:
 	var lines: Array[String] = ["Buffs  [%d available]" % buff_catalog.size()]
@@ -667,6 +743,7 @@ func _get_buff_tab_lines() -> Array[String]:
 		lines.append(GameState.get_combo_summary())
 	return lines
 
+
 func _force_activate_selected_buff() -> void:
 	if buff_catalog.is_empty():
 		return
@@ -686,11 +763,13 @@ func _force_activate_selected_buff() -> void:
 		GameState.push_message("%s: blocked (ritual lock)." % _display_name(skill_id), 1.0)
 	_refresh()
 
+
 func _clear_active_buffs() -> void:
 	GameState.active_buffs.clear()
 	GameState.stats_changed.emit()
 	GameState.push_message("All active buffs cleared.", 1.0)
 	_refresh()
+
 
 func _build_equipment_catalog() -> void:
 	equipment_catalog_by_slot.clear()
@@ -707,6 +786,7 @@ func _build_equipment_catalog() -> void:
 			equipment_candidate_index_by_slot[slot_name] = 0
 			equipment_owned_index_by_slot[slot_name] = 0
 		equipment_catalog_by_slot[slot_name].append(str(item.get("item_id", "")))
+
 
 func _refresh() -> void:
 	if body_label == null:
@@ -733,17 +813,21 @@ func _refresh() -> void:
 	body_label.text = "\n".join(lines)
 	footer_label.text = _get_footer_text()
 
+
 func _refresh_tab_buttons() -> void:
 	for tab_id in _tab_button_nodes:
 		var btn: Button = _tab_button_nodes[tab_id]
 		btn.flat = (tab_id != current_tab)
 
+
 func _on_tab_button_pressed(tab_id: String) -> void:
 	_set_tab(tab_id)
 	_refresh()
 
+
 func debug_click_tab(tab_id: String) -> void:
 	_on_tab_button_pressed(tab_id)
+
 
 func _refresh_slot_buttons() -> void:
 	if _slot_button_bar == null:
@@ -755,13 +839,16 @@ func _refresh_slot_buttons() -> void:
 	for i in range(_slot_button_nodes.size()):
 		_slot_button_nodes[i].flat = (i != selected_equipment_slot)
 
+
 func _on_equipment_slot_button_pressed(slot_index: int) -> void:
 	_clear_recent_granted_selection()
 	selected_equipment_slot = clampi(slot_index, 0, equipment_slot_order.size() - 1)
 	_refresh()
 
+
 func debug_click_equipment_slot(slot_index: int) -> void:
 	_on_equipment_slot_button_pressed(slot_index)
+
 
 func _refresh_hotbar_slot_buttons() -> void:
 	if _hotbar_slot_button_bar == null:
@@ -773,13 +860,16 @@ func _refresh_hotbar_slot_buttons() -> void:
 	for i in range(_hotbar_slot_button_nodes.size()):
 		_hotbar_slot_button_nodes[i].flat = (i != selected_slot)
 
+
 func _on_hotbar_slot_button_pressed(slot_index: int) -> void:
 	selected_slot = clampi(slot_index, 0, GameState.get_spell_hotbar().size() - 1)
 	_sync_library_selection_to_slot()
 	_refresh()
 
+
 func debug_click_hotbar_slot(slot_index: int) -> void:
 	_on_hotbar_slot_button_pressed(slot_index)
+
 
 func _refresh_owned_item_buttons() -> void:
 	if _owned_item_button_bar == null:
@@ -798,7 +888,11 @@ func _refresh_owned_item_buttons() -> void:
 	var current_index := int(equipment_owned_index_by_slot.get(slot_name, 0))
 	if not owned_items.is_empty():
 		current_index = clampi(current_index, 0, owned_items.size() - 1)
-	var page_index := int(floor(float(current_index) / float(EQUIPMENT_PAGE_SIZE))) if not owned_items.is_empty() else 0
+	var page_index := (
+		int(floor(float(current_index) / float(EQUIPMENT_PAGE_SIZE)))
+		if not owned_items.is_empty()
+		else 0
+	)
 	var page_start := page_index * EQUIPMENT_PAGE_SIZE
 	for i in range(_owned_item_button_nodes.size()):
 		var btn: Button = _owned_item_button_nodes[i]
@@ -814,6 +908,7 @@ func _refresh_owned_item_buttons() -> void:
 			btn.disabled = true
 			btn.flat = true
 
+
 func _on_owned_item_button_pressed(page_position: int) -> void:
 	if selected_equipment_slot < 0 or selected_equipment_slot >= equipment_slot_order.size():
 		return
@@ -822,7 +917,11 @@ func _on_owned_item_button_pressed(page_position: int) -> void:
 	var current_index := int(equipment_owned_index_by_slot.get(slot_name, 0))
 	if not owned_items.is_empty():
 		current_index = clampi(current_index, 0, owned_items.size() - 1)
-	var page_index := int(floor(float(current_index) / float(EQUIPMENT_PAGE_SIZE))) if not owned_items.is_empty() else 0
+	var page_index := (
+		int(floor(float(current_index) / float(EQUIPMENT_PAGE_SIZE)))
+		if not owned_items.is_empty()
+		else 0
+	)
 	var target_index := page_index * EQUIPMENT_PAGE_SIZE + page_position
 	if target_index >= owned_items.size():
 		return
@@ -831,8 +930,10 @@ func _on_owned_item_button_pressed(page_position: int) -> void:
 	equipment_focus_mode = "owned"
 	_refresh()
 
+
 func debug_click_owned_item_button(page_position: int) -> void:
 	_on_owned_item_button_pressed(page_position)
+
 
 func _refresh_candidate_item_buttons() -> void:
 	if _candidate_item_button_bar == null:
@@ -851,7 +952,11 @@ func _refresh_candidate_item_buttons() -> void:
 	var current_index := int(equipment_candidate_index_by_slot.get(slot_name, 0))
 	if not options.is_empty():
 		current_index = clampi(current_index, 0, options.size() - 1)
-	var page_index := int(floor(float(current_index) / float(EQUIPMENT_PAGE_SIZE))) if not options.is_empty() else 0
+	var page_index := (
+		int(floor(float(current_index) / float(EQUIPMENT_PAGE_SIZE)))
+		if not options.is_empty()
+		else 0
+	)
 	var page_start := page_index * EQUIPMENT_PAGE_SIZE
 	for i in range(_candidate_item_button_nodes.size()):
 		var btn: Button = _candidate_item_button_nodes[i]
@@ -867,6 +972,7 @@ func _refresh_candidate_item_buttons() -> void:
 			btn.disabled = true
 			btn.flat = true
 
+
 func _on_candidate_item_button_pressed(page_position: int) -> void:
 	if selected_equipment_slot < 0 or selected_equipment_slot >= equipment_slot_order.size():
 		return
@@ -875,7 +981,11 @@ func _on_candidate_item_button_pressed(page_position: int) -> void:
 	var current_index := int(equipment_candidate_index_by_slot.get(slot_name, 0))
 	if not options.is_empty():
 		current_index = clampi(current_index, 0, options.size() - 1)
-	var page_index := int(floor(float(current_index) / float(EQUIPMENT_PAGE_SIZE))) if not options.is_empty() else 0
+	var page_index := (
+		int(floor(float(current_index) / float(EQUIPMENT_PAGE_SIZE)))
+		if not options.is_empty()
+		else 0
+	)
 	var target_index := page_index * EQUIPMENT_PAGE_SIZE + page_position
 	if target_index >= options.size():
 		return
@@ -884,8 +994,10 @@ func _on_candidate_item_button_pressed(page_position: int) -> void:
 	equipment_focus_mode = "candidate"
 	_refresh()
 
+
 func debug_click_candidate_item_button(page_position: int) -> void:
 	_on_candidate_item_button_pressed(page_position)
+
 
 func _get_equipment_interact_label() -> String:
 	if selected_equipment_slot < 0 or selected_equipment_slot >= equipment_slot_order.size():
@@ -904,6 +1016,7 @@ func _get_equipment_interact_label() -> String:
 			return "Unequip"
 	return "Interact"
 
+
 func _refresh_equipment_action_buttons() -> void:
 	if _equipment_action_button_bar == null:
 		return
@@ -914,12 +1027,15 @@ func _refresh_equipment_action_buttons() -> void:
 	if _equipment_interact_button != null:
 		_equipment_interact_button.text = _get_equipment_interact_label()
 
+
 func _on_equipment_interact_button_pressed() -> void:
 	_handle_equipment_interact()
 	_refresh()
 
+
 func debug_click_equipment_interact() -> void:
 	_on_equipment_interact_button_pressed()
+
 
 func _refresh_spawn_buttons() -> void:
 	if _spawn_button_bar == null or _spawn_action_button_bar == null:
@@ -932,26 +1048,35 @@ func _refresh_spawn_buttons() -> void:
 	if _spawn_freeze_button != null:
 		_spawn_freeze_button.flat = not GameState.admin_freeze_ai
 
+
 func _on_spawn_enemy_button_pressed(enemy_type: String) -> void:
 	spawn_enemy_requested.emit(enemy_type)
+
 
 func _on_spawn_clear_button_pressed() -> void:
 	clear_enemies_requested.emit()
 
+
 func _on_spawn_freeze_button_pressed() -> void:
 	GameState.admin_freeze_ai = not GameState.admin_freeze_ai
 	freeze_ai_toggled.emit(GameState.admin_freeze_ai)
-	GameState.push_message("Enemy AI %s." % ("FROZEN" if GameState.admin_freeze_ai else "ACTIVE"), 1.2)
+	GameState.push_message(
+		"Enemy AI %s." % ("FROZEN" if GameState.admin_freeze_ai else "ACTIVE"), 1.2
+	)
 	_refresh()
+
 
 func debug_click_spawn_enemy(enemy_type: String) -> void:
 	_on_spawn_enemy_button_pressed(enemy_type)
 
+
 func debug_click_spawn_clear() -> void:
 	_on_spawn_clear_button_pressed()
 
+
 func debug_click_spawn_freeze() -> void:
 	_on_spawn_freeze_button_pressed()
+
 
 func _refresh_resource_buttons() -> void:
 	if _resource_button_bar == null:
@@ -969,46 +1094,66 @@ func _refresh_resource_buttons() -> void:
 	if _resource_buff_button != null:
 		_resource_buff_button.flat = not GameState.admin_ignore_buff_slot_limit
 
+
 func _on_resource_hp_button_pressed() -> void:
 	GameState.set_admin_infinite_health(not GameState.admin_infinite_health)
-	GameState.push_message("Infinite HP %s" % ("ON" if GameState.admin_infinite_health else "OFF"), 1.0)
+	GameState.push_message(
+		"Infinite HP %s" % ("ON" if GameState.admin_infinite_health else "OFF"), 1.0
+	)
 	_refresh()
+
 
 func _on_resource_mp_button_pressed() -> void:
 	GameState.set_admin_infinite_mana(not GameState.admin_infinite_mana)
-	GameState.push_message("Infinite MP %s" % ("ON" if GameState.admin_infinite_mana else "OFF"), 1.0)
+	GameState.push_message(
+		"Infinite MP %s" % ("ON" if GameState.admin_infinite_mana else "OFF"), 1.0
+	)
 	_refresh()
+
 
 func _on_resource_cd_button_pressed() -> void:
 	GameState.set_admin_ignore_cooldowns(not GameState.admin_ignore_cooldowns)
-	GameState.push_message("No Cooldown %s" % ("ON" if GameState.admin_ignore_cooldowns else "OFF"), 1.0)
+	GameState.push_message(
+		"No Cooldown %s" % ("ON" if GameState.admin_ignore_cooldowns else "OFF"), 1.0
+	)
 	_refresh()
+
 
 func _on_resource_buff_button_pressed() -> void:
 	GameState.set_admin_ignore_buff_slot_limit(not GameState.admin_ignore_buff_slot_limit)
-	GameState.push_message("Free Buff Slots %s" % ("ON" if GameState.admin_ignore_buff_slot_limit else "OFF"), 1.0)
+	GameState.push_message(
+		"Free Buff Slots %s" % ("ON" if GameState.admin_ignore_buff_slot_limit else "OFF"), 1.0
+	)
 	_refresh()
+
 
 func _on_resource_heal_button_pressed() -> void:
 	heal_requested.emit()
 
+
 func _on_resource_reset_cd_button_pressed() -> void:
 	reset_cooldowns_requested.emit()
+
 
 func debug_click_resource_hp() -> void:
 	_on_resource_hp_button_pressed()
 
+
 func debug_click_resource_mp() -> void:
 	_on_resource_mp_button_pressed()
+
 
 func debug_click_resource_cd() -> void:
 	_on_resource_cd_button_pressed()
 
+
 func debug_click_resource_buff() -> void:
 	_on_resource_buff_button_pressed()
 
+
 func _get_buff_page_start() -> int:
 	return (selected_buff_catalog_index / BUFF_PAGE_SIZE) * BUFF_PAGE_SIZE
+
 
 func _refresh_buff_buttons() -> void:
 	if _buff_item_button_bar == null or _buff_action_button_bar == null:
@@ -1038,6 +1183,7 @@ func _refresh_buff_buttons() -> void:
 			btn.disabled = true
 			btn.flat = true
 
+
 func _on_buff_item_button_pressed(page_position: int) -> void:
 	var target_index := _get_buff_page_start() + page_position
 	if target_index >= buff_catalog.size():
@@ -1045,12 +1191,14 @@ func _on_buff_item_button_pressed(page_position: int) -> void:
 	selected_buff_catalog_index = target_index
 	_refresh()
 
+
 func _on_buff_prev_page_pressed() -> void:
 	var page_start := _get_buff_page_start()
 	if page_start <= 0:
 		return
 	selected_buff_catalog_index = max(page_start - BUFF_PAGE_SIZE, 0)
 	_refresh()
+
 
 func _on_buff_next_page_pressed() -> void:
 	var page_start := _get_buff_page_start()
@@ -1060,23 +1208,30 @@ func _on_buff_next_page_pressed() -> void:
 	selected_buff_catalog_index = next_start
 	_refresh()
 
+
 func _on_buff_activate_button_pressed() -> void:
 	_force_activate_selected_buff()
+
 
 func _on_buff_clear_button_pressed() -> void:
 	_clear_active_buffs()
 
+
 func debug_click_buff_item(page_position: int) -> void:
 	_on_buff_item_button_pressed(page_position)
+
 
 func debug_click_buff_activate() -> void:
 	_on_buff_activate_button_pressed()
 
+
 func debug_click_buff_clear() -> void:
 	_on_buff_clear_button_pressed()
 
+
 func debug_buff_next_page() -> void:
 	_on_buff_next_page_pressed()
+
 
 func _refresh_preset_buttons() -> void:
 	if _preset_button_bar == null:
@@ -1089,6 +1244,7 @@ func _refresh_preset_buttons() -> void:
 		var btn: Button = _preset_button_nodes[preset_id]
 		btn.flat = (preset_id != current_hotbar_preset_id)
 
+
 func _on_preset_button_pressed(preset_id: String) -> void:
 	var index := HOTBAR_PRESET_IDS.find(preset_id)
 	if index < 0:
@@ -1097,8 +1253,10 @@ func _on_preset_button_pressed(preset_id: String) -> void:
 	_apply_hotbar_preset(preset_id)
 	_refresh()
 
+
 func debug_click_preset(preset_id: String) -> void:
 	_on_preset_button_pressed(preset_id)
+
 
 func _refresh_library_buttons() -> void:
 	if _library_item_button_bar == null:
@@ -1128,6 +1286,7 @@ func _refresh_library_buttons() -> void:
 	if _library_focus_button != null:
 		_library_focus_button.flat = not library_focus
 
+
 func _on_library_item_button_pressed(window_position: int) -> void:
 	if skill_catalog.is_empty():
 		return
@@ -1142,16 +1301,20 @@ func _on_library_item_button_pressed(window_position: int) -> void:
 	selected_library_index = target_index
 	_refresh()
 
+
 func _on_library_focus_button_pressed() -> void:
 	library_focus = not library_focus
 	GameState.push_message("Library Focus %s" % ("ON" if library_focus else "OFF"), 1.0)
 	_refresh()
 
+
 func debug_click_library_item(window_position: int) -> void:
 	_on_library_item_button_pressed(window_position)
 
+
 func debug_click_library_focus_toggle() -> void:
 	_on_library_focus_button_pressed()
+
 
 func _get_common_status_lines() -> Array[String]:
 	var lines: Array[String] = []
@@ -1159,11 +1322,18 @@ func _get_common_status_lines() -> Array[String]:
 	lines.append("Edit Mode: %s" % edit_mode.capitalize())
 	lines.append("Library Focus: %s" % ("ON" if library_focus else "OFF"))
 	lines.append("Selected Slot: %d" % (selected_slot + 1))
-	lines.append("Hotbar Preset: %s" % str(HOTBAR_PRESET_LABELS.get(current_hotbar_preset_id, current_hotbar_preset_id)))
+	lines.append(
+		(
+			"Hotbar Preset: %s"
+			% str(HOTBAR_PRESET_LABELS.get(current_hotbar_preset_id, current_hotbar_preset_id))
+		)
+	)
 	lines.append("Infinite HP: %s" % ("ON" if GameState.admin_infinite_health else "OFF"))
 	lines.append("Infinite MP: %s" % ("ON" if GameState.admin_infinite_mana else "OFF"))
 	lines.append("Ignore Cooldown: %s" % ("ON" if GameState.admin_ignore_cooldowns else "OFF"))
-	lines.append("Free Buff Slots: %s" % ("ON" if GameState.admin_ignore_buff_slot_limit else "OFF"))
+	lines.append(
+		"Free Buff Slots: %s" % ("ON" if GameState.admin_ignore_buff_slot_limit else "OFF")
+	)
 	if current_tab == "equipment":
 		lines.append("Equipment Focus: %s" % _get_equipment_focus_label())
 	lines.append(GameState.get_resource_summary())
@@ -1171,7 +1341,10 @@ func _get_common_status_lines() -> Array[String]:
 	lines.append("")
 	return lines
 
-func _get_tab_lines(hotbar: Array, selected_skill_id: String, active_skill_id: String) -> Array[String]:
+
+func _get_tab_lines(
+	hotbar: Array, selected_skill_id: String, active_skill_id: String
+) -> Array[String]:
 	match current_tab:
 		"hotbar":
 			return _get_hotbar_tab_lines(hotbar, selected_skill_id, active_skill_id)
@@ -1185,7 +1358,10 @@ func _get_tab_lines(hotbar: Array, selected_skill_id: String, active_skill_id: S
 			return _get_buff_tab_lines()
 	return ["Unknown Tab"]
 
-func _get_hotbar_tab_lines(hotbar: Array, selected_skill_id: String, active_skill_id: String) -> Array[String]:
+
+func _get_hotbar_tab_lines(
+	hotbar: Array, selected_skill_id: String, active_skill_id: String
+) -> Array[String]:
 	var lines: Array[String] = ["Hotbar"]
 	for i in range(hotbar.size()):
 		var slot: Dictionary = hotbar[i]
@@ -1201,25 +1377,40 @@ func _get_hotbar_tab_lines(hotbar: Array, selected_skill_id: String, active_skil
 	lines.append(_get_skill_library_preview(selected_skill_id))
 	return lines
 
+
 func _get_resource_tab_lines() -> Array[String]:
 	var circle: int = GameState.get_current_circle()
 	var score: float = GameState.get_circle_progress_score()
 	var buff_slots: int = GameState.get_buff_slot_limit()
 	var drop_line: String = "Last drop: none"
 	if GameState.last_drop_display != "":
-		drop_line = "Last drop: %s  (total: %d)" % [GameState.last_drop_display, GameState.session_drops]
+		drop_line = (
+			"Last drop: %s  (total: %d)" % [GameState.last_drop_display, GameState.session_drops]
+		)
 	return [
 		"Resources",
 		"Circle: %d  Score: %.1f  Buff Slots: %d" % [circle, score, buff_slots],
-		"HP: %d/%d  MP: %.0f/%.0f" % [GameState.health, GameState.max_health, GameState.mana, GameState.max_mana],
+		(
+			"HP: %d/%d  MP: %.0f/%.0f"
+			% [GameState.health, GameState.max_health, GameState.mana, GameState.max_mana]
+		),
 		"HP Lock: %s" % ("ON" if GameState.admin_infinite_health else "OFF"),
 		"MP Lock: %s" % ("ON" if GameState.admin_infinite_mana else "OFF"),
 		"Cooldown Lock: %s" % ("ON" if GameState.admin_ignore_cooldowns else "OFF"),
 		"Buff Limit Lock: %s" % ("ON" if GameState.admin_ignore_buff_slot_limit else "OFF"),
-		"Session  Kills: %d  Hits: %d  DMG: %d  Drops: %d" % [GameState.session_kills, GameState.session_hit_count, GameState.session_damage_dealt, GameState.session_drops],
+		(
+			"Session  Kills: %d  Hits: %d  DMG: %d  Drops: %d"
+			% [
+				GameState.session_kills,
+				GameState.session_hit_count,
+				GameState.session_damage_dealt,
+				GameState.session_drops
+			]
+		),
 		drop_line,
 		"Recovery: Q heal, Z reset cooldowns"
 	]
+
 
 func _get_equipment_tab_lines() -> Array[String]:
 	var focus_display := equipment_focus_mode.to_upper()
@@ -1228,13 +1419,17 @@ func _get_equipment_tab_lines() -> Array[String]:
 	for i in range(equipment_slot_order.size()):
 		var slot_name: String = str(equipment_slot_order[i])
 		var marker := ">" if i == selected_equipment_slot else " "
-		lines.append("%s %s  %s" % [marker, slot_name, _display_name(str(equipped.get(slot_name, "")))])
+		lines.append(
+			"%s %s  %s" % [marker, slot_name, _display_name(str(equipped.get(slot_name, "")))]
+		)
 	if selected_equipment_slot >= 0 and selected_equipment_slot < equipment_slot_order.size():
 		var selected_slot_name := str(equipment_slot_order[selected_equipment_slot])
 		var candidate_item_id := _get_selected_equipment_candidate_id()
 		var owned_item_id := _get_selected_owned_equipment_id()
 		var layout_source := _build_equipment_tab_layout_source(
-			_get_equipment_overview_section_lines(selected_slot_name, candidate_item_id, owned_item_id),
+			_get_equipment_overview_section_lines(
+				selected_slot_name, candidate_item_id, owned_item_id
+			),
 			"Equipment Focus  %s" % _get_equipment_focus_label(),
 			_get_candidate_panel_lines(selected_slot_name, candidate_item_id),
 			_get_owned_panel_lines(selected_slot_name, owned_item_id)
@@ -1246,6 +1441,7 @@ func _get_equipment_tab_lines() -> Array[String]:
 	lines.append(GameState.get_equipment_inventory_summary())
 	lines.append("T toggle focus  Up/Down select slot  F cycle tab  Q grant or heal")
 	return lines
+
 
 func _build_equipment_tab_layout_source(
 	overview_lines: Array[String],
@@ -1260,18 +1456,20 @@ func _build_equipment_tab_layout_source(
 		"owned_lines": owned_lines
 	}
 
+
 func _build_equipment_tab_layout_lines_from_source(layout_source: Dictionary) -> Array[String]:
 	var overview_lines: Array = layout_source.get("overview_lines", [])
 	var focus_line := str(layout_source.get("focus_line", ""))
 	var candidate_lines: Array = layout_source.get("candidate_lines", [])
 	var owned_lines: Array = layout_source.get("owned_lines", [])
-	var panel_slot_section := _build_equipment_panel_slot_section_source(candidate_lines, owned_lines)
+	var panel_slot_section := _build_equipment_panel_slot_section_source(
+		candidate_lines, owned_lines
+	)
 	return _build_equipment_tab_layout_lines(overview_lines, focus_line, panel_slot_section)
 
+
 func _build_equipment_tab_layout_lines(
-	overview_lines: Array,
-	focus_line: String,
-	panel_slot_section: Dictionary
+	overview_lines: Array, focus_line: String, panel_slot_section: Dictionary
 ) -> Array[String]:
 	var lines: Array[String] = []
 	for line_value in overview_lines:
@@ -1283,6 +1481,7 @@ func _build_equipment_tab_layout_lines(
 	lines.append_array(_build_equipment_panel_slot_section_lines_from_source(panel_slot_section))
 	return lines
 
+
 func _build_equipment_two_panel_bridge_lines() -> Array[String]:
 	var layout_mode := _get_equipment_panel_slot_layout_mode()
 	return [
@@ -1290,19 +1489,18 @@ func _build_equipment_two_panel_bridge_lines() -> Array[String]:
 		"Panel Mode  %s" % _get_equipment_panel_layout_mode_label(layout_mode)
 	]
 
+
 func _build_equipment_panel_slot_lines(
-	column_label: String,
-	panel_label: String,
-	panel_lines: Array
+	column_label: String, panel_label: String, panel_lines: Array
 ) -> Array[String]:
 	var lines: Array[String] = ["[%s]" % panel_label]
 	for line_value in panel_lines:
 		lines.append(str(line_value))
 	return lines
 
+
 func _build_equipment_panel_slot_section_source(
-	candidate_lines: Array[String],
-	owned_lines: Array[String]
+	candidate_lines: Array[String], owned_lines: Array[String]
 ) -> Dictionary:
 	var column_width := _get_equipment_panel_column_width(candidate_lines, owned_lines)
 	return {
@@ -1313,7 +1511,10 @@ func _build_equipment_panel_slot_section_source(
 		"right_slot_lines": _build_equipment_panel_slot_lines("Right", "Owned", owned_lines)
 	}
 
-func _build_equipment_panel_slot_section_lines_from_source(panel_slot_section: Dictionary) -> Array[String]:
+
+func _build_equipment_panel_slot_section_lines_from_source(
+	panel_slot_section: Dictionary
+) -> Array[String]:
 	var layout_mode := str(panel_slot_section.get("layout_mode", "stacked_fallback"))
 	if layout_mode == "stacked_fallback":
 		return _build_equipment_panel_slot_section_stacked_lines(panel_slot_section)
@@ -1321,7 +1522,10 @@ func _build_equipment_panel_slot_section_lines_from_source(panel_slot_section: D
 		return _build_equipment_panel_slot_section_side_by_side_lines(panel_slot_section)
 	return _build_equipment_panel_slot_section_stacked_lines(panel_slot_section)
 
-func _build_equipment_panel_slot_section_stacked_lines(panel_slot_section: Dictionary) -> Array[String]:
+
+func _build_equipment_panel_slot_section_stacked_lines(
+	panel_slot_section: Dictionary
+) -> Array[String]:
 	var lines: Array[String] = []
 	var left_slot_lines: Array = panel_slot_section.get("left_slot_lines", [])
 	var right_slot_lines: Array = panel_slot_section.get("right_slot_lines", [])
@@ -1332,13 +1536,22 @@ func _build_equipment_panel_slot_section_stacked_lines(panel_slot_section: Dicti
 		lines.append(str(line_value))
 	return lines
 
-func _build_equipment_panel_slot_section_side_by_side_lines(panel_slot_section: Dictionary) -> Array[String]:
+
+func _build_equipment_panel_slot_section_side_by_side_lines(
+	panel_slot_section: Dictionary
+) -> Array[String]:
 	var lines: Array[String] = []
 	var left_slot_lines: Array = panel_slot_section.get("left_slot_lines", [])
 	var right_slot_lines: Array = panel_slot_section.get("right_slot_lines", [])
 	var row_count := maxi(left_slot_lines.size(), right_slot_lines.size())
-	var column_width := int(panel_slot_section.get("column_width", _get_equipment_panel_column_width(left_slot_lines, right_slot_lines)))
-	var column_separator := str(panel_slot_section.get("column_separator", EQUIPMENT_PANEL_COLUMN_SEPARATOR))
+	var column_width := int(
+		panel_slot_section.get(
+			"column_width", _get_equipment_panel_column_width(left_slot_lines, right_slot_lines)
+		)
+	)
+	var column_separator := str(
+		panel_slot_section.get("column_separator", EQUIPMENT_PANEL_COLUMN_SEPARATOR)
+	)
 	for i in range(row_count):
 		var left_line := ""
 		var right_line := ""
@@ -1346,8 +1559,11 @@ func _build_equipment_panel_slot_section_side_by_side_lines(panel_slot_section: 
 			left_line = str(left_slot_lines[i])
 		if i < right_slot_lines.size():
 			right_line = str(right_slot_lines[i])
-		lines.append(_build_equipment_side_by_side_row(left_line, right_line, column_width, column_separator))
+		lines.append(
+			_build_equipment_side_by_side_row(left_line, right_line, column_width, column_separator)
+		)
 	return lines
+
 
 func _get_equipment_panel_column_width(left_slot_lines: Array, _right_slot_lines: Array) -> int:
 	var max_width := EQUIPMENT_PANEL_COLUMN_MIN_WIDTH
@@ -1357,6 +1573,7 @@ func _get_equipment_panel_column_width(left_slot_lines: Array, _right_slot_lines
 		max_width = maxi(max_width, str(line_value).length())
 	return clampi(max_width, EQUIPMENT_PANEL_COLUMN_MIN_WIDTH, EQUIPMENT_PANEL_COLUMN_MAX_WIDTH)
 
+
 func _clamp_equipment_panel_column_text(text: String, column_width: int) -> String:
 	if text.length() <= column_width:
 		return text
@@ -1364,26 +1581,34 @@ func _clamp_equipment_panel_column_text(text: String, column_width: int) -> Stri
 		return text.left(column_width)
 	return text.substr(0, column_width - 1) + "~"
 
-func _build_equipment_side_by_side_row(left_line: String, right_line: String, column_width: int, column_separator: String = EQUIPMENT_PANEL_COLUMN_SEPARATOR) -> String:
+
+func _build_equipment_side_by_side_row(
+	left_line: String,
+	right_line: String,
+	column_width: int,
+	column_separator: String = EQUIPMENT_PANEL_COLUMN_SEPARATOR
+) -> String:
 	var left_clamped := _clamp_equipment_panel_column_text(left_line, column_width)
 	var right_clamped := _clamp_equipment_panel_column_text(right_line, column_width)
 	if right_clamped == "":
 		return left_clamped
-	return "%s%s%s" % [
-		left_clamped.rpad(column_width),
-		column_separator,
-		right_clamped
-	]
+	return "%s%s%s" % [left_clamped.rpad(column_width), column_separator, right_clamped]
+
 
 func _get_equipment_panel_slot_layout_mode() -> String:
-	if equipment_panel_layout_mode_override == "stacked_fallback" or equipment_panel_layout_mode_override == "side_by_side":
+	if (
+		equipment_panel_layout_mode_override == "stacked_fallback"
+		or equipment_panel_layout_mode_override == "side_by_side"
+	):
 		return equipment_panel_layout_mode_override
 	return "side_by_side"
+
 
 func _get_equipment_panel_layout_mode_label(layout_mode: String) -> String:
 	if layout_mode == "side_by_side":
 		return "side-by-side"
 	return "stacked bridge (2-panel ready)"
+
 
 func _get_footer_text() -> String:
 	match current_tab:
@@ -1392,18 +1617,23 @@ func _get_footer_text() -> String:
 		"resources":
 			return "F cycle tab  Shift infinite HP  Y infinite MP  H no cooldown  J free buff slots  Q heal  Z reset CD  Esc close"
 		"equipment":
-			if _has_recent_granted_owned_selection(str(equipment_slot_order[selected_equipment_slot])):
+			if _has_recent_granted_owned_selection(
+				str(equipment_slot_order[selected_equipment_slot])
+			):
 				return "F cycle tab  T toggle focus  Up/Down slot  Left/Right equip direct  B sort  J filter  Y/H page  Q grant candidate  N/R cycle focused panel  E equip new item  Esc close"
 			return "F cycle tab  T toggle focus  Up/Down slot  Left/Right equip direct  B sort  J filter  Y/H page  Q grant candidate  N/R cycle focused panel  E focused action  Esc close"
 		"spawn":
 			return "F cycle tab  C brute  V ranged  R dummy  G boss  Esc close"
 	return "F cycle tab  Esc close"
 
+
 func _get_equipment_panel_status_line(panel_name: String) -> String:
 	var is_focused := equipment_focus_mode == panel_name
 	if panel_name == "candidate":
 		var candidate_item_id := _get_selected_equipment_candidate_id()
-		var candidate_state := "owned" if GameState.has_equipment_in_inventory(candidate_item_id) else "not-owned"
+		var candidate_state := (
+			"owned" if GameState.has_equipment_in_inventory(candidate_item_id) else "not-owned"
+		)
 		return "%s  Action:grant  State:%s" % ["FOCUSED" if is_focused else "idle", candidate_state]
 	var slot_name := str(equipment_slot_order[selected_equipment_slot])
 	var owned_item_id := _get_selected_owned_equipment_id()
@@ -1412,20 +1642,25 @@ func _get_equipment_panel_status_line(panel_name: String) -> String:
 		return "%s  Action:equip-now  State:fresh  [!]" % ["FOCUSED" if is_focused else "idle"]
 	return "%s  Action:equip  State:%s" % ["FOCUSED" if is_focused else "idle", owned_state]
 
+
 func _get_spawn_tab_lines() -> Array[String]:
 	var lines: Array[String] = ["Spawn"]
 	var enemies: Array = GameDatabase.get_all_enemies()
 	if enemies.is_empty():
-		lines.append_array([
-			"C brute", "V ranged", "G boss",
-			"B dasher  (mobile pressure / telegraph-dash)",
-			"J sentinel  (area control / aimed 2-shot volley)",
-			"H elite  (burst-check / super armor / high HP)",
-			"N leaper  (anti-stationary / telegraph-jump / aerial arc)",
-			"Y bomber  (ranged denial / slow bomb / punish stationary)",
-			"R charger  (lock-target rush / punish stationary / spacing test)",
-			"Q dummy  (training target)"
-		])
+		lines.append_array(
+			[
+				"C brute",
+				"V ranged",
+				"G boss",
+				"B dasher  (mobile pressure / telegraph-dash)",
+				"J sentinel  (area control / aimed 2-shot volley)",
+				"H elite  (burst-check / super armor / high HP)",
+				"N leaper  (anti-stationary / telegraph-jump / aerial arc)",
+				"Y bomber  (ranged denial / slow bomb / punish stationary)",
+				"R charger  (lock-target rush / punish stationary / spacing test)",
+				"Q dummy  (training target)"
+			]
+		)
 		return lines
 	for enemy_data in enemies:
 		var eid: String = str(enemy_data.get("enemy_id", ""))
@@ -1441,6 +1676,7 @@ func _get_spawn_tab_lines() -> Array[String]:
 	lines.append("Q clear all  E freeze AI [%s]" % freeze_label)
 	return lines
 
+
 func _toggle_menu() -> void:
 	is_open = not is_open
 	visible = is_open
@@ -1450,12 +1686,14 @@ func _toggle_menu() -> void:
 		_sync_library_selection_to_slot()
 	_refresh()
 
+
 func _cycle_tab(direction: int) -> void:
 	var index := ADMIN_TABS.find(current_tab)
 	if index == -1:
 		index = 0
 	index = posmod(index + direction, ADMIN_TABS.size())
 	_set_tab(str(ADMIN_TABS[index]))
+
 
 func _set_tab(tab_id: String) -> void:
 	current_tab = tab_id if ADMIN_TAB_LABELS.has(tab_id) else "hotbar"
@@ -1466,6 +1704,7 @@ func _set_tab(tab_id: String) -> void:
 		edit_mode = "hotbar"
 		if current_tab != "hotbar":
 			library_focus = false
+
 
 func _cycle_selected_skill(direction: int) -> void:
 	var hotbar: Array = GameState.get_spell_hotbar()
@@ -1479,9 +1718,11 @@ func _cycle_selected_skill(direction: int) -> void:
 	GameState.set_hotbar_skill(selected_slot, str(skill_catalog[index]))
 	selected_library_index = index
 
+
 func _apply_next_preset() -> void:
 	preset_index = posmod(preset_index + 1, HOTBAR_PRESET_IDS.size())
 	_apply_hotbar_preset(str(HOTBAR_PRESET_IDS[preset_index]))
+
 
 func _apply_hotbar_preset(preset_id: String) -> void:
 	var preset: Array = _get_hotbar_preset_data(preset_id)
@@ -1490,7 +1731,10 @@ func _apply_hotbar_preset(preset_id: String) -> void:
 	current_hotbar_preset_id = preset_id
 	for i in range(min(preset.size(), GameState.get_spell_hotbar().size())):
 		GameState.set_hotbar_skill(i, str(preset[i]))
-	GameState.push_message("Hotbar preset %s applied." % str(HOTBAR_PRESET_LABELS.get(preset_id, preset_id)), 1.0)
+	GameState.push_message(
+		"Hotbar preset %s applied." % str(HOTBAR_PRESET_LABELS.get(preset_id, preset_id)), 1.0
+	)
+
 
 func _get_hotbar_preset_data(preset_id: String) -> Array:
 	match preset_id:
@@ -1510,10 +1754,12 @@ func _get_hotbar_preset_data(preset_id: String) -> Array:
 			return PRESET_FUNERAL_BLOOM
 	return []
 
+
 func _apply_next_equipment_preset() -> void:
 	var presets := ["fire_burst", "ritual_control", "storm_tempo"]
 	equipment_preset_index = posmod(equipment_preset_index + 1, presets.size())
 	GameState.apply_equipment_preset(str(presets[equipment_preset_index]))
+
 
 func _cycle_selected_equipment(direction: int) -> void:
 	var slot_name: String = str(equipment_slot_order[selected_equipment_slot])
@@ -1526,6 +1772,7 @@ func _cycle_selected_equipment(direction: int) -> void:
 	index = posmod(index + direction, options.size())
 	GameState.set_equipped_item(slot_name, str(options[index]))
 
+
 func _cycle_selected_equipment_candidate(direction: int) -> void:
 	var slot_name: String = str(equipment_slot_order[selected_equipment_slot])
 	var options: Array = equipment_catalog_by_slot.get(slot_name, [""])
@@ -1536,6 +1783,7 @@ func _cycle_selected_equipment_candidate(direction: int) -> void:
 	current_index = posmod(current_index + direction, options.size())
 	equipment_candidate_index_by_slot[slot_name] = current_index
 
+
 func _toggle_equipment_focus() -> void:
 	var current_index := EQUIPMENT_FOCUS_MODES.find(equipment_focus_mode)
 	if current_index == -1:
@@ -1544,19 +1792,23 @@ func _toggle_equipment_focus() -> void:
 	_clear_recent_granted_selection()
 	equipment_focus_mode = str(EQUIPMENT_FOCUS_MODES[current_index])
 
+
 func _cycle_equipment_focus_selection(direction: int) -> void:
 	if equipment_focus_mode == "candidate":
 		_cycle_selected_equipment_candidate(direction)
 		return
 	_cycle_selected_owned_equipment(direction)
 
+
 func _get_equipment_focus_label() -> String:
 	return equipment_focus_mode
+
 
 func _get_equipment_focus_marker(focus_mode: String) -> String:
 	if equipment_focus_mode == focus_mode:
 		return "  [FOCUS]"
 	return ""
+
 
 func _get_selected_equipment_candidate_id() -> String:
 	if selected_equipment_slot < 0 or selected_equipment_slot >= equipment_slot_order.size():
@@ -1569,6 +1821,7 @@ func _get_selected_equipment_candidate_id() -> String:
 	current_index = clampi(current_index, 0, options.size() - 1)
 	return str(options[current_index])
 
+
 func _get_candidate_selection_line(slot_name: String) -> String:
 	var options: Array = equipment_catalog_by_slot.get(slot_name, [""])
 	if options.is_empty():
@@ -1576,7 +1829,14 @@ func _get_candidate_selection_line(slot_name: String) -> String:
 	var current_index := int(equipment_candidate_index_by_slot.get(slot_name, 0))
 	current_index = clampi(current_index, 0, options.size() - 1)
 	var candidate_item_id := str(options[current_index])
-	return _build_equipment_selection_line("Candidate", "candidate", _display_name(candidate_item_id), current_index + 1, options.size())
+	return _build_equipment_selection_line(
+		"Candidate",
+		"candidate",
+		_display_name(candidate_item_id),
+		current_index + 1,
+		options.size()
+	)
+
 
 func _get_candidate_window_line(slot_name: String) -> String:
 	var options: Array = equipment_catalog_by_slot.get(slot_name, [""])
@@ -1587,11 +1847,15 @@ func _get_candidate_window_line(slot_name: String) -> String:
 	var page_index := int(floor(float(current_index) / float(EQUIPMENT_PAGE_SIZE)))
 	var start_item := page_index * EQUIPMENT_PAGE_SIZE + 1
 	var end_item := mini((page_index + 1) * EQUIPMENT_PAGE_SIZE, options.size())
-	return _build_equipment_nav_line("Candidate", ["Items %d-%d/%d" % [start_item, end_item, options.size()]])
+	return _build_equipment_nav_line(
+		"Candidate", ["Items %d-%d/%d" % [start_item, end_item, options.size()]]
+	)
+
 
 func _get_candidate_window_short_label(slot_name: String) -> String:
 	var window_line := _get_candidate_window_line(slot_name)
 	return window_line.trim_prefix("Candidate Nav  ")
+
 
 func _get_selected_candidate_meta_line(item_id: String) -> String:
 	if item_id == "":
@@ -1607,6 +1871,7 @@ func _get_selected_candidate_meta_line(item_id: String) -> String:
 	var tags_text := "-" if tags.is_empty() else ", ".join(tags)
 	var description_text := str(item.get("description", ""))
 	return "Candidate Detail  %s\nTags:%s" % [description_text, tags_text]
+
 
 func _get_candidate_compare_line(slot_name: String, candidate_item_id: String) -> String:
 	if candidate_item_id == "":
@@ -1624,49 +1889,65 @@ func _get_candidate_compare_line(slot_name: String, candidate_item_id: String) -
 	var candidate_modifiers: Dictionary = candidate_item.get("stat_modifiers", {})
 	var equipped_modifiers: Dictionary = equipped_item.get("stat_modifiers", {})
 	var compare_parts: Array[String] = []
-	_append_compare_part(compare_parts, "magic_attack", "MATK", candidate_modifiers, equipped_modifiers)
+	_append_compare_part(
+		compare_parts, "magic_attack", "MATK", candidate_modifiers, equipped_modifiers
+	)
 	_append_compare_part(compare_parts, "max_hp", "MaxHP", candidate_modifiers, equipped_modifiers)
 	_append_compare_part(compare_parts, "max_mp", "MaxMP", candidate_modifiers, equipped_modifiers)
-	_append_compare_part(compare_parts, "mp_regen", "MPRegen", candidate_modifiers, equipped_modifiers)
-	_append_compare_part(compare_parts, "cooldown_recovery", "CDR", candidate_modifiers, equipped_modifiers, true)
+	_append_compare_part(
+		compare_parts, "mp_regen", "MPRegen", candidate_modifiers, equipped_modifiers
+	)
+	_append_compare_part(
+		compare_parts, "cooldown_recovery", "CDR", candidate_modifiers, equipped_modifiers, true
+	)
 	_append_damage_taken_compare_part(compare_parts, candidate_modifiers, equipped_modifiers)
 	if compare_parts.is_empty():
 		return "Candidate Compare  sidegrade / utility"
 	return "Candidate Compare  %s" % "  ".join(compare_parts)
 
-func _get_candidate_view_line(slot_name: String, candidate_item_id: String) -> String:
-	var ownership_text := "owned" if GameState.has_equipment_in_inventory(candidate_item_id) else "not-owned"
-	return _build_equipment_view_line("Candidate", [
-		"State:%s" % ownership_text,
-		"Browse:%s" % _get_candidate_window_short_label(slot_name)
-	])
 
-func _get_equipment_compare_section_lines(slot_name: String, candidate_item_id: String) -> Array[String]:
+func _get_candidate_view_line(slot_name: String, candidate_item_id: String) -> String:
+	var ownership_text := (
+		"owned" if GameState.has_equipment_in_inventory(candidate_item_id) else "not-owned"
+	)
+	return _build_equipment_view_line(
+		"Candidate",
+		["State:%s" % ownership_text, "Browse:%s" % _get_candidate_window_short_label(slot_name)]
+	)
+
+
+func _get_equipment_compare_section_lines(
+	slot_name: String, candidate_item_id: String
+) -> Array[String]:
 	return [
 		_get_equipment_compare_header_line(slot_name, candidate_item_id),
 		_get_selected_equipped_stat_line(slot_name),
 		_get_candidate_compare_line(slot_name, candidate_item_id)
 	]
 
+
 func _get_equipment_overview_section_lines(
-	slot_name: String,
-	candidate_item_id: String,
-	owned_item_id: String
+	slot_name: String, candidate_item_id: String, owned_item_id: String
 ) -> Array[String]:
-	var overview_source := _build_equipment_overview_section_source(slot_name, candidate_item_id, owned_item_id)
+	var overview_source := _build_equipment_overview_section_source(
+		slot_name, candidate_item_id, owned_item_id
+	)
 	return _build_equipment_overview_section_lines_from_source(overview_source)
 
+
 func _build_equipment_overview_section_source(
-	slot_name: String,
-	candidate_item_id: String,
-	owned_item_id: String
+	slot_name: String, candidate_item_id: String, owned_item_id: String
 ) -> Dictionary:
 	return {
 		"compare_lines": _get_equipment_compare_section_lines(slot_name, candidate_item_id),
-		"dual_panel_preview_lines": _get_equipment_dual_panel_preview_lines(slot_name, candidate_item_id, owned_item_id)
+		"dual_panel_preview_lines":
+		_get_equipment_dual_panel_preview_lines(slot_name, candidate_item_id, owned_item_id)
 	}
 
-func _build_equipment_overview_section_lines_from_source(overview_source: Dictionary) -> Array[String]:
+
+func _build_equipment_overview_section_lines_from_source(
+	overview_source: Dictionary
+) -> Array[String]:
 	var lines: Array[String] = []
 	var compare_lines: Array = overview_source.get("compare_lines", [])
 	var dual_panel_preview_lines: Array = overview_source.get("dual_panel_preview_lines", [])
@@ -1676,18 +1957,18 @@ func _build_equipment_overview_section_lines_from_source(overview_source: Dictio
 		lines.append(str(line_value))
 	return lines
 
+
 func _get_equipment_dual_panel_preview_lines(
-	slot_name: String,
-	candidate_item_id: String,
-	owned_item_id: String
+	slot_name: String, candidate_item_id: String, owned_item_id: String
 ) -> Array[String]:
-	var preview_source := _build_equipment_dual_panel_preview_source(slot_name, candidate_item_id, owned_item_id)
+	var preview_source := _build_equipment_dual_panel_preview_source(
+		slot_name, candidate_item_id, owned_item_id
+	)
 	return _build_equipment_dual_panel_preview_lines_from_source(preview_source)
 
+
 func _build_equipment_dual_panel_preview_source(
-	slot_name: String,
-	candidate_item_id: String,
-	owned_item_id: String
+	slot_name: String, candidate_item_id: String, owned_item_id: String
 ) -> Dictionary:
 	return {
 		"candidate_name": _display_name(candidate_item_id),
@@ -1698,19 +1979,29 @@ func _build_equipment_dual_panel_preview_source(
 		"owned_browse": _get_owned_page_short_label(slot_name)
 	}
 
-func _build_equipment_dual_panel_preview_lines_from_source(preview_source: Dictionary) -> Array[String]:
+
+func _build_equipment_dual_panel_preview_lines_from_source(
+	preview_source: Dictionary
+) -> Array[String]:
 	return [
-		"Panel Summary  Candidate:%s  Owned:%s" % [
-			str(preview_source.get("candidate_name", "(empty)")),
-			str(preview_source.get("owned_name", "(empty)"))
-		],
-		"Panel Flow  Candidate:%s  Owned:%s  Browse:%s | %s" % [
-			str(preview_source.get("candidate_action", "grant")),
-			str(preview_source.get("owned_action", "equip")),
-			str(preview_source.get("candidate_browse", "0/0")),
-			str(preview_source.get("owned_browse", "0/0"))
-		]
+		(
+			"Panel Summary  Candidate:%s  Owned:%s"
+			% [
+				str(preview_source.get("candidate_name", "(empty)")),
+				str(preview_source.get("owned_name", "(empty)"))
+			]
+		),
+		(
+			"Panel Flow  Candidate:%s  Owned:%s  Browse:%s | %s"
+			% [
+				str(preview_source.get("candidate_action", "grant")),
+				str(preview_source.get("owned_action", "equip")),
+				str(preview_source.get("candidate_browse", "0/0")),
+				str(preview_source.get("owned_browse", "0/0"))
+			]
+		)
 	]
+
 
 func _get_equipment_panel_action_label(panel_name: String, slot_name: String) -> String:
 	if panel_name == "candidate":
@@ -1718,6 +2009,7 @@ func _get_equipment_panel_action_label(panel_name: String, slot_name: String) ->
 	if _has_recent_granted_owned_selection(slot_name):
 		return "equip-now"
 	return "equip"
+
 
 func _get_candidate_panel_lines(slot_name: String, candidate_item_id: String) -> Array[String]:
 	var body_source := _get_candidate_panel_body_source(slot_name, candidate_item_id)
@@ -1730,6 +2022,7 @@ func _get_candidate_panel_lines(slot_name: String, candidate_item_id: String) ->
 		"  N/R cycle candidate  E grant to inventory"
 	)
 
+
 func _get_owned_panel_lines(slot_name: String, owned_item_id: String) -> Array[String]:
 	var body_source := _get_owned_panel_body_source(slot_name, owned_item_id)
 	var body_lines := _build_equipment_panel_body_lines(body_source)
@@ -1740,6 +2033,7 @@ func _get_owned_panel_lines(slot_name: String, owned_item_id: String) -> Array[S
 		body_lines,
 		"  N/R cycle owned  E equip  B sort  J filter  Y/H page"
 	)
+
 
 func _build_equipment_panel_lines(
 	panel_name: String,
@@ -1753,36 +2047,30 @@ func _build_equipment_panel_lines(
 	_append_equipment_panel_control_hint(lines, panel_name, control_hint)
 	return lines
 
+
 func _build_equipment_panel_body_source(
-	primary_line: String,
-	content_section: Dictionary
+	primary_line: String, content_section: Dictionary
 ) -> Dictionary:
-	return {
-		"primary_line": primary_line,
-		"content_section": content_section
-	}
+	return {"primary_line": primary_line, "content_section": content_section}
+
 
 func _build_equipment_navigation_section_source(
-	view_line: String,
-	selection_line: String,
-	navigation_line: String
+	view_line: String, selection_line: String, navigation_line: String
 ) -> Dictionary:
 	return {
-		"view_line": view_line,
-		"selection_line": selection_line,
-		"navigation_line": navigation_line
+		"view_line": view_line, "selection_line": selection_line, "navigation_line": navigation_line
 	}
 
+
 func _build_equipment_panel_content_section_source(
-	detail_line: String,
-	navigation_section: Dictionary,
-	list_lines: Array[String]
+	detail_line: String, navigation_section: Dictionary, list_lines: Array[String]
 ) -> Dictionary:
 	return {
 		"detail_line": detail_line,
 		"navigation_section": navigation_section,
 		"list_lines": list_lines
 	}
+
 
 func _get_candidate_panel_body_source(slot_name: String, candidate_item_id: String) -> Dictionary:
 	return _build_equipment_panel_body_source(
@@ -1798,6 +2086,7 @@ func _get_candidate_panel_body_source(slot_name: String, candidate_item_id: Stri
 		),
 	)
 
+
 func _get_owned_panel_body_source(slot_name: String, owned_item_id: String) -> Dictionary:
 	return _build_equipment_panel_body_source(
 		_get_owned_primary_line(slot_name, owned_item_id),
@@ -1812,6 +2101,7 @@ func _get_owned_panel_body_source(slot_name: String, owned_item_id: String) -> D
 		),
 	)
 
+
 func _build_equipment_panel_body_lines(body_source: Dictionary) -> Array[String]:
 	var lines: Array[String] = []
 	var primary_line := str(body_source.get("primary_line", ""))
@@ -1820,6 +2110,7 @@ func _build_equipment_panel_body_lines(body_source: Dictionary) -> Array[String]
 		lines.append(primary_line)
 	lines.append_array(_build_equipment_panel_content_section_lines(content_section))
 	return lines
+
 
 func _build_equipment_panel_content_section_lines(content_section: Dictionary) -> Array[String]:
 	var lines: Array[String] = []
@@ -1833,15 +2124,16 @@ func _build_equipment_panel_content_section_lines(content_section: Dictionary) -
 		for sub_line in detail_line.split("\n"):
 			if sub_line != "":
 				lines.append(sub_line)
-	lines.append_array(_build_equipment_navigation_section_lines(view_line, selection_line, navigation_line))
+	lines.append_array(
+		_build_equipment_navigation_section_lines(view_line, selection_line, navigation_line)
+	)
 	for line_value in list_lines:
 		lines.append(str(line_value))
 	return lines
 
+
 func _build_equipment_navigation_section_lines(
-	view_line: String,
-	selection_line: String,
-	navigation_line: String
+	view_line: String, selection_line: String, navigation_line: String
 ) -> Array[String]:
 	var lines: Array[String] = []
 	if view_line != "":
@@ -1852,14 +2144,19 @@ func _build_equipment_navigation_section_lines(
 		lines.append(navigation_line)
 	return lines
 
+
 func _get_equipment_panel_header_line(panel_name: String, label: String) -> String:
 	if equipment_focus_mode == panel_name:
 		return "-- %s --" % label
 	return "   %s" % label
 
-func _append_equipment_panel_control_hint(lines: Array[String], panel_name: String, control_hint: String) -> void:
+
+func _append_equipment_panel_control_hint(
+	lines: Array[String], panel_name: String, control_hint: String
+) -> void:
 	if equipment_focus_mode == panel_name:
 		lines.append(control_hint)
+
 
 func _get_equipment_compare_header_line(slot_name: String, candidate_item_id: String) -> String:
 	var equipped_items: Dictionary = GameState.get_equipped_items()
@@ -1867,6 +2164,7 @@ func _get_equipment_compare_header_line(slot_name: String, candidate_item_id: St
 	var equipped_name := _display_name(equipped_item_id)
 	var candidate_name := _display_name(candidate_item_id)
 	return "Compare Header  Equipped:%s  Candidate:%s" % [equipped_name, candidate_name]
+
 
 func _append_compare_part(
 	compare_parts: Array[String],
@@ -1887,10 +2185,9 @@ func _append_compare_part(
 		return
 	compare_parts.append("%s %s%s" % [label, sign, _format_stat_number(delta)])
 
+
 func _append_damage_taken_compare_part(
-	compare_parts: Array[String],
-	candidate_modifiers: Dictionary,
-	equipped_modifiers: Dictionary
+	compare_parts: Array[String], candidate_modifiers: Dictionary, equipped_modifiers: Dictionary
 ) -> void:
 	var candidate_dr := 1.0 - float(candidate_modifiers.get("damage_taken_multiplier", 1.0))
 	var equipped_dr := 1.0 - float(equipped_modifiers.get("damage_taken_multiplier", 1.0))
@@ -1899,6 +2196,7 @@ func _append_damage_taken_compare_part(
 		return
 	var sign := "+" if delta > 0.0 else ""
 	compare_parts.append("DR %s%s%%" % [sign, _format_percent_number(delta * 100.0)])
+
 
 func _get_candidate_preview_lines(slot_name: String) -> Array[String]:
 	var options: Array = equipment_catalog_by_slot.get(slot_name, [""])
@@ -1915,6 +2213,7 @@ func _get_candidate_preview_lines(slot_name: String) -> Array[String]:
 		var marker := ">" if i == current_index else "-"
 		lines.append("%s %s" % [marker, _get_candidate_list_entry_text(item_id)])
 	return lines
+
 
 func _cycle_candidate_window(direction: int) -> void:
 	_clear_recent_granted_selection()
@@ -1933,6 +2232,7 @@ func _cycle_candidate_window(direction: int) -> void:
 	var next_index := next_page_index * EQUIPMENT_PAGE_SIZE
 	equipment_candidate_index_by_slot[slot_name] = clampi(next_index, 0, options.size() - 1)
 
+
 func _get_candidate_list_entry_text(item_id: String) -> String:
 	if item_id == "":
 		return "(empty)"
@@ -1940,6 +2240,7 @@ func _get_candidate_list_entry_text(item_id: String) -> String:
 	if GameState.has_equipment_in_inventory(item_id):
 		return "%s  [Owned]" % entry_text
 	return entry_text
+
 
 func _get_selected_equipped_stat_line(slot_name: String) -> String:
 	var equipped: Dictionary = GameState.get_equipped_items()
@@ -1954,15 +2255,30 @@ func _get_selected_equipped_stat_line(slot_name: String) -> String:
 		return "Slot Stats  none"
 	var stat_parts: Array[String] = []
 	if stat_modifiers.has("magic_attack"):
-		stat_parts.append("MATK +%s" % _format_stat_number(float(stat_modifiers.get("magic_attack", 0.0))))
+		stat_parts.append(
+			"MATK +%s" % _format_stat_number(float(stat_modifiers.get("magic_attack", 0.0)))
+		)
 	if stat_modifiers.has("max_mp"):
-		stat_parts.append("MaxMP +%s" % _format_stat_number(float(stat_modifiers.get("max_mp", 0.0))))
+		stat_parts.append(
+			"MaxMP +%s" % _format_stat_number(float(stat_modifiers.get("max_mp", 0.0)))
+		)
 	if stat_modifiers.has("max_hp"):
-		stat_parts.append("MaxHP +%s" % _format_stat_number(float(stat_modifiers.get("max_hp", 0.0))))
+		stat_parts.append(
+			"MaxHP +%s" % _format_stat_number(float(stat_modifiers.get("max_hp", 0.0)))
+		)
 	if stat_modifiers.has("mp_regen"):
-		stat_parts.append("MPRegen +%s" % _format_stat_number(float(stat_modifiers.get("mp_regen", 0.0))))
+		stat_parts.append(
+			"MPRegen +%s" % _format_stat_number(float(stat_modifiers.get("mp_regen", 0.0)))
+		)
 	if stat_modifiers.has("cooldown_recovery"):
-		stat_parts.append("CDR %s%%" % _format_percent_number(float(stat_modifiers.get("cooldown_recovery", 0.0)) * 100.0))
+		stat_parts.append(
+			(
+				"CDR %s%%"
+				% _format_percent_number(
+					float(stat_modifiers.get("cooldown_recovery", 0.0)) * 100.0
+				)
+			)
+		)
 	if stat_modifiers.has("damage_taken_multiplier"):
 		var damage_taken_mult := float(stat_modifiers.get("damage_taken_multiplier", 1.0))
 		if damage_taken_mult < 1.0:
@@ -1971,15 +2287,18 @@ func _get_selected_equipped_stat_line(slot_name: String) -> String:
 		return "Slot Stats  utility gear"
 	return "Slot Stats  %s" % "  ".join(stat_parts)
 
+
 func _format_stat_number(value: float) -> String:
 	if is_equal_approx(value, round(value)):
 		return str(int(round(value)))
 	return "%.1f" % value
 
+
 func _format_percent_number(value: float) -> String:
 	if is_equal_approx(value, round(value)):
 		return str(int(round(value)))
 	return "%.1f" % value
+
 
 func _cycle_selected_owned_equipment(direction: int) -> void:
 	_clear_recent_granted_selection()
@@ -1991,6 +2310,7 @@ func _cycle_selected_owned_equipment(direction: int) -> void:
 	var current_index := int(equipment_owned_index_by_slot.get(slot_name, 0))
 	current_index = posmod(current_index + direction, owned_items.size())
 	equipment_owned_index_by_slot[slot_name] = current_index
+
 
 func _get_selected_owned_equipment_id() -> String:
 	if selected_equipment_slot < 0 or selected_equipment_slot >= equipment_slot_order.size():
@@ -2004,47 +2324,60 @@ func _get_selected_owned_equipment_id() -> String:
 	current_index = clampi(current_index, 0, owned_items.size() - 1)
 	return str(owned_items[current_index])
 
+
 func _get_selected_owned_equipment_line(slot_name: String, owned_item_id: String) -> String:
 	var owned_items: Array = _get_sorted_owned_items_for_slot(slot_name)
 	if owned_items.is_empty():
 		return _build_equipment_selection_line("Owned", "owned", "none", 0, 0)
 	var current_index := int(equipment_owned_index_by_slot.get(slot_name, 0))
 	current_index = clampi(current_index, 0, owned_items.size() - 1)
-	return _build_equipment_selection_line("Owned", "owned", _display_name(owned_item_id), current_index + 1, owned_items.size())
+	return _build_equipment_selection_line(
+		"Owned", "owned", _display_name(owned_item_id), current_index + 1, owned_items.size()
+	)
 
-func _build_equipment_selection_line(label: String, focus_mode: String, item_name: String, current_index: int, total: int) -> String:
+
+func _build_equipment_selection_line(
+	label: String, focus_mode: String, item_name: String, current_index: int, total: int
+) -> String:
 	if total <= 0:
 		return "%s Selection%s  %s" % [label, _get_equipment_focus_marker(focus_mode), item_name]
-	return "%s Selection%s  %s  [%d/%d]" % [
-		label,
-		_get_equipment_focus_marker(focus_mode),
-		item_name,
-		current_index,
-		total
-	]
+	return (
+		"%s Selection%s  %s  [%d/%d]"
+		% [label, _get_equipment_focus_marker(focus_mode), item_name, current_index, total]
+	)
+
 
 func _get_owned_primary_line(slot_name: String, owned_item_id: String) -> String:
 	return _get_selected_owned_equipment_line(slot_name, owned_item_id)
 
+
 func _get_owned_view_line() -> String:
 	var slot_name := str(equipment_slot_order[selected_equipment_slot])
-	return _build_equipment_view_line("Owned", [
-		"Sort:%s" % _get_equipment_sort_label(),
-		"Filter:%s" % _get_equipment_filter_label(),
-		"Browse:%s" % _get_owned_page_short_label(slot_name)
-	])
+	return _build_equipment_view_line(
+		"Owned",
+		[
+			"Sort:%s" % _get_equipment_sort_label(),
+			"Filter:%s" % _get_equipment_filter_label(),
+			"Browse:%s" % _get_owned_page_short_label(slot_name)
+		]
+	)
+
 
 func _build_equipment_view_line(label: String, parts: Array[String]) -> String:
 	return "%s View  %s" % [label, "  ".join(parts)]
 
+
 func _build_equipment_nav_line(label: String, parts: Array[String]) -> String:
 	return "%s Nav  %s" % [label, "  ".join(parts)]
+
 
 func _get_owned_selection_line() -> String:
 	return ""
 
+
 func _get_owned_navigation_line(slot_name: String) -> String:
 	return _get_owned_equipment_page_line(slot_name)
+
 
 func _get_selected_owned_equipment_meta_line(item_id: String) -> String:
 	if item_id == "":
@@ -2060,6 +2393,7 @@ func _get_selected_owned_equipment_meta_line(item_id: String) -> String:
 	var tags_text := "-" if tags.is_empty() else ", ".join(tags)
 	var description_text := str(item.get("description", ""))
 	return "Owned Detail  %s\nTags:%s" % [description_text, tags_text]
+
 
 func _get_owned_equipment_preview_lines(slot_name: String) -> Array[String]:
 	var owned_items: Array = _get_sorted_owned_items_for_slot(slot_name)
@@ -2077,6 +2411,7 @@ func _get_owned_equipment_preview_lines(slot_name: String) -> Array[String]:
 		lines.append("%s %s" % [marker, _get_equipment_list_entry_text(item_id)])
 	return lines
 
+
 func _get_owned_equipment_page_line(slot_name: String) -> String:
 	var owned_items: Array = _get_sorted_owned_items_for_slot(slot_name)
 	if owned_items.is_empty():
@@ -2087,14 +2422,19 @@ func _get_owned_equipment_page_line(slot_name: String) -> String:
 	var page_count := int(ceili(float(owned_items.size()) / float(EQUIPMENT_PAGE_SIZE)))
 	var start_item := page_index * EQUIPMENT_PAGE_SIZE + 1
 	var end_item := mini((page_index + 1) * EQUIPMENT_PAGE_SIZE, owned_items.size())
-	return _build_equipment_nav_line("Owned", [
-		"%d/%d" % [page_index + 1, page_count],
-		"Items %d-%d/%d" % [start_item, end_item, owned_items.size()]
-	])
+	return _build_equipment_nav_line(
+		"Owned",
+		[
+			"%d/%d" % [page_index + 1, page_count],
+			"Items %d-%d/%d" % [start_item, end_item, owned_items.size()]
+		]
+	)
+
 
 func _get_owned_page_short_label(slot_name: String) -> String:
 	var page_line := _get_owned_equipment_page_line(slot_name)
 	return page_line.trim_prefix("Owned Nav  ")
+
 
 func _cycle_owned_page(direction: int) -> void:
 	_clear_recent_granted_selection()
@@ -2114,6 +2454,7 @@ func _cycle_owned_page(direction: int) -> void:
 	var max_index := owned_items.size() - 1
 	equipment_owned_index_by_slot[slot_name] = clampi(next_index, 0, max_index)
 
+
 func _cycle_equipment_sort_mode(direction: int) -> void:
 	_clear_recent_granted_selection()
 	var current_index := EQUIPMENT_SORT_MODES.find(equipment_sort_mode)
@@ -2124,12 +2465,14 @@ func _cycle_equipment_sort_mode(direction: int) -> void:
 	for slot_name in equipment_slot_order:
 		equipment_owned_index_by_slot[slot_name] = 0
 
+
 func _get_equipment_sort_label() -> String:
 	match equipment_sort_mode:
 		"name":
 			return "name"
 		_:
 			return "rarity -> name"
+
 
 func _cycle_equipment_filter_mode(direction: int) -> void:
 	_clear_recent_granted_selection()
@@ -2141,8 +2484,10 @@ func _cycle_equipment_filter_mode(direction: int) -> void:
 	for slot_name in equipment_slot_order:
 		equipment_owned_index_by_slot[slot_name] = 0
 
+
 func _get_equipment_filter_label() -> String:
 	return equipment_filter_mode
+
 
 func _get_sorted_owned_items_for_slot(slot_name: String) -> Array:
 	var owned_items: Array = GameState.get_equipment_inventory_for_slot(slot_name)
@@ -2161,18 +2506,20 @@ func _get_sorted_owned_items_for_slot(slot_name: String) -> Array:
 			if matches_filter:
 				filtered_items.append(item_id)
 		owned_items = filtered_items
-	owned_items.sort_custom(func(a: Variant, b: Variant) -> bool:
-		var item_a: Dictionary = GameDatabase.get_equipment(str(a))
-		var item_b: Dictionary = GameDatabase.get_equipment(str(b))
-		if equipment_sort_mode == "name":
+	owned_items.sort_custom(
+		func(a: Variant, b: Variant) -> bool:
+			var item_a: Dictionary = GameDatabase.get_equipment(str(a))
+			var item_b: Dictionary = GameDatabase.get_equipment(str(b))
+			if equipment_sort_mode == "name":
+				return _display_name(str(a)).naturalnocasecmp_to(_display_name(str(b))) < 0
+			var rarity_a := int(EQUIPMENT_RARITY_ORDER.get(str(item_a.get("rarity", "common")), 0))
+			var rarity_b := int(EQUIPMENT_RARITY_ORDER.get(str(item_b.get("rarity", "common")), 0))
+			if rarity_a != rarity_b:
+				return rarity_a > rarity_b
 			return _display_name(str(a)).naturalnocasecmp_to(_display_name(str(b))) < 0
-		var rarity_a := int(EQUIPMENT_RARITY_ORDER.get(str(item_a.get("rarity", "common")), 0))
-		var rarity_b := int(EQUIPMENT_RARITY_ORDER.get(str(item_b.get("rarity", "common")), 0))
-		if rarity_a != rarity_b:
-			return rarity_a > rarity_b
-		return _display_name(str(a)).naturalnocasecmp_to(_display_name(str(b))) < 0
 	)
 	return owned_items
+
 
 func _apply_post_grant_equipment_selection(slot_name: String, item_id: String) -> void:
 	if item_id == "":
@@ -2186,9 +2533,11 @@ func _apply_post_grant_equipment_selection(slot_name: String, item_id: String) -
 	if selected_index >= 0:
 		equipment_owned_index_by_slot[slot_name] = selected_index
 
+
 func _clear_recent_granted_selection() -> void:
 	recent_granted_slot_name = ""
 	recent_granted_item_id = ""
+
 
 func _has_recent_granted_owned_selection(slot_name: String) -> bool:
 	if equipment_focus_mode != "owned":
@@ -2199,6 +2548,7 @@ func _has_recent_granted_owned_selection(slot_name: String) -> bool:
 		return false
 	return _get_selected_owned_equipment_id() == recent_granted_item_id
 
+
 func _get_equipment_list_entry_text(item_id: String) -> String:
 	var item: Dictionary = GameDatabase.get_equipment(item_id)
 	if item.is_empty():
@@ -2206,6 +2556,7 @@ func _get_equipment_list_entry_text(item_id: String) -> String:
 	var rarity_text := str(item.get("rarity", "common")).capitalize()
 	var slot_text := str(item.get("slot_type", ""))
 	return "%s [%s / %s]" % [_display_name(item_id), rarity_text, slot_text]
+
 
 func _handle_equipment_interact() -> void:
 	var slot_name: String = str(equipment_slot_order[selected_equipment_slot])
@@ -2221,7 +2572,9 @@ func _handle_equipment_interact() -> void:
 	if owned_item_id != "":
 		if GameState.equip_inventory_item(slot_name, owned_item_id):
 			_clear_recent_granted_selection()
-			GameState.push_message("%s equipped from inventory." % _display_name(owned_item_id), 1.0)
+			GameState.push_message(
+				"%s equipped from inventory." % _display_name(owned_item_id), 1.0
+			)
 			return
 	if GameState.unequip_item_to_inventory(slot_name):
 		_clear_recent_granted_selection()
@@ -2229,6 +2582,7 @@ func _handle_equipment_interact() -> void:
 		return
 	_clear_recent_granted_selection()
 	GameState.set_equipped_item(slot_name, "")
+
 
 func _adjust_selected_skill_level(delta: int) -> void:
 	if edit_mode != "hotbar":
@@ -2245,6 +2599,7 @@ func _adjust_selected_skill_level(delta: int) -> void:
 	if GameState.set_skill_level(skill_id, new_level):
 		GameState.push_message("%s tuned to Lv.%d." % [_display_name(skill_id), new_level], 1.0)
 
+
 func _get_selected_skill_detail(skill_id: String) -> String:
 	if skill_id == "":
 		return "Skill  (empty)"
@@ -2256,12 +2611,16 @@ func _get_selected_skill_detail(skill_id: String) -> String:
 	var circle_text := "?"
 	if not skill_data.is_empty():
 		circle_text = str(skill_data.get("circle", "?"))
-	return "Skill  %s  Lv.%d  XP %.0f  Circle %s" % [
-		_display_name(skill_id),
-		GameState.get_skill_level(skill_id),
-		GameState.get_skill_experience(skill_id),
-		circle_text
-	]
+	return (
+		"Skill  %s  Lv.%d  XP %.0f  Circle %s"
+		% [
+			_display_name(skill_id),
+			GameState.get_skill_level(skill_id),
+			GameState.get_skill_experience(skill_id),
+			circle_text
+		]
+	)
+
 
 func _get_skill_library_preview(selected_skill_id: String) -> String:
 	var selected_index: int = selected_library_index
@@ -2278,13 +2637,21 @@ func _get_skill_library_preview(selected_skill_id: String) -> String:
 		if skill_id == "":
 			parts.append("%s (empty)" % marker)
 			continue
-		parts.append("%s %s Lv.%d" % [marker, _display_name(skill_id), GameState.get_skill_level(skill_id)])
+		parts.append(
+			"%s %s Lv.%d" % [marker, _display_name(skill_id), GameState.get_skill_level(skill_id)]
+		)
 	return "Skill Library  %s" % " | ".join(parts)
 
+
 func _get_active_skill_context_id(slot_skill_id: String) -> String:
-	if library_focus and selected_library_index >= 0 and selected_library_index < skill_catalog.size():
+	if (
+		library_focus
+		and selected_library_index >= 0
+		and selected_library_index < skill_catalog.size()
+	):
 		return str(skill_catalog[selected_library_index])
 	return slot_skill_id
+
 
 func _sync_library_selection_to_slot() -> void:
 	var hotbar: Array = GameState.get_spell_hotbar()
@@ -2295,11 +2662,13 @@ func _sync_library_selection_to_slot() -> void:
 	var index := skill_catalog.find(skill_id)
 	selected_library_index = index if index >= 0 else 0
 
+
 func _cycle_library_selection(direction: int) -> void:
 	if skill_catalog.is_empty():
 		selected_library_index = 0
 		return
 	selected_library_index = posmod(selected_library_index + direction, skill_catalog.size())
+
 
 func _assign_selected_library_skill_to_slot() -> void:
 	var hotbar: Array = GameState.get_spell_hotbar()
@@ -2309,7 +2678,10 @@ func _assign_selected_library_skill_to_slot() -> void:
 		return
 	var skill_id := str(skill_catalog[selected_library_index])
 	GameState.set_hotbar_skill(selected_slot, skill_id)
-	GameState.push_message("Loaded %s into slot %d." % [_display_name(skill_id), selected_slot + 1], 1.0)
+	GameState.push_message(
+		"Loaded %s into slot %d." % [_display_name(skill_id), selected_slot + 1], 1.0
+	)
+
 
 func _display_name(skill_id: String) -> String:
 	if skill_id == "":
@@ -2324,6 +2696,7 @@ func _display_name(skill_id: String) -> String:
 	if not equipment_data.is_empty():
 		return str(equipment_data.get("display_name", skill_id))
 	return skill_id
+
 
 func get_admin_tab_summary() -> String:
 	var tab_label := str(ADMIN_TAB_LABELS.get(current_tab, current_tab))
@@ -2341,19 +2714,27 @@ func get_admin_tab_summary() -> String:
 			parts.append("Nav[%s]" % _get_candidate_window_short_label(slot_name))
 			parts.append("Target[%s]" % _display_name(candidate_item_id))
 			if candidate_item_id != "":
-				parts.append("Owned[%s]" % ("Y" if GameState.has_equipment_in_inventory(candidate_item_id) else "N"))
+				parts.append(
+					(
+						"Owned[%s]"
+						% ("Y" if GameState.has_equipment_in_inventory(candidate_item_id) else "N")
+					)
+				)
 		else:
 			var owned_item_id := _get_selected_owned_equipment_id()
 			parts.append("Nav[%s]" % _get_owned_page_short_label(slot_name))
 			parts.append("Target[%s]" % _display_name(owned_item_id))
 	return " ".join(parts)
 
+
 func debug_toggle() -> void:
 	_toggle_menu()
+
 
 func debug_apply_preset(index: int) -> void:
 	preset_index = index - 1
 	_apply_next_preset()
+
 
 func debug_apply_named_preset(preset_id: String) -> void:
 	var index := HOTBAR_PRESET_IDS.find(preset_id)
@@ -2363,11 +2744,13 @@ func debug_apply_named_preset(preset_id: String) -> void:
 	_apply_hotbar_preset(preset_id)
 	_refresh()
 
+
 func debug_cycle_slot(slot_index: int, direction: int) -> void:
 	selected_slot = clampi(slot_index, 0, GameState.get_spell_hotbar().size() - 1)
 	library_focus = false
 	_cycle_selected_skill(direction)
 	_refresh()
+
 
 func debug_cycle_equipment(slot_index: int, direction: int) -> void:
 	edit_mode = "equipment"
@@ -2376,16 +2759,19 @@ func debug_cycle_equipment(slot_index: int, direction: int) -> void:
 	_cycle_selected_equipment(direction)
 	_refresh()
 
+
 func debug_cycle_equipment_candidate(slot_index: int, direction: int) -> void:
 	_set_tab("equipment")
 	selected_equipment_slot = clampi(slot_index, 0, equipment_slot_order.size() - 1)
 	_cycle_selected_equipment_candidate(direction)
 	_refresh()
 
+
 func debug_toggle_equipment_focus() -> void:
 	_set_tab("equipment")
 	_toggle_equipment_focus()
 	_refresh()
+
 
 func debug_grant_selected_equipment_candidate(slot_index: int) -> void:
 	_set_tab("equipment")
@@ -2396,21 +2782,25 @@ func debug_grant_selected_equipment_candidate(slot_index: int) -> void:
 		_apply_post_grant_equipment_selection(slot_name, candidate_item_id)
 	_refresh()
 
+
 func debug_cycle_equipment_sort_mode(direction: int) -> void:
 	_set_tab("equipment")
 	_cycle_equipment_sort_mode(direction)
 	_refresh()
+
 
 func debug_cycle_equipment_filter_mode(direction: int) -> void:
 	_set_tab("equipment")
 	_cycle_equipment_filter_mode(direction)
 	_refresh()
 
+
 func debug_cycle_owned_page(slot_index: int, direction: int) -> void:
 	_set_tab("equipment")
 	selected_equipment_slot = clampi(slot_index, 0, equipment_slot_order.size() - 1)
 	_cycle_owned_page(direction)
 	_refresh()
+
 
 func debug_cycle_candidate_window(slot_index: int, direction: int) -> void:
 	_set_tab("equipment")
@@ -2419,11 +2809,13 @@ func debug_cycle_candidate_window(slot_index: int, direction: int) -> void:
 	_cycle_candidate_window(direction)
 	_refresh()
 
+
 func debug_cycle_owned_equipment(slot_index: int, direction: int) -> void:
 	_set_tab("equipment")
 	selected_equipment_slot = clampi(slot_index, 0, equipment_slot_order.size() - 1)
 	_cycle_selected_owned_equipment(direction)
 	_refresh()
+
 
 func debug_interact_equipment(slot_index: int) -> void:
 	_set_tab("equipment")
@@ -2431,21 +2823,26 @@ func debug_interact_equipment(slot_index: int) -> void:
 	_handle_equipment_interact()
 	_refresh()
 
+
 func debug_toggle_infinite_health() -> void:
 	GameState.set_admin_infinite_health(not GameState.admin_infinite_health)
 	_refresh()
+
 
 func debug_toggle_infinite_mana() -> void:
 	GameState.set_admin_infinite_mana(not GameState.admin_infinite_mana)
 	_refresh()
 
+
 func debug_toggle_ignore_cooldowns() -> void:
 	GameState.set_admin_ignore_cooldowns(not GameState.admin_ignore_cooldowns)
 	_refresh()
 
+
 func debug_toggle_ignore_buff_slot_limit() -> void:
 	GameState.set_admin_ignore_buff_slot_limit(not GameState.admin_ignore_buff_slot_limit)
 	_refresh()
+
 
 func debug_adjust_selected_skill_level(slot_index: int, delta: int) -> void:
 	edit_mode = "hotbar"
@@ -2453,11 +2850,13 @@ func debug_adjust_selected_skill_level(slot_index: int, delta: int) -> void:
 	_adjust_selected_skill_level(delta)
 	_refresh()
 
+
 func debug_toggle_library_focus() -> void:
 	_set_tab("hotbar")
 	library_focus = not library_focus
 	_sync_library_selection_to_slot()
 	_refresh()
+
 
 func debug_cycle_library(direction: int) -> void:
 	_set_tab("hotbar")
@@ -2466,6 +2865,7 @@ func debug_cycle_library(direction: int) -> void:
 	_cycle_library_selection(direction)
 	_refresh()
 
+
 func debug_assign_library_to_slot(slot_index: int) -> void:
 	_set_tab("hotbar")
 	selected_slot = clampi(slot_index, 0, GameState.get_spell_hotbar().size() - 1)
@@ -2473,38 +2873,50 @@ func debug_assign_library_to_slot(slot_index: int) -> void:
 	_assign_selected_library_skill_to_slot()
 	_refresh()
 
+
 func debug_cycle_tab(direction: int) -> void:
 	_cycle_tab(direction)
 	_refresh()
 
+
 func debug_emit_spawn(enemy_type: String) -> void:
 	spawn_enemy_requested.emit(enemy_type)
 
+
 func debug_emit_reset_cooldowns() -> void:
 	reset_cooldowns_requested.emit()
+
 
 func debug_apply_equipment_preset(preset_id: String) -> void:
 	GameState.apply_equipment_preset(preset_id)
 	_refresh()
 
+
 func debug_set_equipment_panel_layout_mode(mode: String) -> void:
 	equipment_panel_layout_mode_override = mode
 	_refresh()
 
+
 func debug_cycle_buff_selection(direction: int) -> void:
 	_set_tab("buffs")
-	selected_buff_catalog_index = clampi(selected_buff_catalog_index + direction, 0, max(buff_catalog.size() - 1, 0))
+	selected_buff_catalog_index = clampi(
+		selected_buff_catalog_index + direction, 0, max(buff_catalog.size() - 1, 0)
+	)
 	_refresh()
+
 
 func debug_force_activate_selected_buff() -> void:
 	_set_tab("buffs")
 	_force_activate_selected_buff()
 
+
 func debug_clear_active_buffs() -> void:
 	_clear_active_buffs()
 
+
 func debug_emit_clear_enemies() -> void:
 	clear_enemies_requested.emit()
+
 
 func debug_toggle_freeze_ai() -> void:
 	GameState.admin_freeze_ai = not GameState.admin_freeze_ai

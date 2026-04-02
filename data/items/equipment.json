@@ -233,6 +233,228 @@
       },
       "tags": ["defense"],
       "icon_path": ""
+    },
+    {
+      "item_id": "focus_swift_prism",
+      "display_name": "Swift Prism",
+      "slot_type": "offhand",
+      "rarity": "rare",
+      "description": "투사체의 발사 속도를 높이고 번개 계열 출력을 보조하는 수정",
+      "stat_modifiers": {
+        "projectile_speed_multiplier": 1.20,
+        "lightning_damage_multiplier": 1.08
+      },
+      "tags": ["lightning", "tempo", "projectile"],
+      "icon_path": ""
+    },
+    {
+      "item_id": "ring_flux_band",
+      "display_name": "Flux Band",
+      "slot_type": "accessory_1",
+      "rarity": "uncommon",
+      "description": "투사체의 발사 속도를 미약하게 높이는 플럭스 반지",
+      "stat_modifiers": {
+        "projectile_speed_multiplier": 1.10
+      },
+      "tags": ["projectile"],
+      "icon_path": ""
+    },
+    {
+      "item_id": "armor_guardian_coat",
+      "display_name": "Guardian Coat",
+      "slot_type": "body",
+      "rarity": "rare",
+      "description": "마법 방벽의 출력을 높이는 수호 로브",
+      "stat_modifiers": {
+        "barrier_power_multiplier": 1.20,
+        "max_hp": 10.0
+      },
+      "tags": ["defense", "guard"],
+      "icon_path": ""
+    },
+    {
+      "item_id": "accessory_split_lens",
+      "display_name": "Split Lens",
+      "slot_type": "accessory_2",
+      "rarity": "rare",
+      "description": "마법을 두 방향으로 분열시키는 렌즈 부적",
+      "stat_modifiers": {
+        "projectile_count_bonus": 1.0
+      },
+      "tags": ["projectile", "spread"],
+      "icon_path": ""
+    },
+    {
+      "item_id": "accessory_triple_prism",
+      "display_name": "Triple Prism",
+      "slot_type": "accessory_2",
+      "rarity": "epic",
+      "description": "마법을 세 방향으로 분열시키는 프리즘",
+      "stat_modifiers": {
+        "projectile_count_bonus": 2.0
+      },
+      "tags": ["projectile", "spread"],
+      "icon_path": ""
+    },
+    {
+      "item_id": "focus_gale_shard",
+      "display_name": "Gale Shard",
+      "slot_type": "offhand",
+      "rarity": "rare",
+      "description": "바람 원소 마법의 관통력과 위력을 높이는 파편 마도구",
+      "stat_modifiers": {
+        "wind_damage_multiplier": 1.20
+      },
+      "tags": ["wind", "pierce"],
+      "icon_path": ""
+    },
+    {
+      "item_id": "ring_tidal_crest",
+      "display_name": "Tidal Crest",
+      "slot_type": "accessory_1",
+      "rarity": "rare",
+      "description": "물 원소 마법의 충격력을 증폭시키는 문장 반지",
+      "stat_modifiers": {
+        "water_damage_multiplier": 1.18
+      },
+      "tags": ["water", "knockback"],
+      "icon_path": ""
+    },
+    {
+      "item_id": "ring_verdant_coil",
+      "display_name": "Verdant Coil",
+      "slot_type": "accessory_2",
+      "rarity": "uncommon",
+      "description": "식물 원소 마법의 설치 범위와 지속시간을 높이는 고리",
+      "stat_modifiers": {
+        "plant_damage_multiplier": 1.12,
+        "installation_duration_multiplier": 1.10
+      },
+      "tags": ["plant", "deploy"],
+      "icon_path": ""
+    },
+    {
+      "item_id": "greaves_earthen_stride",
+      "display_name": "Earthen Stride Boots",
+      "slot_type": "legs",
+      "rarity": "rare",
+      "description": "대지 원소와 설치형 마법의 지속력을 강화하는 부츠. 발 아래서 뿌리가 자란다.",
+      "stat_modifiers": {
+        "earth_damage_multiplier": 1.16,
+        "installation_duration_multiplier": 1.08
+      },
+      "tags": ["earth", "deploy"],
+      "icon_path": ""
+    },
+    {
+      "item_id": "helm_holy_halo",
+      "display_name": "Holy Halo Crown",
+      "slot_type": "head",
+      "rarity": "rare",
+      "description": "신성 마법의 정수를 담은 관. 버프와 회복 계열 효과를 함께 높인다.",
+      "stat_modifiers": {
+        "holy_damage_multiplier": 1.16,
+        "buff_duration_multiplier": 1.10
+      },
+      "tags": ["holy", "buff"],
+      "icon_path": ""
+    },
+    {
+      "item_id": "focus_arcane_sovereign",
+      "display_name": "Arcane Sovereign Orb",
+      "slot_type": "offhand",
+      "rarity": "legendary",
+      "description": "모든 마법 계열의 출력을 끌어올리는 전설의 구체. 시전자의 의지가 원소를 가리지 않는다.",
+      "stat_modifiers": {
+        "magic_attack": 6.0,
+        "fire_damage_multiplier": 1.10,
+        "lightning_damage_multiplier": 1.10,
+        "cooldown_recovery": 0.08,
+        "max_mp": 20.0
+      },
+      "tags": ["fire", "lightning", "universal", "burst"],
+      "icon_path": ""
+    },
+    {
+      "item_id": "armor_soul_weave",
+      "display_name": "Soul Weave Robe",
+      "slot_type": "body",
+      "rarity": "legendary",
+      "description": "영혼의 마력을 직조한 전설의 로브. 생존력과 마나 순환을 동시에 극대화한다.",
+      "stat_modifiers": {
+        "max_hp": 25.0,
+        "max_mp": 30.0,
+        "mp_regen": 6.0,
+        "damage_taken_multiplier": 0.85
+      },
+      "tags": ["defense", "sustain"],
+      "icon_path": ""
+    },
+    {
+      "item_id": "ring_prismatic_apex",
+      "display_name": "Prismatic Apex Ring",
+      "slot_type": "accessory_1",
+      "rarity": "legendary",
+      "description": "모든 속성을 아우르는 전설의 반지. 버프 지속과 광역 범위를 함께 강화한다.",
+      "stat_modifiers": {
+        "buff_duration_multiplier": 1.30,
+        "aoe_radius_multiplier": 1.20,
+        "projectile_speed_multiplier": 1.15
+      },
+      "tags": ["buff", "universal", "projectile"],
+      "icon_path": ""
+    },
+    {
+      "item_id": "focus_void_lens",
+      "display_name": "Void Lens",
+      "slot_type": "offhand",
+      "rarity": "rare",
+      "description": "허공을 응시하며 형성된 렌즈. 암흑 계열 마법의 관통력과 출력을 높인다.",
+      "stat_modifiers": {
+        "dark_damage_multiplier": 1.22,
+        "projectile_speed_multiplier": 1.08
+      },
+      "tags": ["dark", "projectile"],
+      "icon_path": ""
+    },
+    {
+      "item_id": "ring_abyss_signet",
+      "display_name": "Abyss Signet",
+      "slot_type": "accessory_1",
+      "rarity": "rare",
+      "description": "심연의 문양이 새겨진 인장 반지. 어둠 마법의 위력과 버프 지속 시간을 높인다.",
+      "stat_modifiers": {
+        "dark_damage_multiplier": 1.18,
+        "buff_duration_multiplier": 1.10
+      },
+      "tags": ["dark", "buff"],
+      "icon_path": ""
+    },
+    {
+      "item_id": "focus_arcane_prism",
+      "display_name": "Arcane Prism",
+      "slot_type": "offhand",
+      "rarity": "rare",
+      "description": "아케인 에너지를 정제하는 수정 프리즘. 마법 전체 출력과 아케인 데미지를 끌어올린다.",
+      "stat_modifiers": {
+        "arcane_damage_multiplier": 1.20,
+        "magic_attack": 4.0
+      },
+      "tags": ["arcane", "universal"],
+      "icon_path": ""
+    },
+    {
+      "item_id": "ring_arcane_coil",
+      "display_name": "Arcane Coil Ring",
+      "slot_type": "accessory_2",
+      "rarity": "uncommon",
+      "description": "아케인 에너지를 순환시키는 코일 반지. 마나 효율을 높이고 아케인 데미지를 소폭 증가시킨다.",
+      "stat_modifiers": {
+        "arcane_damage_multiplier": 1.12,
+        "mp_regen": 3.0
+      },
+      "tags": ["arcane", "mana"],
+      "icon_path": ""
     }
   ]
 }

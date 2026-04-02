@@ -1,7 +1,108 @@
 {
+  "earth_tremor": {
+    "id": "earth_tremor",
+    "name": "Tremor",
+    "school": "earth",
+    "color": "#a0764a",
+    "damage": 20,
+    "speed": 0,
+    "range": 88,
+    "cooldown": 0.90,
+    "knockback": 380,
+    "size": 80,
+    "duration": 0.18,
+    "mastery_threshold": 4,
+    "mastery_bonus": {
+      "damage": 8,
+      "range": 16,
+      "knockback": 60
+    }
+  },
+  "plant_vine_snare": {
+    "id": "plant_vine_snare",
+    "name": "Root Bind",
+    "school": "plant",
+    "color": "#6bbf5b",
+    "damage": 6,
+    "speed": 0,
+    "range": 96,
+    "cooldown": 4.5,
+    "knockback": 0,
+    "size": 96,
+    "duration": 5.0,
+    "tick_interval": 1.0,
+    "utility_effects": [
+      {
+        "type": "root",
+        "value": 1.0,
+        "duration": 0.8
+      }
+    ],
+    "mastery_threshold": 4,
+    "mastery_bonus": {
+      "damage": 2,
+      "duration": 0.4,
+      "range": 8
+    }
+  },
+  "holy_radiant_burst": {
+    "id": "holy_radiant_burst",
+    "name": "Radiant Burst",
+    "school": "holy",
+    "color": "#fff4a0",
+    "damage": 19,
+    "speed": 680,
+    "range": 320,
+    "cooldown": 0.35,
+    "knockback": 200,
+    "size": 18,
+    "mastery_threshold": 4,
+    "mastery_bonus": {
+      "damage": 7,
+      "speed": 80,
+      "size": 4
+    }
+  },
+  "water_aqua_bullet": {
+    "id": "water_aqua_bullet",
+    "name": "워터 불릿",
+    "school": "water",
+    "color": "#4ec9f7",
+    "damage": 16,
+    "speed": 820,
+    "range": 360,
+    "cooldown": 0.28,
+    "knockback": 220,
+    "size": 14,
+    "mastery_threshold": 4,
+    "mastery_bonus": {
+      "damage": 6,
+      "speed": 60,
+      "knockback": 40
+    }
+  },
+  "wind_gale_cutter": {
+    "id": "wind_gale_cutter",
+    "name": "윈드 커터",
+    "school": "wind",
+    "color": "#b8f5c2",
+    "damage": 14,
+    "speed": 1100,
+    "range": 480,
+    "cooldown": 0.20,
+    "knockback": 280,
+    "size": 10,
+    "pierce": 3,
+    "mastery_threshold": 4,
+    "mastery_bonus": {
+      "damage": 5,
+      "pierce": 1,
+      "speed": 100
+    }
+  },
   "fire_bolt": {
     "id": "fire_bolt",
-    "name": "Fire Bolt",
+    "name": "파이어 볼트",
     "school": "fire",
     "color": "#ff8f45",
     "damage": 18,
@@ -29,6 +130,13 @@
     "knockback": 120,
     "size": 72,
     "duration": 0.2,
+    "utility_effects": [
+      {
+        "type": "freeze",
+        "value": 1.0,
+        "duration": 0.6
+      }
+    ],
     "mastery_threshold": 4,
     "mastery_bonus": {
       "damage": 6,
@@ -53,6 +161,43 @@
       "damage": 10,
       "pierce": 1,
       "speed": 120
+    }
+  },
+  "dark_void_bolt": {
+    "id": "dark_void_bolt",
+    "name": "Void Bolt",
+    "school": "dark",
+    "color": "#7c3aed",
+    "damage": 24,
+    "speed": 880,
+    "range": 400,
+    "cooldown": 0.45,
+    "knockback": 300,
+    "size": 14,
+    "pierce": 1,
+    "mastery_threshold": 4,
+    "mastery_bonus": {
+      "damage": 10,
+      "speed": 80,
+      "pierce": 1
+    }
+  },
+  "arcane_force_pulse": {
+    "id": "arcane_force_pulse",
+    "name": "Force Pulse",
+    "school": "arcane",
+    "color": "#c084fc",
+    "damage": 17,
+    "speed": 940,
+    "range": 460,
+    "cooldown": 0.30,
+    "knockback": 240,
+    "size": 12,
+    "mastery_threshold": 4,
+    "mastery_bonus": {
+      "damage": 7,
+      "speed": 100,
+      "size": 3
     }
   }
 }
