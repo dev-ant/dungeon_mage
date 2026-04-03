@@ -12,17 +12,24 @@ const RESONANCE_MILESTONES := {
 const BASE_MAX_HEALTH := 100
 const BASE_MAX_MANA := 180.0
 const BASE_MANA_REGEN_PER_SECOND := 14.0
+const VISIBLE_HOTBAR_SLOT_COUNT := 10
+const LEGACY_HOTBAR_TAIL_SAVE_KEY := "legacy_spell_hotbar_tail"
+const VISIBLE_HOTBAR_SHORTCUT_SAVE_KEY := "visible_hotbar_shortcuts"
+const DEFAULT_VISIBLE_HOTBAR_KEYCODES := {
+	"spell_fire": KEY_Z,
+	"spell_ice": KEY_C,
+	"spell_lightning": KEY_V,
+	"spell_water": KEY_U,
+	"spell_wind": KEY_I,
+	"spell_plant": KEY_P,
+	"spell_earth": KEY_O,
+	"spell_holy": KEY_K,
+	"spell_dark": KEY_L,
+	"spell_arcane": KEY_M
+}
 const SOUL_DOMINION_DAMAGE_TAKEN_MULT := 1.35
 const SOUL_DOMINION_AFTERSHOCK_DURATION := 5.0
 const SOUL_DOMINION_AFTERSHOCK_DAMAGE_MULT := 1.2
-const LEGACY_SPELL_TO_SKILL := {
-	"fire_bolt": "fire_ember_dart",
-	"frost_nova": "ice_frost_needle",
-	"volt_spear": "lightning_thunder_lance",
-	"earth_tremor": "earth_terra_break",
-	"holy_radiant_burst": "holy_healing_pulse",
-	"dark_void_bolt": "dark_abyss_gate"
-}
 const DEFAULT_SPELL_HOTBAR := [
 	{"action": "spell_fire", "skill_id": "fire_bolt", "label": "Z"},
 	{"action": "spell_ice", "skill_id": "frost_nova", "label": "C"},
@@ -293,8 +300,8 @@ var progression_flags: Dictionary:
 
 var ui_message := ""
 var ui_message_time := 0.0
-var spell_mastery := {"fire_bolt": 0, "frost_nova": 0, "volt_spear": 0}
-var spell_level := {"fire_bolt": 1, "frost_nova": 1, "volt_spear": 1}
+var spell_mastery: Dictionary = {}
+var spell_level: Dictionary = {}
 var skill_experience: Dictionary = {}
 var skill_level_data: Dictionary = {}
 var buff_cooldowns: Dictionary:
@@ -396,6 +403,7 @@ var last_combo_effect: Dictionary:
 var current_circle := 4
 var circle_progress_score := 1.0
 var spell_hotbar: Array = []
+var visible_hotbar_shortcuts: Array = []
 var equipped_items: Dictionary = {}
 var equipment_inventory: Array = []
 var current_equipment_preset := "default"
@@ -491,6 +499,7 @@ func ensure_input_map() -> void:
 	_add_action("buff_throne", [KEY_N])
 	_add_action("interact", [KEY_E, KEY_ENTER])
 	_add_action("admin_menu", [KEY_ESCAPE])
+	_apply_visible_hotbar_shortcuts_to_input_map()
 
 
 func heal_full() -> void:
@@ -583,12 +592,14 @@ func set_room(room_id: String) -> void:
 	save_to_disk()
 
 
-func register_spell_use(spell_id: String, school: String) -> void:
-	last_spell_school = school
+func register_spell_use(spell_id: String, school: String = "") -> void:
+	var resolved_school := resolve_runtime_school("", spell_id, school)
+	last_spell_school = resolved_school
 	spell_mastery[spell_id] = int(spell_mastery.get(spell_id, 0)) + 1
-	resonance[school] = int(resonance.get(school, 0)) + 1
-	_check_resonance_milestone(school, int(resonance.get(school, 0)))
-	_sync_legacy_spell_level(spell_id)
+	if resolved_school != "":
+		resonance[resolved_school] = int(resonance.get(resolved_school, 0)) + 1
+		_check_resonance_milestone(resolved_school, int(resonance.get(resolved_school, 0)))
+	_sync_runtime_spell_level(spell_id)
 	stats_changed.emit()
 
 
@@ -605,28 +616,479 @@ func get_spell_runtime(spell_id: String) -> Dictionary:
 	var level: int = get_spell_level(spell_id)
 	var linked_skill: Dictionary = GameDatabase.get_skill_data(get_skill_id_for_spell(spell_id))
 	if not data.is_empty():
-		var level_delta: int = max(level - 1, 0)
-		var school: String = str(data.get("school", ""))
+		var runtime_options := build_active_spell_runtime_options(spell_id, linked_skill, data, level)
+		var runtime_school := str(runtime_options.get("runtime_school", ""))
 		data["skill_id"] = get_skill_id_for_spell(spell_id)
-		data["skill_level"] = level
-		data["damage"] = int(round(float(data.get("damage", 0.0)) * (1.0 + 0.04 * level_delta)))
-		data["cooldown"] = float(data.get("cooldown", 0.0)) * max(0.55, 1.0 - 0.045 * level_delta)
-		if data.has("range"):
-			data["range"] = float(data.get("range", 0.0)) * (1.0 + 0.008 * level_delta)
-		if data.has("duration"):
-			data["duration"] = float(data.get("duration", 0.0)) * (1.0 + 0.01 * level_delta)
-		if data.has("size"):
-			data["size"] = float(data.get("size", 0.0)) * (1.0 + 0.006 * level_delta)
+		data["school"] = runtime_school
 		if not linked_skill.is_empty():
 			data["linked_skill_name"] = linked_skill.get("display_name", data.get("name", spell_id))
-		data["damage"] = int(
-			round(float(data.get("damage", 0.0)) * get_equipment_damage_multiplier(school))
+		data = build_common_runtime_stat_block(
+			str(linked_skill.get("skill_id", get_skill_id_for_spell(spell_id))),
+			data,
+			linked_skill,
+			runtime_options
 		)
-		data["cooldown"] = float(data.get("cooldown", 0.0)) * get_equipment_cooldown_multiplier()
-		if data.has("size"):
-			data["size"] = float(data.get("size", 0.0)) * get_equipment_aoe_multiplier()
+		data["skill_level"] = level
 		data = _apply_buff_runtime_modifiers(data)
 	return data
+
+
+func build_runtime_scaling_options(
+	level: int, runtime_school: String, overrides: Dictionary = {}
+) -> Dictionary:
+	var options := {
+		"level": level,
+		"runtime_school": runtime_school
+	}
+	for key in overrides.keys():
+		options[key] = overrides[key]
+	return options
+
+
+func build_active_spell_runtime_options(
+	spell_id: String,
+	linked_skill_data: Dictionary = {},
+	spell_data: Dictionary = {},
+	level_override: int = -1
+) -> Dictionary:
+	var resolved_linked_skill_data: Dictionary = _resolve_runtime_skill_data(
+		get_skill_id_for_spell(spell_id),
+		linked_skill_data
+	)
+	var resolved_skill_id: String = _resolve_runtime_skill_id(
+		get_skill_id_for_spell(spell_id),
+		resolved_linked_skill_data
+	)
+	var resolved_spell_data: Dictionary = spell_data
+	if resolved_spell_data.is_empty():
+		resolved_spell_data = GameDatabase.get_spell(spell_id)
+	var runtime_school := resolve_runtime_school(
+		resolved_skill_id,
+		spell_id,
+		str(resolved_spell_data.get("school", ""))
+	)
+	var level := level_override
+	if level < 0:
+		level = get_spell_level(spell_id)
+	return build_runtime_scaling_options(
+		level,
+		runtime_school,
+		{
+			"runtime_spell_id": spell_id,
+			"damage_per_level": 0.04,
+			"cooldown_reduction_per_level": 0.045,
+			"cooldown_min_multiplier": 0.55,
+			"duration_scale_per_level": 0.01,
+			"range_scale_per_level": 0.008,
+			"size_scale_per_level": 0.006,
+			"apply_equipment_damage": true,
+			"apply_equipment_cooldown": true,
+			"apply_equipment_aoe": true,
+			"aoe_fields": ["size"]
+		}
+	)
+
+
+func build_data_driven_skill_runtime_options(
+	skill_id: String, skill_data: Dictionary = {}, level_override: int = -1
+) -> Dictionary:
+	var resolved_skill_data: Dictionary = _resolve_runtime_skill_data(skill_id, skill_data)
+	var resolved_skill_id: String = _resolve_runtime_skill_id(skill_id, resolved_skill_data)
+	var runtime_school := resolve_runtime_school(
+		resolved_skill_id,
+		"",
+		str(resolved_skill_data.get("element", "arcane"))
+	)
+	var level := level_override
+	if level < 0:
+		level = get_skill_level(resolved_skill_id)
+	return build_runtime_scaling_options(
+		level,
+		runtime_school,
+		{
+			"cooldown_reduction_per_level": float(
+				resolved_skill_data.get("cooldown_reduction_per_level", 0.0)
+			),
+			"cooldown_min_multiplier": 0.45,
+			"duration_scale_per_level": float(
+				resolved_skill_data.get("duration_scale_per_level", 0.0)
+			),
+			"size_scale_per_level": float(resolved_skill_data.get("range_scale_per_level", 0.0)),
+			"apply_equipment_damage": true,
+			"apply_equipment_cooldown": true,
+			"apply_equipment_aoe": true,
+			"aoe_fields": ["size"],
+			"duration_equipment_mode": "install"
+		}
+	)
+
+
+func build_data_driven_skill_base_runtime(
+	skill_id: String, skill_data: Dictionary = {}, level_override: int = -1
+) -> Dictionary:
+	var resolved_skill_data: Dictionary = _resolve_runtime_skill_data(skill_id, skill_data)
+	var resolved_skill_id: String = _resolve_runtime_skill_id(skill_id, resolved_skill_data)
+	var level := level_override
+	if level < 0:
+		level = get_skill_level(resolved_skill_id)
+	var level_delta: int = max(level - 1, 0)
+	var damage_formula: Dictionary = resolved_skill_data.get("damage_formula", {})
+	var coefficient: float = float(damage_formula.get("coefficient_base", 1.0)) + float(
+		damage_formula.get("coefficient_per_level", 0.0)
+	) * float(level_delta)
+	var flat_damage: float = float(damage_formula.get("flat_base", 0.0)) + float(
+		damage_formula.get("flat_per_level", 0.0)
+	) * float(level_delta)
+	return {
+		"damage": int(round(coefficient * 10.0 + flat_damage)),
+		"cooldown": float(resolved_skill_data.get("cooldown_base", 1.0)),
+		"duration": float(resolved_skill_data.get("duration_base", 0.0)),
+		"size": float(resolved_skill_data.get("range_base", 40.0)),
+		"tick_interval": float(resolved_skill_data.get("tick_interval", 1.0)),
+		"knockback": float(resolved_skill_data.get("knockback_base", 180.0)),
+		"pierce": int(resolved_skill_data.get("pierce_count_base", 0))
+		+ get_skill_milestone_runtime_bonus(resolved_skill_data, "pierce_count", level),
+		"utility_effects": resolved_skill_data.get("utility_effects", []).duplicate(true)
+	}
+
+
+func get_data_driven_skill_runtime(
+	skill_id: String, skill_data: Dictionary = {}, level_override: int = -1
+) -> Dictionary:
+	var resolved_skill_data: Dictionary = _resolve_runtime_skill_data(skill_id, skill_data)
+	var resolved_skill_id: String = _resolve_runtime_skill_id(skill_id, resolved_skill_data)
+	var level := level_override
+	if level < 0:
+		level = get_skill_level(resolved_skill_id)
+	var base_runtime := build_data_driven_skill_base_runtime(
+		resolved_skill_id,
+		resolved_skill_data,
+		level
+	)
+	var runtime_options := build_data_driven_skill_runtime_options(
+		resolved_skill_id,
+		resolved_skill_data,
+		level
+	)
+	var runtime := build_common_runtime_stat_block(
+		resolved_skill_id,
+		base_runtime,
+		resolved_skill_data,
+		runtime_options
+	)
+	runtime["tick_interval"] = float(runtime.get("tick_interval", 1.0)) * maxf(
+		0.6,
+		1.0 - get_equipment_cast_speed_bonus()
+	)
+	runtime["mana_drain_per_tick"] = get_data_driven_skill_mana_drain_per_tick(
+		resolved_skill_id,
+		resolved_skill_data,
+		runtime_options
+	)
+	return runtime
+
+
+func get_data_driven_skill_mana_drain_per_tick(
+	skill_id: String, skill_data: Dictionary = {}, runtime_options: Dictionary = {}
+) -> float:
+	var resolved_skill_data: Dictionary = _resolve_runtime_skill_data(skill_id, skill_data)
+	var resolved_skill_id: String = _resolve_runtime_skill_id(skill_id, resolved_skill_data)
+	var base_value: float = float(resolved_skill_data.get("sustain_mana_cost_base", -1.0))
+	if base_value < 0.0:
+		var mana_cost: float = get_skill_mana_cost(resolved_skill_id)
+		return maxf(1.0, mana_cost * 0.35)
+	var resolved_options := runtime_options
+	if resolved_options.is_empty():
+		resolved_options = build_data_driven_skill_runtime_options(
+			resolved_skill_id,
+			resolved_skill_data
+		)
+	return maxf(
+		1.0,
+		get_common_scaled_mana_value(
+			resolved_skill_id,
+			base_value,
+			float(resolved_skill_data.get("sustain_mana_reduction_per_level", 0.0)),
+			float(resolved_skill_data.get("sustain_mana_min_ratio", 0.65)),
+			resolved_skill_data,
+			str(resolved_options.get("runtime_school", ""))
+		)
+	)
+
+
+func build_data_driven_combat_payload(
+	skill_id: String, runtime_source: Dictionary = {}, overrides: Dictionary = {}
+) -> Dictionary:
+	var payload := {
+		"spell_id": skill_id,
+		"velocity": Vector2.ZERO,
+		"range": 1.0,
+		"team": "player",
+		"damage": int(runtime_source.get("damage", 0)),
+		"knockback": float(runtime_source.get("knockback", 180.0)),
+		"school": str(runtime_source.get("school", resolve_runtime_school(skill_id))),
+		"size": float(runtime_source.get("size", 40.0)),
+		"duration": float(runtime_source.get("duration", 0.12)),
+		"utility_effects": runtime_source.get("utility_effects", []).duplicate(true)
+	}
+	var passthrough_fields := ["tick_interval", "pierce", "target_count", "color", "owner"]
+	for field_name in passthrough_fields:
+		if runtime_source.has(field_name):
+			payload[field_name] = runtime_source.get(field_name)
+	for key in overrides.keys():
+		payload[key] = overrides[key]
+	return payload
+
+
+func get_skill_milestone_runtime_bonus(
+	skill_data: Dictionary, stat_name: String, level: int
+) -> int:
+	var total_bonus := 0
+	for bonus in skill_data.get("milestone_bonuses", []):
+		if str(bonus.get("stat", "")) != stat_name:
+			continue
+		if level >= int(bonus.get("level", 99)):
+			total_bonus += int(bonus.get("value", 0))
+	return total_bonus
+
+
+func build_common_runtime_stat_block(
+	target_skill_id: String,
+	base_runtime: Dictionary,
+	target_skill_data: Dictionary = {},
+	options: Dictionary = {}
+) -> Dictionary:
+	var runtime: Dictionary = base_runtime.duplicate(true)
+	var resolved_skill_data: Dictionary = _resolve_runtime_skill_data(target_skill_id, target_skill_data)
+	var resolved_skill_id: String = _resolve_runtime_skill_id(target_skill_id, resolved_skill_data)
+	var runtime_school := resolve_runtime_school(
+		resolved_skill_id,
+		str(options.get("runtime_spell_id", "")),
+		str(options.get("runtime_school", runtime.get("school", "")))
+	)
+	if runtime_school != "":
+		runtime["school"] = runtime_school
+	var level: int = int(options.get("level", get_skill_level(resolved_skill_id)))
+	var level_delta: int = max(level - 1, 0)
+	var damage_per_level := float(options.get("damage_per_level", 0.0))
+	var cooldown_reduction_per_level := float(options.get("cooldown_reduction_per_level", 0.0))
+	var cooldown_min_multiplier := float(options.get("cooldown_min_multiplier", 1.0))
+	var duration_scale_per_level := float(options.get("duration_scale_per_level", 0.0))
+	var range_scale_per_level := float(options.get("range_scale_per_level", 0.0))
+	var size_scale_per_level := float(options.get("size_scale_per_level", 0.0))
+	if runtime.has("damage"):
+		runtime["damage"] = int(
+			round(float(runtime.get("damage", 0.0)) * (1.0 + damage_per_level * float(level_delta)))
+		)
+	if runtime.has("cooldown"):
+		runtime["cooldown"] = float(runtime.get("cooldown", 0.0)) * maxf(
+			cooldown_min_multiplier,
+			1.0 - cooldown_reduction_per_level * float(level_delta)
+		)
+	if runtime.has("duration"):
+		runtime["duration"] = float(runtime.get("duration", 0.0)) * (
+			1.0 + duration_scale_per_level * float(level_delta)
+		)
+	if runtime.has("range"):
+		runtime["range"] = float(runtime.get("range", 0.0)) * (
+			1.0 + range_scale_per_level * float(level_delta)
+		)
+	if runtime.has("size"):
+		runtime["size"] = float(runtime.get("size", 0.0)) * (
+			1.0 + size_scale_per_level * float(level_delta)
+		)
+	var mastery_modifiers := get_mastery_runtime_modifiers_for_skill(
+		resolved_skill_id,
+		resolved_skill_data,
+		runtime_school
+	)
+	if runtime.has("damage"):
+		runtime["damage"] = int(
+			round(
+				float(runtime.get("damage", 0.0))
+				* float(mastery_modifiers.get("damage_multiplier", 1.0))
+			)
+		)
+	if runtime.has("cooldown"):
+		runtime["cooldown"] = (
+			float(runtime.get("cooldown", 0.0))
+			* float(mastery_modifiers.get("cooldown_multiplier", 1.0))
+		)
+	if bool(options.get("apply_equipment_damage", false)) and runtime.has("damage"):
+		runtime["damage"] = int(
+			round(float(runtime.get("damage", 0.0)) * get_equipment_damage_multiplier(runtime_school))
+		)
+	if bool(options.get("apply_equipment_cooldown", false)) and runtime.has("cooldown"):
+		runtime["cooldown"] = float(runtime.get("cooldown", 0.0)) * get_equipment_cooldown_multiplier()
+	if bool(options.get("apply_equipment_aoe", false)):
+		var aoe_fields: Array = options.get("aoe_fields", ["size"])
+		for raw_field in aoe_fields:
+			var field_name := str(raw_field)
+			if runtime.has(field_name):
+				runtime[field_name] = (
+					float(runtime.get(field_name, 0.0)) * get_equipment_aoe_multiplier()
+				)
+	if str(options.get("duration_equipment_mode", "")) == "install" and runtime.has("duration"):
+		runtime["duration"] = (
+			float(runtime.get("duration", 0.0)) * get_equipment_install_duration_multiplier()
+		)
+	return runtime
+
+
+func get_common_scaled_mana_value(
+	target_skill_id: String,
+	base_value: float,
+	reduction_per_level: float,
+	min_ratio: float = 0.4,
+	target_skill_data: Dictionary = {},
+	school_override: String = ""
+) -> float:
+	var resolved_skill_data: Dictionary = _resolve_runtime_skill_data(target_skill_id, target_skill_data)
+	var resolved_skill_id: String = _resolve_runtime_skill_id(target_skill_id, resolved_skill_data)
+	var runtime_school := resolve_runtime_school(resolved_skill_id, "", school_override)
+	var level: int = get_skill_level(resolved_skill_id)
+	var level_delta: int = max(level - 1, 0)
+	var scaled_value := maxf(
+		0.0, base_value * maxf(min_ratio, 1.0 - reduction_per_level * float(level_delta))
+	)
+	var mastery_modifiers := get_mastery_runtime_modifiers_for_skill(
+		resolved_skill_id,
+		resolved_skill_data,
+		runtime_school
+	)
+	return maxf(0.0, scaled_value * float(mastery_modifiers.get("mana_cost_multiplier", 1.0)))
+
+
+func get_mastery_runtime_modifiers_for_skill(
+	target_skill_id: String, target_skill_data: Dictionary = {}, school_override: String = ""
+) -> Dictionary:
+	var modifiers := {
+		"mastery_id": "",
+		"damage_multiplier": 1.0,
+		"cooldown_multiplier": 1.0,
+		"mana_cost_multiplier": 1.0
+	}
+	var resolved_skill_data: Dictionary = _resolve_runtime_skill_data(target_skill_id, target_skill_data)
+	if resolved_skill_data.is_empty():
+		return modifiers
+	var skill_type := str(resolved_skill_data.get("skill_type", ""))
+	if skill_type not in ["active", "deploy", "toggle"]:
+		return modifiers
+	var runtime_school := resolve_runtime_school(target_skill_id, "", school_override)
+	var mastery_id: String = str(SCHOOL_TO_MASTERY.get(runtime_school, ""))
+	if mastery_id == "":
+		return modifiers
+	var mastery_data: Dictionary = GameDatabase.get_skill_data(mastery_id)
+	if mastery_data.is_empty() or str(mastery_data.get("passive_family", "")) != "mastery":
+		return modifiers
+	if _is_global_mastery_runtime_modifier(mastery_data):
+		return modifiers
+	if not _mastery_applies_to_skill(mastery_data, resolved_skill_data, runtime_school):
+		return modifiers
+	var mastery_level: int = get_skill_level(mastery_id)
+	var level_delta: int = max(mastery_level - 1, 0)
+	var damage_bonus := 0.0
+	var mana_reduction := 0.0
+	var cooldown_reduction := 0.0
+	for raw_bonus in mastery_data.get("threshold_bonuses", []):
+		var bonus: Dictionary = raw_bonus
+		if mastery_level < int(bonus.get("level", 99)):
+			continue
+		var effect := str(bonus.get("effect", ""))
+		var value := float(bonus.get("value", 0.0))
+		match effect:
+			"damage":
+				damage_bonus += value
+			"mana_cost_reduction":
+				mana_reduction += value
+			"cooldown_reduction":
+				cooldown_reduction += value
+			_:
+				pass
+	modifiers["mastery_id"] = mastery_id
+	modifiers["damage_multiplier"] = maxf(
+		0.0,
+		(1.0 + float(mastery_data.get("final_multiplier_per_level", 0.0)) * float(level_delta))
+		* (1.0 + damage_bonus)
+	)
+	modifiers["mana_cost_multiplier"] = maxf(0.0, 1.0 - mana_reduction)
+	modifiers["cooldown_multiplier"] = maxf(0.0, 1.0 - cooldown_reduction)
+	return modifiers
+
+
+func _resolve_runtime_skill_data(
+	target_skill_id: String, target_skill_data: Dictionary = {}
+) -> Dictionary:
+	var resolved_skill_data: Dictionary = target_skill_data.duplicate(true)
+	if resolved_skill_data.is_empty():
+		resolved_skill_data = GameDatabase.get_skill_data(target_skill_id)
+	if resolved_skill_data.is_empty():
+		var mapped_skill_id := get_skill_id_for_spell(target_skill_id)
+		if mapped_skill_id != "" and mapped_skill_id != target_skill_id:
+			resolved_skill_data = GameDatabase.get_skill_data(mapped_skill_id)
+	return resolved_skill_data
+
+
+func _resolve_runtime_skill_id(target_skill_id: String, resolved_skill_data: Dictionary) -> String:
+	var resolved_skill_id := str(resolved_skill_data.get("skill_id", ""))
+	if resolved_skill_id != "":
+		return resolved_skill_id
+	var mapped_skill_id := get_skill_id_for_spell(target_skill_id)
+	if mapped_skill_id != "":
+		return mapped_skill_id
+	return target_skill_id
+
+
+func resolve_runtime_school(
+	target_skill_id: String = "", runtime_spell_id: String = "", school_hint: String = ""
+) -> String:
+	var resolved_spell_id := runtime_spell_id.strip_edges()
+	var resolved_skill_id := target_skill_id.strip_edges()
+	if resolved_spell_id == "" and resolved_skill_id != "":
+		var direct_spell_data: Dictionary = GameDatabase.get_spell(resolved_skill_id)
+		if not direct_spell_data.is_empty():
+			resolved_spell_id = resolved_skill_id
+	if resolved_spell_id != "":
+		var spell_data: Dictionary = GameDatabase.get_spell(resolved_spell_id)
+		var spell_school := str(spell_data.get("school", "")).strip_edges()
+		if spell_school != "":
+			return spell_school
+		if resolved_skill_id == "":
+			resolved_skill_id = get_skill_id_for_spell(resolved_spell_id)
+	if resolved_skill_id != "":
+		var skill_data: Dictionary = GameDatabase.get_skill_data(resolved_skill_id)
+		var skill_element := str(skill_data.get("element", "")).strip_edges()
+		if skill_element != "" and skill_element != "none":
+			return skill_element
+		var skill_school := str(skill_data.get("school", "")).strip_edges()
+		if skill_school != "":
+			return skill_school
+	return school_hint.strip_edges()
+
+
+func _mastery_applies_to_skill(
+	mastery_data: Dictionary, target_skill_data: Dictionary, runtime_school: String
+) -> bool:
+	var target_skill_type := str(target_skill_data.get("skill_type", ""))
+	if target_skill_type not in ["active", "deploy", "toggle"]:
+		return false
+	var applies_to_school := str(mastery_data.get("applies_to_school", ""))
+	if applies_to_school != "" and applies_to_school != "all":
+		var target_school := str(target_skill_data.get("school", ""))
+		if target_school != applies_to_school:
+			return false
+	var applies_to_element := str(mastery_data.get("applies_to_element", ""))
+	if applies_to_element != "" and applies_to_element != "all":
+		var target_element := str(target_skill_data.get("element", runtime_school))
+		if target_element != applies_to_element:
+			return false
+	return true
+
+
+func _is_global_mastery_runtime_modifier(mastery_data: Dictionary) -> bool:
+	var applies_to_school := str(mastery_data.get("applies_to_school", ""))
+	var applies_to_element := str(mastery_data.get("applies_to_element", ""))
+	return applies_to_school == "all" and applies_to_element == "all"
 
 
 func consume_spell_cast(spell_id: String) -> void:
@@ -646,14 +1108,14 @@ func register_skill_damage(spell_id: String, amount: float) -> void:
 		return
 	_add_skill_experience(linked_skill_id, dealt)
 	_add_skill_experience("arcane_magic_mastery", dealt)
-	var school := str(GameDatabase.get_spell(spell_id).get("school", ""))
+	var school := resolve_runtime_school(linked_skill_id, spell_id)
 	var mastery_id: String = str(SCHOOL_TO_MASTERY.get(school, ""))
 	if mastery_id != "":
 		_add_skill_experience(mastery_id, dealt)
 	if ashen_rite_active:
 		ash_stacks = min(ash_stacks + 1, 20)
 	spell_mastery[spell_id] = int(round(float(skill_experience.get(linked_skill_id, 0.0))))
-	_sync_legacy_spell_level(spell_id)
+	_sync_runtime_spell_level(spell_id)
 	stats_changed.emit()
 
 
@@ -715,6 +1177,28 @@ func push_message(text: String, duration: float = 2.0) -> void:
 
 
 func save_to_disk() -> void:
+	var payload := _build_save_payload()
+	var file := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
+	if file:
+		file.store_string(JSON.stringify(payload))
+
+
+func load_save() -> void:
+	if not FileAccess.file_exists(SAVE_PATH):
+		return
+	var raw := FileAccess.get_file_as_string(SAVE_PATH)
+	var parsed = JSON.parse_string(raw)
+	if typeof(parsed) != TYPE_DICTIONARY:
+		return
+	_load_save_payload(parsed)
+
+
+func _build_save_payload() -> Dictionary:
+	_initialize_spell_hotbar()
+	var hotbar_snapshot: Array = spell_hotbar.duplicate(true)
+	ensure_input_map()
+	var visible_shortcut_snapshot: Array = _build_visible_hotbar_shortcut_payload()
+	spell_hotbar = hotbar_snapshot.duplicate(true)
 	var payload := _combat_state.build_resource_save_payload()
 	payload["current_room_id"] = current_room_id
 	payload["save_room_id"] = save_room_id
@@ -731,7 +1215,17 @@ func save_to_disk() -> void:
 			"spell_level": spell_level,
 			"skill_experience": skill_experience,
 			"skill_level_data": skill_level_data,
-			"spell_hotbar": spell_hotbar,
+			"spell_hotbar": _build_hotbar_save_slice_from_source(
+				hotbar_snapshot,
+				0,
+				VISIBLE_HOTBAR_SLOT_COUNT
+			),
+			LEGACY_HOTBAR_TAIL_SAVE_KEY: _build_hotbar_save_slice_from_source(
+				hotbar_snapshot,
+				VISIBLE_HOTBAR_SLOT_COUNT,
+				DEFAULT_SPELL_HOTBAR.size() - VISIBLE_HOTBAR_SLOT_COUNT
+			),
+			VISIBLE_HOTBAR_SHORTCUT_SAVE_KEY: visible_shortcut_snapshot,
 			"equipped_items": equipped_items,
 			"equipment_inventory": equipment_inventory,
 			"current_equipment_preset": current_equipment_preset,
@@ -739,33 +1233,241 @@ func save_to_disk() -> void:
 			"last_spell_school": last_spell_school
 		}
 	)
-	var file := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
-	if file:
-		file.store_string(JSON.stringify(payload))
+	return payload
 
 
-func load_save() -> void:
-	if not FileAccess.file_exists(SAVE_PATH):
-		return
-	var raw := FileAccess.get_file_as_string(SAVE_PATH)
-	var parsed = JSON.parse_string(raw)
-	if typeof(parsed) != TYPE_DICTIONARY:
-		return
+func _load_save_payload(parsed: Dictionary) -> void:
 	_combat_state.load_resource_save_payload(parsed)
 	_progress_state.load_save_payload(parsed)
 	spell_mastery = parsed.get("spell_mastery", spell_mastery)
 	spell_level = parsed.get("spell_level", spell_level)
 	skill_experience = parsed.get("skill_experience", skill_experience)
 	skill_level_data = parsed.get("skill_level_data", skill_level_data)
-	spell_hotbar = parsed.get("spell_hotbar", spell_hotbar)
+	visible_hotbar_shortcuts = _restore_visible_hotbar_shortcuts(
+		parsed.get(VISIBLE_HOTBAR_SHORTCUT_SAVE_KEY, [])
+	)
+	spell_hotbar = _restore_saved_spell_hotbar(
+		parsed.get("spell_hotbar", spell_hotbar),
+		parsed.get(LEGACY_HOTBAR_TAIL_SAVE_KEY, [])
+	)
 	equipped_items = parsed.get("equipped_items", equipped_items)
 	equipment_inventory = parsed.get("equipment_inventory", equipment_inventory)
 	current_equipment_preset = str(parsed.get("current_equipment_preset", current_equipment_preset))
 	resonance = parsed.get("resonance", resonance)
 	last_spell_school = str(parsed.get("last_spell_school", last_spell_school))
 	_initialize_spell_hotbar()
+	if visible_hotbar_shortcuts.is_empty():
+		visible_hotbar_shortcuts = _build_legacy_visible_hotbar_shortcut_payload()
+	ensure_input_map()
 	_initialize_equipment_state()
 	_recalculate_derived_stats(false)
+
+
+func _build_hotbar_save_slice(start_index: int, slot_count: int) -> Array:
+	_initialize_spell_hotbar()
+	return _build_hotbar_save_slice_from_source(spell_hotbar, start_index, slot_count)
+
+
+func _build_hotbar_save_slice_from_source(source_hotbar: Array, start_index: int, slot_count: int) -> Array:
+	var saved_slice: Array = []
+	var max_index: int = mini(start_index + slot_count, source_hotbar.size())
+	for i in range(start_index, max_index):
+		if typeof(source_hotbar[i]) != TYPE_DICTIONARY:
+			continue
+		saved_slice.append((source_hotbar[i] as Dictionary).duplicate(true))
+	return saved_slice
+
+
+func _restore_saved_spell_hotbar(saved_hotbar_value, saved_legacy_tail_value) -> Array:
+	var restored_hotbar: Array = DEFAULT_SPELL_HOTBAR.duplicate(true)
+	if typeof(saved_hotbar_value) == TYPE_ARRAY:
+		var saved_hotbar: Array = saved_hotbar_value
+		if saved_hotbar.size() > VISIBLE_HOTBAR_SLOT_COUNT:
+			return saved_hotbar.duplicate(true)
+		_apply_saved_hotbar_slice(restored_hotbar, saved_hotbar, 0)
+	if typeof(saved_legacy_tail_value) == TYPE_ARRAY:
+		_apply_saved_hotbar_slice(
+			restored_hotbar,
+			saved_legacy_tail_value,
+			VISIBLE_HOTBAR_SLOT_COUNT
+		)
+	return restored_hotbar
+
+
+func _apply_saved_hotbar_slice(restored_hotbar: Array, saved_slice: Array, start_index: int) -> void:
+	var max_count: int = mini(saved_slice.size(), restored_hotbar.size() - start_index)
+	for i in range(max_count):
+		if typeof(saved_slice[i]) != TYPE_DICTIONARY:
+			continue
+		var target_index := start_index + i
+		var restored_slot: Dictionary = restored_hotbar[target_index]
+		var saved_slot: Dictionary = saved_slice[i]
+		var saved_action := str(saved_slot.get("action", ""))
+		var saved_label := str(saved_slot.get("label", ""))
+		if saved_action != "":
+			restored_slot["action"] = saved_action
+		if saved_label != "":
+			restored_slot["label"] = saved_label
+		restored_slot["skill_id"] = str(saved_slot.get("skill_id", ""))
+		restored_hotbar[target_index] = restored_slot
+
+
+func _build_visible_hotbar_shortcut_payload() -> Array:
+	_initialize_spell_hotbar()
+	var payload: Array = []
+	var visible_count: int = mini(VISIBLE_HOTBAR_SLOT_COUNT, spell_hotbar.size())
+	for i in range(visible_count):
+		var slot: Dictionary = spell_hotbar[i]
+		var action := str(slot.get("action", ""))
+		if action == "":
+			continue
+		payload.append(
+			{
+				"slot_index": i,
+				"action": action,
+				"keycode": _get_action_primary_physical_keycode(
+					action,
+					_get_default_visible_hotbar_keycode(action)
+				)
+			}
+		)
+	return payload
+
+
+func _restore_visible_hotbar_shortcuts(saved_value) -> Array:
+	if typeof(saved_value) != TYPE_ARRAY:
+		return []
+	var restored: Array = []
+	var saved_shortcuts: Array = saved_value
+	for raw_value in saved_shortcuts:
+		if typeof(raw_value) != TYPE_DICTIONARY:
+			continue
+		var shortcut: Dictionary = raw_value
+		var slot_index: int = int(shortcut.get("slot_index", -1))
+		if slot_index < 0 or slot_index >= VISIBLE_HOTBAR_SLOT_COUNT:
+			continue
+		var default_action := str(DEFAULT_SPELL_HOTBAR[slot_index].get("action", ""))
+		var action := str(shortcut.get("action", default_action))
+		var keycode: int = int(shortcut.get("keycode", 0))
+		if action == "" or keycode <= 0:
+			continue
+		restored.append({"slot_index": slot_index, "action": action, "keycode": keycode})
+	return restored
+
+
+func _build_legacy_visible_hotbar_shortcut_payload() -> Array:
+	_initialize_spell_hotbar()
+	var restored: Array = []
+	var visible_count: int = mini(VISIBLE_HOTBAR_SLOT_COUNT, spell_hotbar.size())
+	for i in range(visible_count):
+		var slot: Dictionary = spell_hotbar[i]
+		var action := str(slot.get("action", ""))
+		if action == "":
+			continue
+		var label := str(slot.get("label", ""))
+		var keycode: int = _parse_hotbar_label_to_keycode(label)
+		if keycode <= 0:
+			keycode = _get_default_visible_hotbar_keycode(action)
+		if keycode <= 0:
+			continue
+		restored.append({"slot_index": i, "action": action, "keycode": keycode})
+	return restored
+
+
+func _parse_hotbar_label_to_keycode(label: String) -> int:
+	var normalized_label := label.strip_edges().to_upper()
+	if normalized_label == "":
+		return 0
+	return int(OS.find_keycode_from_string(normalized_label))
+
+
+func _apply_visible_hotbar_shortcuts_to_input_map() -> void:
+	if visible_hotbar_shortcuts.is_empty():
+		return
+	_initialize_spell_hotbar()
+	for shortcut_value in visible_hotbar_shortcuts:
+		var shortcut: Dictionary = shortcut_value
+		var slot_index: int = int(shortcut.get("slot_index", -1))
+		if slot_index < 0 or slot_index >= mini(VISIBLE_HOTBAR_SLOT_COUNT, spell_hotbar.size()):
+			continue
+		var action := str(shortcut.get("action", ""))
+		var keycode: int = int(shortcut.get("keycode", 0))
+		if action == "" or keycode <= 0:
+			continue
+		_set_action_primary_physical_keycode(action, keycode)
+		var slot: Dictionary = spell_hotbar[slot_index]
+		slot["label"] = _format_hotbar_key_label(keycode)
+		spell_hotbar[slot_index] = slot
+
+
+func _reset_visible_hotbar_shortcuts_to_default(persist: bool) -> void:
+	_initialize_spell_hotbar()
+	ensure_input_map()
+	var visible_count: int = mini(VISIBLE_HOTBAR_SLOT_COUNT, spell_hotbar.size())
+	for i in range(visible_count):
+		var slot: Dictionary = spell_hotbar[i]
+		var action := str(slot.get("action", ""))
+		var default_keycode: int = _get_default_visible_hotbar_keycode(action)
+		if action == "" or default_keycode <= 0:
+			continue
+		_set_action_primary_physical_keycode(action, default_keycode)
+		slot["label"] = str(
+			DEFAULT_SPELL_HOTBAR[i].get("label", _format_hotbar_key_label(default_keycode))
+		)
+		spell_hotbar[i] = slot
+	visible_hotbar_shortcuts = _build_visible_hotbar_shortcut_payload()
+	if persist:
+		save_to_disk()
+		stats_changed.emit()
+
+
+func _get_default_visible_hotbar_keycode(action: String) -> int:
+	return int(DEFAULT_VISIBLE_HOTBAR_KEYCODES.get(action, 0))
+
+
+func _get_action_primary_physical_keycode(action: String, fallback_keycode: int = 0) -> int:
+	if not InputMap.has_action(action):
+		return fallback_keycode
+	for event_value in InputMap.action_get_events(action):
+		var key_event := event_value as InputEventKey
+		if key_event == null:
+			continue
+		if key_event.physical_keycode != 0:
+			return int(key_event.physical_keycode)
+		if key_event.keycode != 0:
+			return int(key_event.keycode)
+	return fallback_keycode
+
+
+func _set_action_primary_physical_keycode(action: String, keycode: int) -> void:
+	if not InputMap.has_action(action):
+		InputMap.add_action(action)
+	InputMap.action_erase_events(action)
+	var event := InputEventKey.new()
+	event.physical_keycode = keycode
+	InputMap.action_add_event(action, event)
+
+
+func _find_visible_hotbar_slot_by_keycode(keycode: int, excluded_slot_index: int = -1) -> int:
+	_initialize_spell_hotbar()
+	var visible_count: int = mini(VISIBLE_HOTBAR_SLOT_COUNT, spell_hotbar.size())
+	for i in range(visible_count):
+		if i == excluded_slot_index:
+			continue
+		var slot: Dictionary = spell_hotbar[i]
+		var action := str(slot.get("action", ""))
+		if action == "":
+			continue
+		if _get_action_primary_physical_keycode(action, _get_default_visible_hotbar_keycode(action)) == keycode:
+			return i
+	return -1
+
+
+func _format_hotbar_key_label(keycode: int) -> String:
+	var key_name := OS.get_keycode_string(keycode)
+	if key_name == "":
+		return "?"
+	return key_name.to_upper()
 
 
 func _add_action(action: String, keys: Array) -> void:
@@ -779,12 +1481,12 @@ func _add_action(action: String, keys: Array) -> void:
 
 
 func get_skill_id_for_spell(spell_id: String) -> String:
-	var mapped: String = str(LEGACY_SPELL_TO_SKILL.get(spell_id, ""))
+	var mapped: String = GameDatabase.get_skill_id_for_runtime_spell(spell_id)
 	if mapped != "":
 		return mapped
 	var direct_skill: Dictionary = GameDatabase.get_skill_data(spell_id)
 	if not direct_skill.is_empty():
-		return spell_id
+		return str(direct_skill.get("skill_id", spell_id))
 	return ""
 
 
@@ -797,18 +1499,106 @@ func get_spell_hotbar() -> Array:
 	return spell_hotbar.duplicate(true)
 
 
+func get_visible_spell_hotbar() -> Array:
+	_initialize_spell_hotbar()
+	var visible: Array = []
+	var visible_count: int = mini(VISIBLE_HOTBAR_SLOT_COUNT, spell_hotbar.size())
+	for i in range(visible_count):
+		visible.append((spell_hotbar[i] as Dictionary).duplicate(true))
+	return visible
+
+
+func get_visible_hotbar_shortcuts() -> Array:
+	ensure_input_map()
+	return _build_visible_hotbar_shortcut_payload()
+
+
+func set_visible_hotbar_shortcut(slot_index: int, keycode: int) -> bool:
+	_initialize_spell_hotbar()
+	ensure_input_map()
+	if slot_index < 0 or slot_index >= mini(VISIBLE_HOTBAR_SLOT_COUNT, spell_hotbar.size()):
+		return false
+	if keycode <= 0:
+		return false
+	var slot: Dictionary = spell_hotbar[slot_index]
+	var action := str(slot.get("action", ""))
+	if action == "":
+		return false
+	var current_keycode: int = _get_action_primary_physical_keycode(
+		action,
+		_get_default_visible_hotbar_keycode(action)
+	)
+	var conflicting_slot_index := _find_visible_hotbar_slot_by_keycode(keycode, slot_index)
+	if conflicting_slot_index != -1:
+		var conflicting_slot: Dictionary = spell_hotbar[conflicting_slot_index]
+		var conflicting_action := str(conflicting_slot.get("action", ""))
+		if conflicting_action != "":
+			_set_action_primary_physical_keycode(conflicting_action, current_keycode)
+			conflicting_slot["label"] = _format_hotbar_key_label(current_keycode)
+			spell_hotbar[conflicting_slot_index] = conflicting_slot
+	_set_action_primary_physical_keycode(action, keycode)
+	slot["label"] = _format_hotbar_key_label(keycode)
+	spell_hotbar[slot_index] = slot
+	visible_hotbar_shortcuts = _build_visible_hotbar_shortcut_payload()
+	save_to_disk()
+	stats_changed.emit()
+	return true
+
+
+func reset_visible_hotbar_shortcuts_to_default() -> void:
+	_reset_visible_hotbar_shortcuts_to_default(true)
+
+
+func get_hotbar_slot(slot_index: int) -> Dictionary:
+	_initialize_spell_hotbar()
+	if slot_index < 0 or slot_index >= spell_hotbar.size():
+		return {}
+	return (spell_hotbar[slot_index] as Dictionary).duplicate(true)
+
+
+func get_runtime_castable_hotbar_skill_id(skill_id: String) -> String:
+	return GameDatabase.get_runtime_castable_skill_id(skill_id)
+
+
 func set_hotbar_skill(slot_index: int, skill_id: String) -> bool:
 	_initialize_spell_hotbar()
 	if slot_index < 0 or slot_index >= spell_hotbar.size():
 		return false
+	var normalized_skill_id := ""
 	if skill_id != "":
-		var spell_data: Dictionary = GameDatabase.get_spell(skill_id)
-		var skill_data: Dictionary = GameDatabase.get_skill_data(skill_id)
-		if spell_data.is_empty() and skill_data.is_empty():
+		normalized_skill_id = get_runtime_castable_hotbar_skill_id(skill_id)
+		if normalized_skill_id == "":
 			return false
 	var slot: Dictionary = spell_hotbar[slot_index]
-	slot["skill_id"] = skill_id
+	slot["skill_id"] = normalized_skill_id
 	spell_hotbar[slot_index] = slot
+	save_to_disk()
+	stats_changed.emit()
+	return true
+
+
+func clear_hotbar_skill(slot_index: int) -> bool:
+	return set_hotbar_skill(slot_index, "")
+
+
+func swap_hotbar_skills(first_index: int, second_index: int) -> bool:
+	_initialize_spell_hotbar()
+	if first_index < 0 or first_index >= spell_hotbar.size():
+		return false
+	if second_index < 0 or second_index >= spell_hotbar.size():
+		return false
+	if first_index == second_index:
+		return true
+	var first_slot: Dictionary = spell_hotbar[first_index]
+	var second_slot: Dictionary = spell_hotbar[second_index]
+	var first_skill_id := str(first_slot.get("skill_id", ""))
+	var second_skill_id := str(second_slot.get("skill_id", ""))
+	if first_skill_id == second_skill_id:
+		return true
+	first_slot["skill_id"] = second_skill_id
+	second_slot["skill_id"] = first_skill_id
+	spell_hotbar[first_index] = first_slot
+	spell_hotbar[second_index] = second_slot
 	save_to_disk()
 	stats_changed.emit()
 	return true
@@ -1052,9 +1842,8 @@ func set_skill_level(skill_id: String, level: int) -> bool:
 	var clamped_level: int = clampi(level, 1, 30)
 	skill_level_data[skill_id] = clamped_level
 	skill_experience[skill_id] = _required_experience_for_level(clamped_level)
-	for legacy_spell_id in LEGACY_SPELL_TO_SKILL.keys():
-		if get_skill_id_for_spell(legacy_spell_id) == skill_id:
-			_sync_legacy_spell_level(legacy_spell_id)
+	for runtime_spell_id in GameDatabase.get_runtime_spell_ids_for_skill(skill_id):
+		_sync_runtime_spell_level(runtime_spell_id)
 	recalculate_circle_progression(false)
 	save_to_disk()
 	stats_changed.emit()
@@ -1073,8 +1862,8 @@ func reset_progress_for_tests() -> void:
 	_progress_state.reset()
 	ui_message = ""
 	ui_message_time = 0.0
-	spell_mastery = {"fire_bolt": 0, "frost_nova": 0, "volt_spear": 0}
-	spell_level = {"fire_bolt": 1, "frost_nova": 1, "volt_spear": 1}
+	spell_mastery.clear()
+	spell_level.clear()
 	skill_experience.clear()
 	skill_level_data.clear()
 	admin_infinite_health = false
@@ -1100,10 +1889,12 @@ func reset_progress_for_tests() -> void:
 	last_spell_school = "fire"
 	resonance_bonus_school = ""
 	resonance_bonus_timer = 0.0
+	visible_hotbar_shortcuts.clear()
 	spell_hotbar = DEFAULT_SPELL_HOTBAR.duplicate(true)
 	_initialize_skill_progress()
 	_initialize_buff_runtime()
 	_initialize_spell_hotbar()
+	_reset_visible_hotbar_shortcuts_to_default(false)
 	_initialize_equipment_state()
 	_recalculate_derived_stats(false)
 	recalculate_circle_progression(false)
@@ -1165,12 +1956,12 @@ func _initialize_skill_progress() -> void:
 			skill_experience[skill_id] = 0.0
 		if not skill_level_data.has(skill_id):
 			skill_level_data[skill_id] = 1
-	for legacy_spell_id in LEGACY_SPELL_TO_SKILL.keys():
-		if not spell_mastery.has(legacy_spell_id):
-			spell_mastery[legacy_spell_id] = 0
-		if not spell_level.has(legacy_spell_id):
-			spell_level[legacy_spell_id] = 1
-		_sync_legacy_spell_level(legacy_spell_id)
+	for runtime_spell_id in GameDatabase.get_runtime_linked_spell_ids():
+		if not spell_mastery.has(runtime_spell_id):
+			spell_mastery[runtime_spell_id] = 0
+		if not spell_level.has(runtime_spell_id):
+			spell_level[runtime_spell_id] = 1
+		_sync_runtime_spell_level(runtime_spell_id)
 	recalculate_circle_progression(false)
 
 
@@ -1190,7 +1981,19 @@ func _initialize_spell_hotbar() -> void:
 		var slot: Dictionary = fallback.duplicate(true)
 		if i < spell_hotbar.size() and typeof(spell_hotbar[i]) == TYPE_DICTIONARY:
 			var existing: Dictionary = spell_hotbar[i]
-			slot["skill_id"] = str(existing.get("skill_id", slot.get("skill_id", "")))
+			var existing_action := str(existing.get("action", ""))
+			var existing_label := str(existing.get("label", ""))
+			if existing_action != "":
+				slot["action"] = existing_action
+			if existing_label != "":
+				slot["label"] = existing_label
+			var raw_skill_id := str(existing.get("skill_id", ""))
+			if raw_skill_id == "":
+				slot["skill_id"] = ""
+			else:
+				var normalized_skill_id := get_runtime_castable_hotbar_skill_id(raw_skill_id)
+				if normalized_skill_id != "":
+					slot["skill_id"] = normalized_skill_id
 		normalized.append(slot)
 	spell_hotbar = normalized
 
@@ -1279,7 +2082,7 @@ func _required_experience_for_level(target_level: int) -> float:
 	return total
 
 
-func _sync_legacy_spell_level(spell_id: String) -> void:
+func _sync_runtime_spell_level(spell_id: String) -> void:
 	var linked_skill_id := get_skill_id_for_spell(spell_id)
 	if linked_skill_id == "":
 		return
@@ -1499,9 +2302,8 @@ func _grant_skill_level_bonus(skill_id: String, amount: int) -> void:
 	if not skill_level_data.has(skill_id):
 		skill_level_data[skill_id] = 1
 	skill_level_data[skill_id] = min(int(skill_level_data[skill_id]) + amount, 30)
-	for legacy_spell_id in LEGACY_SPELL_TO_SKILL.keys():
-		if get_skill_id_for_spell(legacy_spell_id) == skill_id:
-			_sync_legacy_spell_level(legacy_spell_id)
+	for runtime_spell_id in GameDatabase.get_runtime_spell_ids_for_skill(skill_id):
+		_sync_runtime_spell_level(runtime_spell_id)
 
 
 func get_player_move_multiplier() -> float:
@@ -2168,12 +2970,13 @@ func get_skill_mana_cost(skill_id: String) -> float:
 			skill_data = GameDatabase.get_skill_data(linked_skill_id)
 	if skill_data.is_empty():
 		return 0.0
-	var level: int = get_skill_level(str(skill_data.get("skill_id", skill_id)))
-	var level_delta: int = max(level - 1, 0)
-	var base_value: float = float(skill_data.get("mana_cost_base", 0.0))
-	var reduction_per_level: float = float(skill_data.get("mana_reduction_per_level", 0.0))
-	var cost: float = maxf(
-		0.0, base_value * maxf(0.4, 1.0 - reduction_per_level * float(level_delta))
+	var cost: float = get_common_scaled_mana_value(
+		str(skill_data.get("skill_id", skill_id)),
+		float(skill_data.get("mana_cost_base", 0.0)),
+		float(skill_data.get("mana_reduction_per_level", 0.0)),
+		0.4,
+		skill_data,
+		str(skill_data.get("element", ""))
 	)
 	for effect in _collect_active_effects():
 		if str(effect.get("stat", "")) == "mana_efficiency_multiplier":

@@ -273,6 +273,74 @@ func test_cast_hotbar_slot_frost_nova_triggers_area_burst_camera_shake() -> void
 	assert_gt(player._cam_shake_intensity, 0.0, "area burst casts must set camera shake intensity")
 
 
+func test_player_visible_hotbar_bindings_expose_first_ten_slots() -> void:
+	var player = autofree(PLAYER_SCRIPT.new())
+	player.debug_setup_spell_manager()
+	var visible_bindings: Array = player.get_visible_hotbar_bindings()
+	assert_eq(
+		visible_bindings.size(),
+		GameState.VISIBLE_HOTBAR_SLOT_COUNT,
+		"player wrapper should expose the first ten visible hotbar slots"
+	)
+	assert_eq(str(visible_bindings[0].get("label", "")), "Z")
+	assert_eq(str(visible_bindings[9].get("label", "")), "M")
+
+
+func test_player_visible_hotbar_shortcuts_wrap_game_state_profile() -> void:
+	var player = autofree(PLAYER_SCRIPT.new())
+	player.debug_setup_spell_manager()
+	var shortcuts: Array = player.get_visible_hotbar_shortcuts()
+	assert_eq(shortcuts.size(), GameState.VISIBLE_HOTBAR_SLOT_COUNT)
+	assert_eq(str(shortcuts[0].get("action", "")), "spell_fire")
+	assert_eq(int(shortcuts[0].get("keycode", 0)), KEY_Z)
+
+
+func test_player_can_rebind_visible_hotbar_shortcut_through_wrapper() -> void:
+	var player = autofree(PLAYER_SCRIPT.new())
+	player.debug_setup_spell_manager()
+	assert_true(player.rebind_visible_hotbar_shortcut(0, KEY_1))
+	assert_eq(str(GameState.get_hotbar_slot(0).get("label", "")), "1")
+	assert_eq((InputMap.action_get_events("spell_fire")[0] as InputEventKey).physical_keycode, KEY_1)
+	player.reset_visible_hotbar_shortcuts_to_default()
+	assert_eq(str(GameState.get_hotbar_slot(0).get("label", "")), "Z")
+
+
+func test_player_hotbar_slot_tooltip_data_wraps_spell_manager_payload() -> void:
+	var player = autofree(PLAYER_SCRIPT.new())
+	player.debug_setup_spell_manager()
+	GameState.set_hotbar_skill(0, "holy_mana_veil")
+	var tooltip: Dictionary = player.get_hotbar_slot_tooltip_data(0)
+	assert_eq(str(tooltip.get("skill_id", "")), "holy_mana_veil")
+	assert_eq(str(tooltip.get("label", "")), "Z")
+	assert_string_contains(str(tooltip.get("name", "")), "마나 베일")
+	assert_true(tooltip.has("description"), "player tooltip wrapper should preserve description field")
+
+
+func test_player_can_clear_and_swap_hotbar_slots_through_wrappers() -> void:
+	var player = autofree(PLAYER_SCRIPT.new())
+	player.debug_setup_spell_manager()
+	var initial_slot_zero: Dictionary = GameState.get_hotbar_slot(0)
+	var initial_slot_one: Dictionary = GameState.get_hotbar_slot(1)
+	assert_true(player.swap_hotbar_slots(0, 1))
+	assert_eq(
+		str(GameState.get_hotbar_slot(0).get("skill_id", "")),
+		str(initial_slot_one.get("skill_id", "")),
+		"player swap wrapper should delegate to GameState hotbar swap"
+	)
+	assert_true(player.clear_hotbar_slot(1))
+	assert_eq(str(GameState.get_hotbar_slot(1).get("skill_id", "")), "")
+	assert_eq(
+		str(GameState.get_hotbar_slot(1).get("label", "")),
+		str(initial_slot_one.get("label", "")),
+		"player clear wrapper should preserve slot metadata"
+	)
+	assert_eq(
+		str(GameState.get_hotbar_slot(0).get("label", "")),
+		str(initial_slot_zero.get("label", "")),
+		"player swap wrapper should preserve destination slot label"
+	)
+
+
 func test_receive_hit_with_slow_effect_sets_slow_state() -> void:
 	var player = autofree(PLAYER_SCRIPT.new())
 	assert_eq(player.player_slow_timer, 0.0, "slow_timer starts at zero")

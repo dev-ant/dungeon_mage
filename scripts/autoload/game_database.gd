@@ -6,6 +6,11 @@ var room_by_id: Dictionary = {}
 var skill_catalog: Array = []
 var skill_by_id: Dictionary = {}
 var skill_alias_to_id: Dictionary = {}
+var runtime_spell_to_skill_id: Dictionary = {}
+var skill_to_runtime_spell_id: Dictionary = {}
+var skill_to_runtime_spell_ids: Dictionary = {}
+var skill_validation_errors: Array[String] = []
+var spell_validation_errors: Array[String] = []
 var buff_combos: Array = []
 var buff_combo_by_id: Dictionary = {}
 var equipment_catalog: Array = []
@@ -89,6 +94,21 @@ const REQUIRED_STATUS_RESIST_FIELDS := [
 	"poison_resist",
 	"silence_resist"
 ]
+const VALID_SKILL_TYPES := ["active", "buff", "deploy", "toggle", "passive"]
+const VALID_SKILL_SCHOOLS := ["elemental", "white", "black", "arcane"]
+const VALID_SKILL_ELEMENTS := [
+	"fire",
+	"water",
+	"ice",
+	"lightning",
+	"wind",
+	"earth",
+	"plant",
+	"dark",
+	"holy",
+	"arcane"
+]
+const RUNTIME_SPELL_REQUIRED_NUMERIC_FIELDS := ["damage", "speed", "range", "cooldown", "size"]
 
 
 func _ready() -> void:
@@ -106,6 +126,11 @@ func _ready() -> void:
 	room_by_id.clear()
 	skill_by_id.clear()
 	skill_alias_to_id.clear()
+	runtime_spell_to_skill_id.clear()
+	skill_to_runtime_spell_id.clear()
+	skill_to_runtime_spell_ids.clear()
+	skill_validation_errors.clear()
+	spell_validation_errors.clear()
 	buff_combo_by_id.clear()
 	equipment_by_id.clear()
 	enemy_by_id.clear()
@@ -119,6 +144,8 @@ func _ready() -> void:
 			continue
 		skill_by_id[skill_id] = skill
 		_register_skill_alias(str(skill.get("canonical_skill_id", "")), skill_id)
+	_build_runtime_spell_skill_mappings()
+	_validate_progression_data()
 	for combo in buff_combos:
 		buff_combo_by_id[combo["combo_id"]] = combo
 	for item in equipment_catalog:
@@ -154,6 +181,74 @@ func get_skill_data(skill_id: String) -> Dictionary:
 	return skill_by_id.get(mapped_skill_id, {}).duplicate(true)
 
 
+func get_skill_id_for_runtime_spell(spell_id: String) -> String:
+	return str(runtime_spell_to_skill_id.get(spell_id, ""))
+
+
+func get_runtime_spell_id_for_skill(skill_id: String) -> String:
+	var resolved_skill_id := _resolve_runtime_mapping_skill_id(skill_id)
+	if resolved_skill_id.is_empty():
+		var skill_data: Dictionary = get_skill_data(skill_id)
+		resolved_skill_id = str(skill_data.get("skill_id", ""))
+	return str(skill_to_runtime_spell_id.get(resolved_skill_id, ""))
+
+
+func get_runtime_spell_ids_for_skill(skill_id: String) -> Array[String]:
+	var resolved_skill_id := _resolve_runtime_mapping_skill_id(skill_id)
+	if resolved_skill_id.is_empty():
+		var skill_data: Dictionary = get_skill_data(skill_id)
+		resolved_skill_id = str(skill_data.get("skill_id", ""))
+	var raw_spell_ids: Array = skill_to_runtime_spell_ids.get(resolved_skill_id, [])
+	var resolved: Array[String] = []
+	for raw_spell_id in raw_spell_ids:
+		resolved.append(str(raw_spell_id))
+	return resolved
+
+
+func get_runtime_linked_spell_ids() -> Array[String]:
+	var spell_ids: Array[String] = []
+	for raw_spell_id in runtime_spell_to_skill_id.keys():
+		spell_ids.append(str(raw_spell_id))
+	spell_ids.sort()
+	return spell_ids
+
+
+func get_runtime_castable_skill_id(skill_id: String) -> String:
+	var requested_id := skill_id.strip_edges()
+	if requested_id.is_empty():
+		return ""
+	if spells.has(requested_id):
+		return requested_id
+	var skill_data: Dictionary = get_skill_data(requested_id)
+	if skill_data.is_empty():
+		return ""
+	var resolved_skill_id := str(skill_data.get("skill_id", requested_id))
+	var runtime_spell_id := get_runtime_spell_id_for_skill(resolved_skill_id)
+	if runtime_spell_id != "":
+		return runtime_spell_id
+	var skill_type := str(skill_data.get("skill_type", ""))
+	if skill_type in ["buff", "deploy", "toggle"]:
+		return resolved_skill_id
+	if spells.has(resolved_skill_id):
+		return resolved_skill_id
+	return ""
+
+
+func get_runtime_castable_skill_catalog() -> Array[String]:
+	var catalog: Array[String] = []
+	var seen: Dictionary = {}
+	for skill in skill_catalog:
+		var skill_id := str(skill.get("skill_id", ""))
+		if skill_id.is_empty():
+			continue
+		var runtime_castable_id := get_runtime_castable_skill_id(skill_id)
+		if runtime_castable_id.is_empty() or seen.has(runtime_castable_id):
+			continue
+		seen[runtime_castable_id] = true
+		catalog.append(runtime_castable_id)
+	return catalog
+
+
 func _register_skill_alias(alias_id: String, target_skill_id: String) -> void:
 	if alias_id.is_empty() or alias_id == target_skill_id:
 		return
@@ -164,6 +259,51 @@ func _register_skill_alias(alias_id: String, target_skill_id: String) -> void:
 		)
 		return
 	skill_alias_to_id[alias_id] = target_skill_id
+
+
+func _build_runtime_spell_skill_mappings() -> void:
+	for skill in skill_catalog:
+		var skill_id := str(skill.get("skill_id", ""))
+		if skill_id.is_empty():
+			continue
+		if spells.has(skill_id):
+			_register_runtime_spell_skill_link(skill_id, skill_id)
+	for raw_spell_id in spells.keys():
+		var spell_id := str(raw_spell_id)
+		var spell_data: Dictionary = spells.get(spell_id, {})
+		var source_skill_id := str(spell_data.get("source_skill_id", ""))
+		if source_skill_id.is_empty():
+			continue
+		_register_runtime_spell_skill_link(source_skill_id, spell_id)
+
+
+func _register_runtime_spell_skill_link(skill_id: String, spell_id: String) -> void:
+	var resolved_skill_id := _resolve_runtime_mapping_skill_id(skill_id)
+	if resolved_skill_id.is_empty() or not spells.has(spell_id):
+		return
+	var existing_skill_id := str(runtime_spell_to_skill_id.get(spell_id, ""))
+	if existing_skill_id != "" and existing_skill_id != resolved_skill_id:
+		push_warning(
+			"Runtime spell '%s' already maps to '%s'; ignoring duplicate target '%s'."
+			% [spell_id, existing_skill_id, resolved_skill_id]
+		)
+		return
+	runtime_spell_to_skill_id[spell_id] = resolved_skill_id
+	var spell_ids: Array = skill_to_runtime_spell_ids.get(resolved_skill_id, [])
+	if not spell_ids.has(spell_id):
+		spell_ids.append(spell_id)
+		skill_to_runtime_spell_ids[resolved_skill_id] = spell_ids
+	if not skill_to_runtime_spell_id.has(resolved_skill_id):
+		skill_to_runtime_spell_id[resolved_skill_id] = spell_id
+
+
+func _resolve_runtime_mapping_skill_id(skill_id: String) -> String:
+	var requested_id := skill_id.strip_edges()
+	if requested_id.is_empty():
+		return ""
+	if skill_by_id.has(requested_id):
+		return requested_id
+	return str(skill_alias_to_id.get(requested_id, ""))
 
 
 func get_all_skills() -> Array:
@@ -248,6 +388,22 @@ func get_enemy_validation_errors() -> Array[String]:
 
 func has_enemy_validation_errors() -> bool:
 	return not enemy_validation_errors.is_empty()
+
+
+func get_skill_validation_errors() -> Array[String]:
+	return skill_validation_errors.duplicate()
+
+
+func has_skill_validation_errors() -> bool:
+	return not skill_validation_errors.is_empty()
+
+
+func get_spell_validation_errors() -> Array[String]:
+	return spell_validation_errors.duplicate()
+
+
+func has_spell_validation_errors() -> bool:
+	return not spell_validation_errors.is_empty()
 
 
 func get_room_spawn_validation_errors() -> Array[String]:
@@ -380,6 +536,267 @@ func _load_json(path: String) -> Dictionary:
 		push_error("Invalid JSON dictionary: %s" % path)
 		return {}
 	return parsed
+
+
+func validate_skill_entry(skill_id: String, entry: Dictionary) -> Array[String]:
+	var errors: Array[String] = []
+	var entry_skill_id := str(entry.get("skill_id", ""))
+	if entry_skill_id.is_empty():
+		_append_validation_error(errors, "Skill data missing required skill_id for row '%s'" % skill_id)
+	elif entry_skill_id != skill_id:
+		_append_validation_error(
+			errors,
+			"Skill data row '%s' has mismatched skill_id '%s'" % [skill_id, entry_skill_id]
+		)
+	var canonical_skill_id = entry.get("canonical_skill_id", null)
+	if typeof(canonical_skill_id) != TYPE_STRING or str(canonical_skill_id).strip_edges().is_empty():
+		_append_validation_error(
+			errors, "Skill data row '%s' has invalid canonical_skill_id" % skill_id
+		)
+	var display_name = entry.get("display_name", null)
+	if typeof(display_name) != TYPE_STRING or str(display_name).strip_edges().is_empty():
+		_append_validation_error(errors, "Skill data row '%s' has invalid display_name" % skill_id)
+	var school = entry.get("school", null)
+	if typeof(school) != TYPE_STRING or not VALID_SKILL_SCHOOLS.has(str(school)):
+		_append_validation_error(
+			errors, "Skill data row '%s' has invalid school '%s'" % [skill_id, str(school)]
+		)
+	var element = entry.get("element", null)
+	if typeof(element) != TYPE_STRING or not VALID_SKILL_ELEMENTS.has(str(element)):
+		_append_validation_error(
+			errors, "Skill data row '%s' has invalid element '%s'" % [skill_id, str(element)]
+		)
+	var skill_type = entry.get("skill_type", null)
+	if typeof(skill_type) != TYPE_STRING or not VALID_SKILL_TYPES.has(str(skill_type)):
+		_append_validation_error(
+			errors, "Skill data row '%s' has invalid skill_type '%s'" % [skill_id, str(skill_type)]
+		)
+	if not _is_numeric_variant(entry.get("max_level", null)):
+		_append_validation_error(errors, "Skill data row '%s' is missing numeric max_level" % skill_id)
+	var normalized_skill_type := str(skill_type)
+	if normalized_skill_type == "passive":
+		var passive_family = entry.get("passive_family", null)
+		if typeof(passive_family) != TYPE_STRING or str(passive_family).strip_edges().is_empty():
+			_append_validation_error(
+				errors, "Skill data row '%s' is missing passive_family" % skill_id
+			)
+		if str(passive_family) == "mastery":
+			if not _is_numeric_variant(entry.get("final_multiplier_per_level", null)):
+				_append_validation_error(
+					errors,
+					"Skill mastery row '%s' is missing numeric final_multiplier_per_level" % skill_id
+				)
+			if typeof(entry.get("threshold_bonuses", null)) != TYPE_ARRAY:
+				_append_validation_error(
+					errors, "Skill mastery row '%s' is missing array threshold_bonuses" % skill_id
+				)
+	elif normalized_skill_type in ["active", "buff", "deploy", "toggle"]:
+		if not _is_numeric_variant(entry.get("mana_cost_base", null)):
+			_append_validation_error(
+				errors, "Skill runtime row '%s' is missing numeric mana_cost_base" % skill_id
+			)
+		if not _is_numeric_variant(entry.get("cooldown_base", null)):
+			_append_validation_error(
+				errors, "Skill runtime row '%s' is missing numeric cooldown_base" % skill_id
+			)
+		if normalized_skill_type == "active" and typeof(entry.get("damage_formula", null)) != TYPE_DICTIONARY:
+			_append_validation_error(
+				errors, "Skill active row '%s' is missing dictionary damage_formula" % skill_id
+			)
+	return errors
+
+
+func validate_spell_entry(spell_id: String, entry: Dictionary) -> Array[String]:
+	var errors: Array[String] = []
+	var entry_spell_id := str(entry.get("id", ""))
+	if entry_spell_id.is_empty():
+		_append_validation_error(errors, "Spell data missing required id for row '%s'" % spell_id)
+	elif entry_spell_id != spell_id:
+		_append_validation_error(
+			errors, "Spell data row '%s' has mismatched id '%s'" % [spell_id, entry_spell_id]
+		)
+	var name = entry.get("name", null)
+	if typeof(name) != TYPE_STRING or str(name).strip_edges().is_empty():
+		_append_validation_error(errors, "Spell data row '%s' has invalid name" % spell_id)
+	var school = entry.get("school", null)
+	if typeof(school) != TYPE_STRING or not VALID_SKILL_ELEMENTS.has(str(school)):
+		_append_validation_error(
+			errors, "Spell data row '%s' has invalid school '%s'" % [spell_id, str(school)]
+		)
+	var color = entry.get("color", null)
+	if typeof(color) != TYPE_STRING or str(color).strip_edges().is_empty():
+		_append_validation_error(errors, "Spell data row '%s' has invalid color" % spell_id)
+	for field_name in RUNTIME_SPELL_REQUIRED_NUMERIC_FIELDS:
+		if not _is_numeric_variant(entry.get(field_name, null)):
+			_append_validation_error(
+				errors,
+				"Spell data row '%s' is missing numeric %s" % [spell_id, field_name]
+			)
+	var source_skill_id = entry.get("source_skill_id", null)
+	if source_skill_id != null and (
+		typeof(source_skill_id) != TYPE_STRING or str(source_skill_id).strip_edges().is_empty()
+	):
+		_append_validation_error(
+			errors, "Spell data row '%s' has invalid source_skill_id" % spell_id
+		)
+	if entry.has("damage_type") and not VALID_ATTACK_DAMAGE_TYPES.has(str(entry.get("damage_type", ""))):
+		_append_validation_error(
+			errors,
+			"Spell data row '%s' has invalid damage_type '%s'"
+			% [spell_id, str(entry.get("damage_type", ""))]
+		)
+	if entry.has("mana_cost") and not _is_numeric_variant(entry.get("mana_cost", null)):
+		_append_validation_error(errors, "Spell data row '%s' has non-numeric mana_cost" % spell_id)
+	return errors
+
+
+func validate_skill_spell_link(
+	skill_id: String, entry: Dictionary, spell_lookup: Dictionary = {}
+) -> Array[String]:
+	var errors: Array[String] = []
+	var normalized_spell_lookup := spell_lookup if not spell_lookup.is_empty() else spells
+	var skill_type := str(entry.get("skill_type", ""))
+	if skill_type == "active":
+		var canonical_skill_id := str(entry.get("canonical_skill_id", ""))
+		var expects_runtime_spell_link := (
+			normalized_spell_lookup.has(skill_id)
+			or (
+				not canonical_skill_id.is_empty()
+				and canonical_skill_id != skill_id
+			)
+		)
+		if not expects_runtime_spell_link:
+			return errors
+		var runtime_spell_id := _find_runtime_spell_id_for_skill_in_lookup(
+			skill_id, entry, normalized_spell_lookup
+		)
+		if runtime_spell_id.is_empty():
+			_append_validation_error(
+				errors, "Active skill row '%s' is missing runtime spell link" % skill_id
+			)
+			return errors
+		var spell_entry: Dictionary = normalized_spell_lookup.get(runtime_spell_id, {})
+		var spell_school := str(spell_entry.get("school", ""))
+		var skill_element := str(entry.get("element", ""))
+		if not skill_element.is_empty() and not spell_school.is_empty() and skill_element != spell_school:
+			_append_validation_error(
+				errors,
+				(
+					"Active skill row '%s' element '%s' does not match runtime spell '%s' school '%s'"
+					% [skill_id, skill_element, runtime_spell_id, spell_school]
+				)
+			)
+	elif skill_type == "passive" and normalized_spell_lookup.has(skill_id):
+		_append_validation_error(
+			errors, "Passive skill row '%s' must not be treated as runtime spell" % skill_id
+		)
+	return errors
+
+
+func validate_spell_skill_link(
+	spell_id: String, entry: Dictionary, skill_lookup: Dictionary = {}
+) -> Array[String]:
+	var errors: Array[String] = []
+	var normalized_skill_lookup := skill_lookup if not skill_lookup.is_empty() else skill_by_id
+	var spell_school := str(entry.get("school", ""))
+	var source_skill_id := str(entry.get("source_skill_id", ""))
+	if not source_skill_id.is_empty():
+		var linked_skill: Dictionary = get_skill_data(source_skill_id)
+		if not normalized_skill_lookup.is_empty() and normalized_skill_lookup.has(source_skill_id):
+			linked_skill = Dictionary(normalized_skill_lookup.get(source_skill_id, {})).duplicate(true)
+		if linked_skill.is_empty():
+			_append_validation_error(
+				errors,
+				"Spell row '%s' references unknown source_skill_id '%s'" % [spell_id, source_skill_id]
+			)
+			return errors
+		var linked_skill_type := str(linked_skill.get("skill_type", ""))
+		if linked_skill_type != "active":
+			_append_validation_error(
+				errors,
+				(
+					"Spell row '%s' source_skill_id '%s' must point to active skill row"
+					% [spell_id, source_skill_id]
+				)
+			)
+		var linked_element := str(linked_skill.get("element", ""))
+		if not linked_element.is_empty() and not spell_school.is_empty() and linked_element != spell_school:
+			_append_validation_error(
+				errors,
+				(
+					"Spell row '%s' school '%s' does not match linked skill '%s' element '%s'"
+					% [spell_id, spell_school, source_skill_id, linked_element]
+				)
+			)
+	elif normalized_skill_lookup.has(spell_id):
+		var direct_skill: Dictionary = normalized_skill_lookup.get(spell_id, {})
+		if str(direct_skill.get("skill_type", "")) == "passive":
+			_append_validation_error(
+				errors, "Spell row '%s' must not resolve directly to passive skill row" % spell_id
+			)
+	return errors
+
+
+func _validate_progression_data() -> void:
+	for skill in skill_catalog:
+		var skill_id := str(skill.get("skill_id", ""))
+		if skill_id.is_empty():
+			continue
+		for message in validate_skill_entry(skill_id, skill):
+			_record_skill_validation_error(message)
+	for raw_spell_id in spells.keys():
+		var spell_id := str(raw_spell_id)
+		var spell_entry: Dictionary = spells.get(spell_id, {})
+		for message in validate_spell_entry(spell_id, spell_entry):
+			_record_spell_validation_error(message)
+	for skill in skill_catalog:
+		var skill_id := str(skill.get("skill_id", ""))
+		if skill_id.is_empty():
+			continue
+		for message in validate_skill_spell_link(skill_id, skill):
+			_record_skill_validation_error(message)
+	for raw_spell_id in spells.keys():
+		var spell_id := str(raw_spell_id)
+		var spell_entry: Dictionary = spells.get(spell_id, {})
+		for message in validate_spell_skill_link(spell_id, spell_entry):
+			_record_spell_validation_error(message)
+
+
+func _find_runtime_spell_id_for_skill_in_lookup(
+	skill_id: String, entry: Dictionary, spell_lookup: Dictionary
+) -> String:
+	if spell_lookup.has(skill_id):
+		return skill_id
+	var canonical_skill_id := str(entry.get("canonical_skill_id", ""))
+	if not canonical_skill_id.is_empty() and spell_lookup.has(canonical_skill_id):
+		return canonical_skill_id
+	for raw_spell_id in spell_lookup.keys():
+		var spell_id := str(raw_spell_id)
+		var spell_entry: Dictionary = spell_lookup.get(spell_id, {})
+		var source_skill_id := str(spell_entry.get("source_skill_id", ""))
+		if source_skill_id == skill_id or (
+			not canonical_skill_id.is_empty() and source_skill_id == canonical_skill_id
+		):
+			return spell_id
+	return ""
+
+
+func _record_skill_validation_error(message: String) -> void:
+	skill_validation_errors.append(message)
+	push_error(message)
+
+
+func _record_spell_validation_error(message: String) -> void:
+	spell_validation_errors.append(message)
+	push_error(message)
+
+
+func _append_validation_error(errors: Array[String], message: String) -> void:
+	errors.append(message)
+
+
+func _is_numeric_variant(value: Variant) -> bool:
+	return typeof(value) in [TYPE_INT, TYPE_FLOAT]
 
 
 func _validate_enemy_entry(enemy: Dictionary) -> void:

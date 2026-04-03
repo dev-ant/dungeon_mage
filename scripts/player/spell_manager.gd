@@ -59,13 +59,13 @@ func tick(delta: float) -> void:
 	_sync_buff_cooldowns()
 
 func handle_input() -> void:
-	for slot in slot_bindings:
+	for slot in _get_combat_input_bindings():
 		var action := str(slot.get("action", ""))
 		if action != "" and Input.is_action_just_pressed(action):
 			attempt_cast_by_action(action)
 
 func attempt_cast_by_action(action: String) -> bool:
-	for slot in slot_bindings:
+	for slot in _get_combat_input_bindings():
 		if str(slot.get("action", "")) == action:
 			return attempt_cast(str(slot.get("skill_id", "")))
 	last_failure_reason = "empty_slot"
@@ -108,7 +108,7 @@ func attempt_cast(skill_id: String) -> bool:
 		return false
 	var runtime: Dictionary = GameState.get_spell_runtime(skill_id)
 	slot_cooldowns[skill_id] = float(runtime.get("cooldown", 0.3))
-	GameState.register_spell_use(skill_id, runtime.get("school", "fire"))
+	GameState.register_spell_use(skill_id, str(runtime.get("school", "")))
 	var speed_mult := GameState.get_equipment_projectile_speed_multiplier()
 	var velocity_value := Vector2(float(runtime.get("speed", 0.0)) * player.facing * speed_mult, 0.0)
 	var spawn_pos := player.global_position + Vector2(34 * player.facing, -18)
@@ -171,11 +171,58 @@ func get_slot_bindings() -> Array:
 	slot_bindings = GameState.get_spell_hotbar()
 	return slot_bindings.duplicate(true)
 
+func get_visible_slot_bindings() -> Array:
+	return GameState.get_visible_spell_hotbar()
+
+
+func _get_combat_input_bindings() -> Array:
+	return GameState.get_visible_spell_hotbar()
+
 func assign_skill_to_slot(slot_index: int, skill_id: String) -> bool:
 	var changed := GameState.set_hotbar_skill(slot_index, skill_id)
 	if changed:
 		slot_bindings = GameState.get_spell_hotbar()
 	return changed
+
+func clear_slot(slot_index: int) -> bool:
+	var changed := GameState.clear_hotbar_skill(slot_index)
+	if changed:
+		slot_bindings = GameState.get_spell_hotbar()
+	return changed
+
+func swap_slots(first_index: int, second_index: int) -> bool:
+	var changed := GameState.swap_hotbar_skills(first_index, second_index)
+	if changed:
+		slot_bindings = GameState.get_spell_hotbar()
+	return changed
+
+func get_hotbar_slot_tooltip_data(slot_index: int) -> Dictionary:
+	var slot: Dictionary = GameState.get_hotbar_slot(slot_index)
+	var skill_id := str(slot.get("skill_id", ""))
+	var skill_data: Dictionary = GameDatabase.get_skill_data(skill_id)
+	var runtime_data: Dictionary = GameDatabase.get_spell(skill_id)
+	var cast_state := _get_slot_cast_state(skill_id)
+	var resolved_school := GameState.resolve_runtime_school(
+		str(skill_data.get("skill_id", skill_id)),
+		skill_id,
+		str(runtime_data.get("school", ""))
+	)
+	return {
+		"slot_index": slot_index,
+		"label": str(slot.get("label", "")),
+		"action": str(slot.get("action", "")),
+		"skill_id": skill_id,
+		"name": "" if skill_id == "" else _get_skill_display_name(skill_id),
+		"cooldown": 0.0 if skill_id == "" else get_cooldown(skill_id),
+		"cost": 0.0 if skill_id == "" else GameState.get_skill_mana_cost(skill_id),
+		"description": str(skill_data.get("description", runtime_data.get("description", ""))),
+		"school": resolved_school,
+		"current_state": str(cast_state.get("current_state", "empty")),
+		"level": 0 if skill_id == "" else GameState.get_skill_level(skill_id),
+		"mastery": 0 if skill_id == "" else int(GameState.spell_mastery.get(skill_id, 0)),
+		"can_use": bool(cast_state.get("can_use", false)),
+		"failure_reason": str(cast_state.get("failure_reason", ""))
+	}
 
 func get_hotbar_summary() -> String:
 	var parts: Array[String] = []
@@ -267,6 +314,36 @@ func _get_skill_display_name(skill_id: String) -> String:
 		return str(runtime_data.get("name", skill_id))
 	return skill_id
 
+func _get_slot_cast_state(skill_id: String) -> Dictionary:
+	if skill_id == "":
+		return {"current_state": "empty", "can_use": false, "failure_reason": "empty_slot"}
+	if active_toggles.has(skill_id):
+		return {"current_state": "active_toggle", "can_use": true, "failure_reason": ""}
+	if player == null:
+		return {"current_state": "missing_player", "can_use": false, "failure_reason": "missing_player"}
+	if not player.can_cast_spell():
+		return {"current_state": "locked", "can_use": false, "failure_reason": "player_locked"}
+	if not GameState.has_enough_mana(skill_id):
+		return {
+			"current_state": "insufficient_mana",
+			"can_use": false,
+			"failure_reason": "mana"
+		}
+	var skill_data: Dictionary = GameDatabase.get_skill_data(skill_id)
+	if not skill_data.is_empty() and str(skill_data.get("skill_type", "")) == "buff":
+		if float(GameState.buff_cooldowns.get(skill_id, 0.0)) > 0.0 and not GameState.admin_ignore_cooldowns:
+			return {"current_state": "cooldown", "can_use": false, "failure_reason": "cooldown"}
+		if GameState.active_buffs.size() >= GameState.get_buff_slot_limit() and not GameState.admin_ignore_buff_slot_limit:
+			return {
+				"current_state": "buff_slots_full",
+				"can_use": false,
+				"failure_reason": "buff_slots_full"
+			}
+		return {"current_state": "ready", "can_use": true, "failure_reason": ""}
+	if float(slot_cooldowns.get(skill_id, 0.0)) > 0.0 and not GameState.admin_ignore_cooldowns:
+		return {"current_state": "cooldown", "can_use": false, "failure_reason": "cooldown"}
+	return {"current_state": "ready", "can_use": true, "failure_reason": ""}
+
 func get_split_effect_skill_ids() -> Array[String]:
 	var skill_ids: Array[String] = []
 	for skill_id in SPLIT_EFFECT_PAYLOADS.keys():
@@ -312,25 +389,22 @@ func _cast_deploy(skill_id: String, skill_data: Dictionary) -> bool:
 		_announce_failure()
 		return false
 	slot_cooldowns[skill_id] = float(runtime.get("cooldown", 0.8))
-	GameState.register_spell_use(skill_id, str(skill_data.get("element", "earth")))
-	var payload := {
-		"spell_id": skill_id,
-		"position": player.global_position + Vector2(48 * player.facing, -4),
-		"velocity": Vector2.ZERO,
-		"range": 1.0,
-		"team": "player",
-		"damage": int(runtime.get("damage", 20)),
-		"knockback": float(runtime.get("knockback", 180.0)),
-		"school": str(skill_data.get("element", "earth")),
-		"size": float(runtime.get("size", 40.0)),
-		"duration": float(runtime.get("duration", 0.8)),
-		"tick_interval": float(runtime.get("tick_interval", 0.0)),
-		"target_count": int(skill_data.get("target_count_base", 0))
-		+ _get_runtime_bonus(skill_data, "target_count", GameState.get_skill_level(skill_id)),
-		"utility_effects": runtime.get("utility_effects", []).duplicate(true),
-		"color": _get_skill_color(skill_data),
-		"owner": player
-	}
+	GameState.register_spell_use(skill_id, str(runtime.get("school", "")))
+	var payload := GameState.build_data_driven_combat_payload(
+		skill_id,
+		runtime,
+		{
+			"position": player.global_position + Vector2(48 * player.facing, -4),
+			"target_count": int(skill_data.get("target_count_base", 0))
+			+ GameState.get_skill_milestone_runtime_bonus(
+				skill_data,
+				"target_count",
+				GameState.get_skill_level(skill_id)
+			),
+			"color": _get_skill_color(skill_data),
+			"owner": player
+		}
+	)
 	_apply_hitstop_policy(payload, "deploy")
 	GameState.consume_spell_cast(skill_id)
 	spell_cast.emit(payload)
@@ -364,13 +438,13 @@ func _cast_toggle(skill_id: String, skill_data: Dictionary) -> bool:
 		"pierce": int(runtime.get("pierce", 0)),
 		"tags": _get_toggle_runtime_tags(skill_data, runtime),
 		"utility_effects": runtime.get("utility_effects", []).duplicate(true),
-		"school": str(skill_data.get("element", "dark")),
+		"school": str(runtime.get("school", GameState.resolve_runtime_school(skill_id))),
 		"color": _get_skill_color(skill_data)
 	}
 	if skill_id == "dark_soul_dominion":
 		GameState.soul_dominion_active = true
 		GameState.soul_dominion_aftershock_timer = 0.0
-	GameState.register_spell_use(skill_id, str(skill_data.get("element", "dark")))
+	GameState.register_spell_use(skill_id, str(runtime.get("school", "")))
 	GameState.push_message("%s hums into an active aura." % _get_skill_display_name(skill_id), 1.2)
 	last_feedback_text = "%s on" % _get_skill_display_name(skill_id)
 	return true
@@ -392,68 +466,29 @@ func _tick_toggles(delta: float) -> void:
 				last_feedback_text = "%s off (mana)" % _get_skill_display_name(skill_id)
 				continue
 			toggle_data["tick_remaining"] = float(toggle_data.get("tick_interval", 1.0))
-			var payload := {
-				"spell_id": skill_id,
-				"position": player.global_position + Vector2(0, -10),
-				"velocity": Vector2.ZERO,
-				"range": 1.0,
-				"team": "player",
-				"damage": int(toggle_data.get("damage", 10)),
-				"knockback": 70.0,
-				"pierce": int(toggle_data.get("pierce", 0)),
-				"school": str(toggle_data.get("school", "dark")),
-				"size": float(toggle_data.get("size", 48.0)),
-				"duration": 0.12,
-				"utility_effects": toggle_data.get("utility_effects", []).duplicate(true),
-				"color": str(toggle_data.get("color", "#8f77d8")),
-				"owner": player
-			}
+			var payload := GameState.build_data_driven_combat_payload(
+				skill_id,
+				toggle_data,
+				{
+					"position": player.global_position + Vector2(0, -10),
+					"knockback": 70.0,
+					"duration": 0.12,
+					"color": str(toggle_data.get("color", "#8f77d8")),
+					"owner": player
+				}
+			)
 			_apply_hitstop_policy(payload, "toggle")
 			payload = GameState.apply_spell_modifiers(payload)
 			spell_cast.emit(payload)
 		active_toggles[skill_id] = toggle_data
 
 func _build_skill_runtime(skill_id: String, skill_data: Dictionary) -> Dictionary:
-	var level: int = GameState.get_skill_level(skill_id)
-	var level_delta: int = max(level - 1, 0)
-	var damage_formula: Dictionary = skill_data.get("damage_formula", {})
-	var coefficient: float = float(damage_formula.get("coefficient_base", 1.0)) + float(damage_formula.get("coefficient_per_level", 0.0)) * float(level_delta)
-	var flat_damage: float = float(damage_formula.get("flat_base", 0.0)) + float(damage_formula.get("flat_per_level", 0.0)) * float(level_delta)
-	var damage: int = int(round(coefficient * 10.0 + flat_damage))
-	var cooldown_scale: float = maxf(0.45, 1.0 - float(skill_data.get("cooldown_reduction_per_level", 0.0)) * float(level_delta))
-	var duration_scale: float = 1.0 + float(skill_data.get("duration_scale_per_level", 0.0)) * float(level_delta)
-	var range_scale: float = 1.0 + float(skill_data.get("range_scale_per_level", 0.0)) * float(level_delta)
-	return {
-		"damage": int(round(float(damage) * GameState.get_equipment_damage_multiplier(str(skill_data.get("element", "arcane"))))),
-		"cooldown": float(skill_data.get("cooldown_base", 1.0)) * cooldown_scale * GameState.get_equipment_cooldown_multiplier(),
-		"duration": float(skill_data.get("duration_base", 0.0)) * duration_scale * GameState.get_equipment_install_duration_multiplier(),
-		"size": float(skill_data.get("range_base", 40.0)) * range_scale * GameState.get_equipment_aoe_multiplier(),
-		"tick_interval": float(skill_data.get("tick_interval", 1.0)) * maxf(0.6, 1.0 - GameState.get_equipment_cast_speed_bonus()),
-		"knockback": float(skill_data.get("knockback_base", 180.0)),
-		"pierce": int(skill_data.get("pierce_count_base", 0)) + _get_runtime_bonus(skill_data, "pierce_count", level),
-		"utility_effects": skill_data.get("utility_effects", []).duplicate(true),
-		"mana_drain_per_tick": _get_toggle_mana_drain_per_tick(skill_id, skill_data)
-	}
+	return GameState.get_data_driven_skill_runtime(skill_id, skill_data)
 
-func _get_toggle_mana_drain_per_tick(skill_id: String, skill_data: Dictionary) -> float:
-	var base_value: float = float(skill_data.get("sustain_mana_cost_base", -1.0))
-	if base_value < 0.0:
-		var mana_cost: float = GameState.get_skill_mana_cost(skill_id)
-		return maxf(1.0, mana_cost * 0.35)
-	var level_delta: int = max(GameState.get_skill_level(skill_id) - 1, 0)
-	var reduction_per_level: float = float(skill_data.get("sustain_mana_reduction_per_level", 0.0))
-	var min_ratio: float = float(skill_data.get("sustain_mana_min_ratio", 0.65))
-	var scaled_ratio: float = maxf(min_ratio, 1.0 - reduction_per_level * float(level_delta))
-	return maxf(1.0, base_value * scaled_ratio)
-
-func _get_runtime_bonus(skill_data: Dictionary, stat_name: String, level: int) -> int:
-	var total_bonus := 0
-	for bonus in skill_data.get("milestone_bonuses", []):
-		if str(bonus.get("stat", "")) != stat_name:
-			continue
-		if level >= int(bonus.get("level", 99)):
-			total_bonus += int(bonus.get("value", 0))
-	return total_bonus
+func _get_toggle_mana_drain_per_tick(
+	skill_id: String, skill_data: Dictionary, runtime_options: Dictionary = {}
+) -> float:
+	return GameState.get_data_driven_skill_mana_drain_per_tick(skill_id, skill_data, runtime_options)
 
 func _get_toggle_runtime_tags(skill_data: Dictionary, runtime: Dictionary) -> Array[String]:
 	var tags: Array[String] = []

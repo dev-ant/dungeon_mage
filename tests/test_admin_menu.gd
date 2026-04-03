@@ -1,6 +1,8 @@
 extends "res://addons/gut/test.gd"
 
 const ADMIN_MENU_SCRIPT := preload("res://scripts/admin/admin_menu.gd")
+const PLAYER_SCRIPT := preload("res://scripts/player/player.gd")
+const SPELL_MANAGER_SCRIPT := preload("res://scripts/player/spell_manager.gd")
 
 
 func before_each() -> void:
@@ -158,11 +160,58 @@ func test_admin_menu_can_focus_library_and_assign_skill_to_slot() -> void:
 	menu.pause_on_open = false
 	await get_tree().process_frame
 	menu.debug_toggle_library_focus()
-	menu.debug_cycle_library(2)
+	menu.selected_library_index = menu.skill_catalog.find("volt_spear")
+	assert_ne(menu.selected_library_index, -1, "volt_spear must be present in the admin library")
 	menu.debug_assign_library_to_slot(0)
 	var hotbar: Array = GameState.get_spell_hotbar()
 	assert_eq(str(hotbar[0].get("skill_id", "")), "volt_spear")
 	assert_string_contains(menu.body_label.text, "Library Focus: ON")
+
+
+func test_admin_menu_skill_catalog_reuses_runtime_castable_source_of_truth() -> void:
+	var menu = autofree(ADMIN_MENU_SCRIPT.new())
+	add_child_autofree(menu)
+	menu.pause_on_open = false
+	await get_tree().process_frame
+	var actual_catalog: Array = menu.skill_catalog.duplicate()
+	assert_eq(str(actual_catalog[0]), "", "admin library must keep the empty slot shortcut at the front")
+	actual_catalog.remove_at(0)
+	assert_eq(actual_catalog, GameDatabase.get_runtime_castable_skill_catalog())
+	assert_true(actual_catalog.has("holy_radiant_burst"))
+	assert_true(actual_catalog.has("dark_void_bolt"))
+	assert_false(actual_catalog.has("holy_healing_pulse"))
+	assert_false(actual_catalog.has("dark_abyss_gate"))
+	assert_false(actual_catalog.has("fire_mastery"))
+
+
+func test_admin_menu_library_assignment_stays_consistent_through_hotbar_save_and_runtime_cast() -> void:
+	var menu = autofree(ADMIN_MENU_SCRIPT.new())
+	add_child_autofree(menu)
+	menu.pause_on_open = false
+	await get_tree().process_frame
+	menu.selected_library_index = menu.skill_catalog.find("holy_radiant_burst")
+	assert_ne(menu.selected_library_index, -1, "holy_radiant_burst must be present in the admin library")
+	menu.debug_assign_library_to_slot(0)
+	var hotbar: Array = GameState.get_spell_hotbar()
+	assert_eq(str(hotbar[0].get("skill_id", "")), "holy_radiant_burst")
+	var payload: Dictionary = GameState._build_save_payload()
+	var saved_hotbar: Array = payload.get("spell_hotbar", [])
+	assert_eq(str(saved_hotbar[0].get("skill_id", "")), "holy_radiant_burst")
+	var player = autofree(PLAYER_SCRIPT.new())
+	var manager = SPELL_MANAGER_SCRIPT.new()
+	manager.setup(player)
+	var bindings: Array = manager.get_slot_bindings()
+	assert_eq(str(bindings[0].get("skill_id", "")), "holy_radiant_burst")
+	var runtime: Dictionary = GameState.get_spell_runtime("holy_radiant_burst")
+	var payloads: Array = []
+	manager.spell_cast.connect(func(spell_payload: Dictionary) -> void: payloads.append(spell_payload))
+	assert_true(manager.attempt_cast_by_action(str(bindings[0].get("action", ""))))
+	assert_eq(payloads.size(), 1)
+	assert_eq(str(payloads[0].get("spell_id", "")), "holy_radiant_burst")
+	assert_eq(str(payloads[0].get("school", "")), str(runtime.get("school", "")))
+	assert_eq(int(payloads[0].get("damage", 0)), int(runtime.get("damage", 0)))
+	assert_almost_eq(float(payloads[0].get("cooldown", 0.0)), float(runtime.get("cooldown", 0.0)), 0.0001)
+	assert_almost_eq(float(payloads[0].get("speed", 0.0)), float(runtime.get("speed", 0.0)), 0.0001)
 
 
 func test_admin_menu_library_focus_changes_tuned_skill_target() -> void:
@@ -171,7 +220,9 @@ func test_admin_menu_library_focus_changes_tuned_skill_target() -> void:
 	menu.pause_on_open = false
 	await get_tree().process_frame
 	menu.debug_toggle_library_focus()
-	menu.debug_cycle_library(2)
+	menu.selected_library_index = menu.skill_catalog.find("volt_spear")
+	assert_ne(menu.selected_library_index, -1, "volt_spear must be present in the admin library")
+	menu._refresh()
 	menu.debug_adjust_selected_skill_level(0, 3)
 	assert_eq(GameState.get_skill_level("volt_spear"), 4)
 	assert_eq(GameState.get_skill_level("fire_bolt"), 1)

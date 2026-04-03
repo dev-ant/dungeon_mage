@@ -13,14 +13,14 @@ update_when:
   - runtime_changed
   - handoff_changed
   - ownership_changed
-last_updated: 2026-04-02
-last_verified: 2026-04-02
+last_updated: 2026-04-03
+last_verified: 2026-04-03
 ---
 
 # 내 작업 스트림
 
 상태: 사용 중  
-최종 갱신: 2026-04-02  
+최종 갱신: 2026-04-03  
 담당자: 프로젝트 오너  
 AI 역할: 전투 코어 / 데이터 / 비 GUI 구현
 
@@ -105,8 +105,13 @@ AI 역할: 전투 코어 / 데이터 / 비 GUI 구현
 
 - 대표 장비 회귀 축은 `fire_burst`, `wind_tempo`, `earth_deploy`, `sanctum_sustain`, `holy_guard`, `dark_shadow`, `arcane_pulse`까지 실제 런타임 GUT 기준으로 고정된 상태다.
 - enemy/drop/room read-only API 축은 validation report, spawn summary, drop preview, deterministic drop resolver, drop profile summary, room spawn enemy roster summary까지 닫혀 있다.
-- 최근 검증 기준선은 headless startup 통과와 GUT `564/564` 통과다.
+- Combat HUD Cycle A의 owner_core 선행 의존으로 `10슬롯 visible hotbar` bridge API를 추가했다. 현재 `GameState`, `spell_manager`, `player`에서 visible bindings, slot tooltip payload, clear, swap wrapper를 제공한다.
+- Combat HUD Cycle A의 두 번째 owner_core 선행 의존으로 save payload를 `canonical 10슬롯 spell_hotbar + legacy_spell_hotbar_tail` 구조로 분리했고, load는 신규 payload와 old 13슬롯 save를 모두 호환한다.
+- Combat HUD Cycle A의 세 번째 owner_core 선행 의존으로 visible hotbar shortcut rebind persistence를 추가했다. 현재 `GameState`와 `player`에서 shortcut profile 조회, key rebind, default reset API를 제공하고, explicit shortcut payload가 없는 old save도 첫 10슬롯의 `action + label`로 keyboard/HUD shortcut을 복원한다.
+- Combat HUD Cycle A의 네 번째 owner_core 정리로 `spell_manager`의 keyboard combat primary input 을 visible 10슬롯만 읽도록 고정했다. hidden legacy tail slot은 호환 save/배열에는 남지만 전투 기본 입력 경로에서는 더 이상 직접 시전되지 않는다.
+- 최근 검증 기준선은 headless startup 통과와 GUT `624/624` 통과다.
 - 알려진 잔여 리스크는 `scripts/main/main.gd`의 `create_timer()` 기반 종료 시 leak warning이며, 현재 workstream 소유 범위 밖이라 직접 수정하지 않는다.
+- `P1 전투 HUD 그래픽 GUI 최종 명세`는 이제 `ready_for_implementation`이고, 첫 GUI-owned handoff 증분은 [combat_increment_06_combat_ui.md](/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/docs/implementation/increments/combat_increment_06_combat_ui.md)의 `2026-04-03 구현 handoff — Combat HUD Cycle A` 섹션으로 잠겼다.
 
 ## 활성 진행 로그
 
@@ -121,8 +126,8 @@ AI 역할: 전투 코어 / 데이터 / 비 GUI 구현
 
 ## 다음 우선 작업
 
-1. `drop/room` 축에서 더 넓은 통계 회귀를 볼지, 다시 전투 코어의 다른 빈 축으로 이동할지 재선정한다.
-2. friend GUI가 사용할 read-only API에 추가 summary가 필요한지, 현재 공개 구조만으로 충분한지 확인한다.
+1. friend GUI가 `Combat HUD Cycle A`를 구현하는 동안 현재 공개 hotbar/read-only API, tooltip payload, canonical save field, shortcut rebind API만으로 충분한지 확인한다.
+2. GUI 셸 통합 뒤 필요해지면 owner_core follow-up 으로 legacy tail 제거 여부나 추가 payload를 별도 증분으로 연다.
 3. `scripts/main/main.gd` timer leak warning은 소유 경계 안에서 우회 가능한 검증만 남기고, 직접 수정은 계속 피한다.
 
 ## 교차 의존 요청
@@ -147,3 +152,10 @@ AI 역할: 전투 코어 / 데이터 / 비 GUI 구현
 - **필요 입력:** admin_menu.gd의 spawn 타입 목록에 다음 추가: "rat", "tooth_walker", "eyeball", "trash_monster", "sword"
 - **예상 파일:** `scripts/admin/admin_menu.gd`
 - **우선순위:** 낮음 (rooms.json에 spawn 배치로 인게임 등장 가능)
+
+### [2026-04-03] Combat HUD Cycle A 구현 요청
+
+- **이유:** `P1 전투 HUD 그래픽 GUI 최종 명세`가 `ready_for_implementation`으로 잠겼고, 실제 GUI 파일은 friend_gui 소유 범위다.
+- **필요 입력:** [combat_increment_06_combat_ui.md](/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/docs/implementation/increments/combat_increment_06_combat_ui.md)의 `2026-04-03 구현 handoff — Combat HUD Cycle A` 섹션을 그대로 구현한다. 이번 증분은 `10슬롯 가시 action row`, `상단 좌측 활성 버프 row`, `하단 중앙 자원 클러스터`, `dimmed unavailable state`, `hover tooltip`, `우클릭 언바인드`, `drag swap`, `HUD hide 시 mouse target 제거`까지를 목표로 하고, owner_core 파일은 건드리지 않는다.
+- **예상 파일:** `scripts/ui/game_ui.gd`, `scripts/ui/widgets/**`, `scenes/ui/**`, GUI 전용 신규 테스트 파일
+- **우선순위:** 높음 (현재 HUD GUI 구현의 첫 안전 증분)

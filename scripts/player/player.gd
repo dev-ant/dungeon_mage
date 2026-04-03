@@ -672,6 +672,42 @@ func get_hotbar_mastery_summary() -> String:
 	return spell_manager.get_hotbar_mastery_summary()
 
 
+func get_visible_hotbar_bindings() -> Array:
+	if spell_manager == null:
+		return []
+	return spell_manager.get_visible_slot_bindings()
+
+
+func get_visible_hotbar_shortcuts() -> Array:
+	return GameState.get_visible_hotbar_shortcuts()
+
+
+func rebind_visible_hotbar_shortcut(slot_index: int, keycode: int) -> bool:
+	return GameState.set_visible_hotbar_shortcut(slot_index, keycode)
+
+
+func reset_visible_hotbar_shortcuts_to_default() -> void:
+	GameState.reset_visible_hotbar_shortcuts_to_default()
+
+
+func get_hotbar_slot_tooltip_data(slot_index: int) -> Dictionary:
+	if spell_manager == null:
+		return {}
+	return spell_manager.get_hotbar_slot_tooltip_data(slot_index)
+
+
+func clear_hotbar_slot(slot_index: int) -> bool:
+	if spell_manager == null:
+		return false
+	return spell_manager.clear_slot(slot_index)
+
+
+func swap_hotbar_slots(first_index: int, second_index: int) -> bool:
+	if spell_manager == null:
+		return false
+	return spell_manager.swap_slots(first_index, second_index)
+
+
 func get_cast_feedback_summary() -> String:
 	if spell_manager == null:
 		return "Cast  unavailable"

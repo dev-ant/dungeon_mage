@@ -68,6 +68,242 @@ func test_spell_mastery_unlocks_runtime_bonus() -> void:
 	assert_eq(GameState.get_skill_level("fire_ember_dart"), 2)
 
 
+func test_common_runtime_stat_block_matches_active_spell_runtime_stack() -> void:
+	GameState.reset_progress_for_tests()
+	var spell_id := "fire_bolt"
+	var base_runtime: Dictionary = GameDatabase.get_spell(spell_id)
+	var linked_skill_id := GameState.get_skill_id_for_spell(spell_id)
+	var linked_skill: Dictionary = GameDatabase.get_skill_data(linked_skill_id)
+	var runtime_options := GameState.build_active_spell_runtime_options(
+		spell_id,
+		linked_skill,
+		base_runtime
+	)
+	var expected := GameState.build_common_runtime_stat_block(
+		linked_skill_id,
+		base_runtime,
+		linked_skill,
+		runtime_options
+	)
+	var actual: Dictionary = GameState.get_spell_runtime(spell_id)
+	assert_eq(
+		int(actual.get("damage", 0)),
+		int(expected.get("damage", 0)),
+		"active runtime damage must reuse the common runtime stat block"
+	)
+	assert_eq(
+		float(actual.get("cooldown", 0.0)),
+		float(expected.get("cooldown", 0.0)),
+		"active runtime cooldown must reuse the common runtime stat block before buff post-processing"
+	)
+	assert_eq(
+		float(actual.get("range", 0.0)),
+		float(expected.get("range", 0.0)),
+		"active runtime range scaling must come from the common runtime stat block"
+	)
+	assert_eq(str(runtime_options.get("runtime_spell_id", "")), spell_id)
+	assert_eq(str(runtime_options.get("runtime_school", "")), "fire")
+
+
+func test_runtime_spell_mapping_source_of_truth_covers_forward_and_reverse_lookup() -> void:
+	GameState.reset_progress_for_tests()
+	assert_eq(GameDatabase.get_runtime_spell_id_for_skill("fire_bolt"), "fire_bolt")
+	assert_eq(GameDatabase.get_skill_id_for_runtime_spell("fire_bolt"), "fire_ember_dart")
+	assert_eq(GameDatabase.get_runtime_spell_id_for_skill("holy_healing_pulse"), "holy_radiant_burst")
+	assert_eq(GameDatabase.get_skill_id_for_runtime_spell("holy_radiant_burst"), "holy_healing_pulse")
+	assert_eq(
+		GameState.get_runtime_castable_hotbar_skill_id("holy_healing_pulse"),
+		GameDatabase.get_runtime_castable_skill_id("holy_healing_pulse")
+	)
+
+
+func test_progression_data_validation_reports_no_errors_for_current_data() -> void:
+	GameState.reset_progress_for_tests()
+	assert_false(
+		GameDatabase.has_skill_validation_errors(),
+		"Current skills.json data must pass the minimum validation skeleton"
+	)
+	assert_false(
+		GameDatabase.has_spell_validation_errors(),
+		"Current spells.json data must pass the minimum validation skeleton"
+	)
+	assert_eq(GameDatabase.get_skill_validation_errors().size(), 0)
+	assert_eq(GameDatabase.get_spell_validation_errors().size(), 0)
+
+
+func test_runtime_castable_skill_catalog_filters_canonical_only_rows_and_keeps_runtime_spell_entries() -> void:
+	GameState.reset_progress_for_tests()
+	var catalog := GameDatabase.get_runtime_castable_skill_catalog()
+	assert_true(catalog.has("holy_radiant_burst"))
+	assert_true(catalog.has("dark_void_bolt"))
+	assert_true(catalog.has("earth_stone_spire"))
+	assert_true(catalog.has("dark_grave_echo"))
+	assert_false(catalog.has("holy_healing_pulse"))
+	assert_false(catalog.has("dark_abyss_gate"))
+	assert_false(catalog.has("fire_mastery"))
+
+
+func test_validate_skill_entry_rejects_invalid_skill_type_and_canonical_id() -> void:
+	var mock_skill: Dictionary = GameDatabase.get_skill_data("fire_ember_dart")
+	mock_skill["canonical_skill_id"] = 7
+	mock_skill["skill_type"] = "broken_type"
+	var errors := GameDatabase.validate_skill_entry("fire_ember_dart", mock_skill)
+	assert_true(errors.size() >= 2)
+	_assert_error_list_contains(errors, "Skill data row 'fire_ember_dart' has invalid canonical_skill_id")
+	_assert_error_list_contains(errors, "Skill data row 'fire_ember_dart' has invalid skill_type 'broken_type'")
+
+
+func test_validate_skill_spell_link_rejects_active_skill_without_runtime_spell() -> void:
+	var mock_skill: Dictionary = GameDatabase.get_skill_data("fire_ember_dart")
+	mock_skill["skill_id"] = "missing_runtime_active"
+	mock_skill["canonical_skill_id"] = "missing_runtime_proxy"
+	var errors := GameDatabase.validate_skill_spell_link("missing_runtime_active", mock_skill)
+	assert_eq(errors.size(), 1)
+	_assert_error_list_contains(errors, "Active skill row 'missing_runtime_active' is missing runtime spell link")
+
+
+func test_validate_spell_entry_and_link_reject_invalid_proxy_mapping() -> void:
+	var mock_spell: Dictionary = GameDatabase.get_spell("holy_radiant_burst")
+	mock_spell.erase("cooldown")
+	mock_spell["school"] = "broken_school"
+	var spell_errors := GameDatabase.validate_spell_entry("holy_radiant_burst", mock_spell)
+	assert_true(spell_errors.size() >= 1)
+	_assert_error_list_contains(
+		spell_errors, "Spell data row 'holy_radiant_burst' has invalid school 'broken_school'"
+	)
+	_assert_error_list_contains(
+		spell_errors, "Spell data row 'holy_radiant_burst' is missing numeric cooldown"
+	)
+	var link_mock: Dictionary = GameDatabase.get_spell("holy_radiant_burst")
+	link_mock["source_skill_id"] = "fire_mastery"
+	link_mock["school"] = "fire"
+	var link_errors := GameDatabase.validate_spell_skill_link("holy_radiant_burst", link_mock)
+	assert_eq(link_errors.size(), 1)
+	_assert_error_list_contains(
+		link_errors,
+		"Spell row 'holy_radiant_burst' source_skill_id 'fire_mastery' must point to active skill row"
+	)
+
+
+func test_common_scaled_mana_value_matches_skill_mana_cost_path() -> void:
+	GameState.reset_progress_for_tests()
+	var skill_data: Dictionary = GameDatabase.get_skill_data("fire_ember_dart")
+	var expected := GameState.get_common_scaled_mana_value(
+		"fire_ember_dart",
+		float(skill_data.get("mana_cost_base", 0.0)),
+		float(skill_data.get("mana_reduction_per_level", 0.0)),
+		0.4,
+		skill_data,
+		str(skill_data.get("element", ""))
+	)
+	assert_eq(
+		float(GameState.get_skill_mana_cost("fire_bolt")),
+		expected,
+		"direct spell mana cost must reuse the common scaled mana helper before buff efficiency"
+	)
+
+
+func test_data_driven_skill_base_runtime_builder_resolves_formula_and_milestone_pierce() -> void:
+	GameState.reset_progress_for_tests()
+	assert_true(GameState.set_skill_level("lightning_tempest_crown", 24))
+	var skill_data: Dictionary = GameDatabase.get_skill_data("lightning_tempest_crown")
+	var base_runtime := GameState.build_data_driven_skill_base_runtime(
+		"lightning_tempest_crown",
+		skill_data,
+		24
+	)
+	assert_eq(
+		int(base_runtime.get("damage", 0)),
+		47,
+		"data-driven base runtime helper must apply per-level damage formula scaling before shared modifiers"
+	)
+	assert_eq(
+		int(base_runtime.get("pierce", 0)),
+		4,
+		"data-driven base runtime helper must include milestone pierce bonuses for toggle/deploy rows"
+	)
+
+
+func test_data_driven_skill_runtime_helper_reuses_common_runtime_and_toggle_mana_scaling() -> void:
+	GameState.reset_progress_for_tests()
+	assert_true(GameState.set_skill_level("dark_grave_echo", 18))
+	var skill_id := "dark_grave_echo"
+	var skill_data: Dictionary = GameDatabase.get_skill_data(skill_id)
+	var base_runtime := GameState.build_data_driven_skill_base_runtime(skill_id, skill_data, 18)
+	var runtime_options := GameState.build_data_driven_skill_runtime_options(skill_id, skill_data, 18)
+	var expected := GameState.build_common_runtime_stat_block(
+		skill_id,
+		base_runtime,
+		skill_data,
+		runtime_options
+	)
+	expected["tick_interval"] = float(expected.get("tick_interval", 1.0)) * maxf(
+		0.6,
+		1.0 - GameState.get_equipment_cast_speed_bonus()
+	)
+	expected["mana_drain_per_tick"] = GameState.get_data_driven_skill_mana_drain_per_tick(
+		skill_id,
+		skill_data,
+		runtime_options
+	)
+	var actual := GameState.get_data_driven_skill_runtime(skill_id, skill_data, 18)
+	assert_eq(
+		int(actual.get("damage", 0)),
+		int(expected.get("damage", 0)),
+		"data-driven runtime helper must reuse the common runtime stat block"
+	)
+	assert_eq(
+		float(actual.get("cooldown", 0.0)),
+		float(expected.get("cooldown", 0.0)),
+		"data-driven runtime helper must keep cooldown scaling in the shared runtime path"
+	)
+	assert_eq(
+		float(actual.get("tick_interval", 0.0)),
+		float(expected.get("tick_interval", 0.0)),
+		"data-driven runtime helper must own the post-scale tick interval adjustment"
+	)
+	assert_eq(
+		float(actual.get("mana_drain_per_tick", 0.0)),
+		float(expected.get("mana_drain_per_tick", 0.0)),
+		"data-driven runtime helper must own the toggle sustain mana computation"
+	)
+
+
+func test_data_driven_combat_payload_helper_builds_shared_payload_seed() -> void:
+	var runtime_source := {
+		"damage": 15,
+		"knockback": 70.0,
+		"school": "dark",
+		"size": 64.0,
+		"duration": 0.25,
+		"pierce": 2,
+		"utility_effects": [{"type": "slow", "value": 0.25}]
+	}
+	var payload := GameState.build_data_driven_combat_payload(
+		"dark_grave_echo",
+		runtime_source,
+		{"position": Vector2(12, -4), "color": "#8f77d8"}
+	)
+	assert_eq(str(payload.get("spell_id", "")), "dark_grave_echo")
+	assert_eq(payload.get("position", Vector2.ZERO), Vector2(12, -4))
+	assert_eq(payload.get("velocity", Vector2.ONE), Vector2.ZERO)
+	assert_eq(str(payload.get("team", "")), "player")
+	assert_eq(int(payload.get("damage", 0)), 15)
+	assert_eq(float(payload.get("knockback", 0.0)), 70.0)
+	assert_eq(str(payload.get("school", "")), "dark")
+	assert_eq(int(payload.get("pierce", 0)), 2)
+	assert_eq(str(payload.get("color", "")), "#8f77d8")
+	var payload_effects: Array = payload.get("utility_effects", [])
+	assert_eq(str(payload_effects[0].get("type", "")), "slow")
+	payload_effects[0]["type"] = "changed"
+	var source_effects: Array = runtime_source.get("utility_effects", [])
+	assert_eq(
+		str(source_effects[0].get("type", "")),
+		"slow",
+		"shared combat payload helper must deep-copy utility effects"
+	)
+
+
 func test_set_skill_level_updates_runtime_and_circle_state() -> void:
 	assert_true(GameState.set_skill_level("lightning_tempest_crown", 24))
 	assert_eq(GameState.get_skill_level("lightning_tempest_crown"), 24)
@@ -1686,6 +1922,13 @@ func test_game_database_resolves_canonical_skill_ids_for_migrating_rows() -> voi
 	assert_eq(str(fire_mastery_skill.get("skill_type", "")), "passive")
 	assert_eq(str(fire_mastery_skill.get("passive_family", "")), "mastery")
 	assert_eq(str(fire_mastery_skill.get("applies_to_element", "")), "fire")
+	assert_eq(float(fire_mastery_skill.get("final_multiplier_per_level", 0.0)), 0.05)
+	var fire_mastery_bonuses: Array = fire_mastery_skill.get("threshold_bonuses", [])
+	assert_true(fire_mastery_bonuses.size() >= 2, "fire_mastery must keep at least 5/10 milestone bonuses")
+	var fire_mastery_level10_bonus: Dictionary = fire_mastery_bonuses[1]
+	assert_eq(int(fire_mastery_level10_bonus.get("level", 0)), 10)
+	assert_eq(str(fire_mastery_level10_bonus.get("effect", "")), "cooldown_reduction")
+	assert_eq(float(fire_mastery_level10_bonus.get("value", 0.0)), 0.03)
 
 	var water_mastery_skill: Dictionary = GameDatabase.get_skill_data("water_mastery")
 	assert_false(water_mastery_skill.is_empty(), "canonical water_mastery id must stay readable during migration")
@@ -1979,6 +2222,269 @@ func test_default_hotbar_contains_plant_slot() -> void:
 			found = true
 			break
 	assert_true(found, "Hotbar must include spell_plant slot with plant_vine_snare")
+
+
+func test_set_hotbar_skill_normalizes_canonical_active_rows_to_runtime_spell_ids() -> void:
+	GameState.reset_progress_for_tests()
+	assert_true(GameState.set_hotbar_skill(0, "holy_healing_pulse"))
+	assert_true(GameState.set_hotbar_skill(1, "dark_abyss_gate"))
+	assert_true(GameState.set_hotbar_skill(5, "plant_root_bind"))
+	var hotbar: Array = GameState.get_spell_hotbar()
+	assert_eq(
+		str(hotbar[0].get("skill_id", "")),
+		"holy_radiant_burst",
+		"holy_healing_pulse should normalize to holy_radiant_burst in hotbar state"
+	)
+	assert_eq(
+		str(hotbar[1].get("skill_id", "")),
+		"dark_void_bolt",
+		"dark_abyss_gate should normalize to dark_void_bolt in hotbar state"
+	)
+	assert_eq(
+		str(hotbar[5].get("skill_id", "")),
+		"plant_vine_snare",
+		"plant_root_bind should normalize to plant_vine_snare in hotbar state"
+	)
+
+
+func test_set_hotbar_skill_rejects_unknown_hotbar_id() -> void:
+	GameState.reset_progress_for_tests()
+	var before: String = str(GameState.get_spell_hotbar()[0].get("skill_id", ""))
+	assert_false(GameState.set_hotbar_skill(0, "broken_hotbar_entry"))
+	var hotbar: Array = GameState.get_spell_hotbar()
+	assert_eq(
+		str(hotbar[0].get("skill_id", "")),
+		before,
+		"unknown ids should not overwrite a hotbar slot without a runtime-castable mapping"
+	)
+
+
+func test_spell_hotbar_initialization_normalizes_saved_entries_to_runtime_castable_ids() -> void:
+	GameState.reset_progress_for_tests()
+	GameState.spell_hotbar = [
+		{"action": "spell_fire", "skill_id": "holy_healing_pulse", "label": "Z"},
+		{"action": "spell_ice", "skill_id": "dark_abyss_gate", "label": "C"},
+		{"action": "spell_lightning", "skill_id": "plant_root_bind", "label": "V"},
+		{"action": "spell_water", "skill_id": "broken_hotbar_entry", "label": "U"}
+	]
+	var hotbar: Array = GameState.get_spell_hotbar()
+	assert_eq(str(hotbar[0].get("skill_id", "")), "holy_radiant_burst")
+	assert_eq(str(hotbar[1].get("skill_id", "")), "dark_void_bolt")
+	assert_eq(str(hotbar[2].get("skill_id", "")), "plant_vine_snare")
+	assert_eq(
+		str(hotbar[3].get("skill_id", "")),
+		"water_aqua_bullet",
+		"stale invalid entries should fall back to the slot default runtime id during normalization"
+	)
+
+
+func test_visible_hotbar_returns_first_ten_slots_only() -> void:
+	var visible_hotbar: Array = GameState.get_visible_spell_hotbar()
+	var full_hotbar: Array = GameState.get_spell_hotbar()
+	assert_eq(
+		visible_hotbar.size(),
+		GameState.VISIBLE_HOTBAR_SLOT_COUNT,
+		"visible hotbar should expose exactly the first ten slots"
+	)
+	assert_eq(
+		str(visible_hotbar[0].get("label", "")),
+		str(full_hotbar[0].get("label", "")),
+		"first visible slot should match canonical slot 0"
+	)
+	assert_eq(
+		str(visible_hotbar[9].get("label", "")),
+		str(full_hotbar[9].get("label", "")),
+		"tenth visible slot should match canonical slot 9"
+	)
+
+
+func test_clear_hotbar_skill_empties_slot_but_preserves_metadata() -> void:
+	assert_true(GameState.clear_hotbar_skill(0))
+	var slot: Dictionary = GameState.get_hotbar_slot(0)
+	assert_eq(str(slot.get("skill_id", "")), "", "clear_hotbar_skill should empty the target slot")
+	assert_eq(str(slot.get("action", "")), "spell_fire", "clear should preserve slot action")
+	assert_eq(str(slot.get("label", "")), "Z", "clear should preserve slot label")
+
+
+func test_swap_hotbar_skills_swaps_skill_ids_but_keeps_slot_positions() -> void:
+	var before_first: Dictionary = GameState.get_hotbar_slot(0)
+	var before_second: Dictionary = GameState.get_hotbar_slot(1)
+	assert_true(GameState.swap_hotbar_skills(0, 1))
+	var after_first: Dictionary = GameState.get_hotbar_slot(0)
+	var after_second: Dictionary = GameState.get_hotbar_slot(1)
+	assert_eq(
+		str(after_first.get("skill_id", "")),
+		str(before_second.get("skill_id", "")),
+		"slot 0 should receive slot 1 skill after swap"
+	)
+	assert_eq(
+		str(after_second.get("skill_id", "")),
+		str(before_first.get("skill_id", "")),
+		"slot 1 should receive slot 0 skill after swap"
+	)
+	assert_eq(
+		str(after_first.get("label", "")),
+		str(before_first.get("label", "")),
+		"swap should preserve slot 0 label"
+	)
+	assert_eq(
+		str(after_second.get("label", "")),
+		str(before_second.get("label", "")),
+		"swap should preserve slot 1 label"
+	)
+
+
+func test_hotbar_save_payload_uses_canonical_ten_slots_and_separate_legacy_tail() -> void:
+	GameState.reset_progress_for_tests()
+	GameState.spell_hotbar[0] = {
+		"action": "spell_fire",
+		"skill_id": "holy_mana_veil",
+		"label": "1"
+	}
+	GameState.spell_hotbar[10] = {
+		"action": "legacy_tail_custom",
+		"skill_id": "dark_grave_echo",
+		"label": "F1"
+	}
+	var payload: Dictionary = GameState._build_save_payload()
+	var saved_hotbar: Array = payload.get("spell_hotbar", [])
+	var legacy_tail: Array = payload.get(GameState.LEGACY_HOTBAR_TAIL_SAVE_KEY, [])
+	assert_eq(saved_hotbar.size(), GameState.VISIBLE_HOTBAR_SLOT_COUNT)
+	assert_eq(
+		legacy_tail.size(),
+		GameState.DEFAULT_SPELL_HOTBAR.size() - GameState.VISIBLE_HOTBAR_SLOT_COUNT
+	)
+	assert_eq(str(saved_hotbar[0].get("action", "")), "spell_fire")
+	assert_eq(str(saved_hotbar[0].get("label", "")), "1")
+	assert_eq(str(saved_hotbar[0].get("skill_id", "")), "holy_mana_veil")
+	assert_eq(str(legacy_tail[0].get("action", "")), "legacy_tail_custom")
+	assert_eq(str(legacy_tail[0].get("label", "")), "F1")
+	assert_eq(str(legacy_tail[0].get("skill_id", "")), "dark_grave_echo")
+	var shortcut_payload: Array = payload.get(GameState.VISIBLE_HOTBAR_SHORTCUT_SAVE_KEY, [])
+	assert_eq(shortcut_payload.size(), GameState.VISIBLE_HOTBAR_SLOT_COUNT)
+	assert_eq(str(shortcut_payload[0].get("action", "")), "spell_fire")
+	assert_eq(int(shortcut_payload[0].get("keycode", 0)), KEY_Z)
+
+
+func test_visible_hotbar_shortcuts_return_default_shortcut_profile() -> void:
+	var shortcuts: Array = GameState.get_visible_hotbar_shortcuts()
+	assert_eq(shortcuts.size(), GameState.VISIBLE_HOTBAR_SLOT_COUNT)
+	assert_eq(int(shortcuts[0].get("slot_index", -1)), 0)
+	assert_eq(str(shortcuts[0].get("action", "")), "spell_fire")
+	assert_eq(int(shortcuts[0].get("keycode", 0)), KEY_Z)
+	assert_eq(int(shortcuts[9].get("keycode", 0)), KEY_M)
+
+
+func test_set_visible_hotbar_shortcut_updates_input_map_and_slot_label() -> void:
+	assert_true(GameState.set_visible_hotbar_shortcut(0, KEY_1))
+	var shortcuts: Array = GameState.get_visible_hotbar_shortcuts()
+	assert_eq(int(shortcuts[0].get("keycode", 0)), KEY_1)
+	assert_eq(str(GameState.get_hotbar_slot(0).get("label", "")), "1")
+	var fire_events: Array = InputMap.action_get_events("spell_fire")
+	assert_eq((fire_events[0] as InputEventKey).physical_keycode, KEY_1)
+
+
+func test_set_visible_hotbar_shortcut_swaps_conflicting_visible_key_binding() -> void:
+	assert_true(GameState.set_visible_hotbar_shortcut(0, KEY_C))
+	assert_eq(str(GameState.get_hotbar_slot(0).get("label", "")), "C")
+	assert_eq(str(GameState.get_hotbar_slot(1).get("label", "")), "Z")
+	var fire_events: Array = InputMap.action_get_events("spell_fire")
+	var ice_events: Array = InputMap.action_get_events("spell_ice")
+	assert_eq((fire_events[0] as InputEventKey).physical_keycode, KEY_C)
+	assert_eq((ice_events[0] as InputEventKey).physical_keycode, KEY_Z)
+
+
+func test_load_save_payload_restores_canonical_ten_slot_save_with_legacy_tail() -> void:
+	var payload: Dictionary = GameState._build_save_payload()
+	payload["spell_hotbar"] = [
+		{"action": "slot_1", "skill_id": "holy_mana_veil", "label": "1"},
+		{"action": "slot_2", "skill_id": "dark_abyss_gate", "label": "2"},
+		{"action": "slot_3", "skill_id": "", "label": "3"},
+		{"action": "slot_4", "skill_id": "frost_nova", "label": "4"},
+		{"action": "slot_5", "skill_id": "volt_spear", "label": "5"},
+		{"action": "slot_6", "skill_id": "plant_root_bind", "label": "6"},
+		{"action": "slot_7", "skill_id": "earth_tremor", "label": "7"},
+		{"action": "slot_8", "skill_id": "dark_void_bolt", "label": "8"},
+		{"action": "slot_9", "skill_id": "arcane_force_pulse", "label": "9"},
+		{"action": "slot_0", "skill_id": "fire_bolt", "label": "0"}
+	]
+	payload[GameState.VISIBLE_HOTBAR_SHORTCUT_SAVE_KEY] = [
+		{"slot_index": 0, "action": "slot_1", "keycode": KEY_1},
+		{"slot_index": 1, "action": "slot_2", "keycode": KEY_2},
+		{"slot_index": 2, "action": "slot_3", "keycode": KEY_3},
+		{"slot_index": 3, "action": "slot_4", "keycode": KEY_4},
+		{"slot_index": 4, "action": "slot_5", "keycode": KEY_5},
+		{"slot_index": 5, "action": "slot_6", "keycode": KEY_6},
+		{"slot_index": 6, "action": "slot_7", "keycode": KEY_7},
+		{"slot_index": 7, "action": "slot_8", "keycode": KEY_8},
+		{"slot_index": 8, "action": "slot_9", "keycode": KEY_9},
+		{"slot_index": 9, "action": "slot_0", "keycode": KEY_0}
+	]
+	payload[GameState.LEGACY_HOTBAR_TAIL_SAVE_KEY] = [
+		{"action": "tail_a", "skill_id": "dark_grave_echo", "label": "F1"},
+		{"action": "tail_b", "skill_id": "fire_pyre_heart", "label": "F2"},
+		{"action": "tail_c", "skill_id": "", "label": "F3"}
+	]
+	GameState._load_save_payload(payload)
+	assert_eq(str(GameState.get_hotbar_slot(0).get("action", "")), "slot_1")
+	assert_eq(str(GameState.get_hotbar_slot(0).get("label", "")), "1")
+	assert_eq(str(GameState.get_hotbar_slot(0).get("skill_id", "")), "holy_mana_veil")
+	assert_eq(
+		str(GameState.get_hotbar_slot(1).get("skill_id", "")),
+		"dark_void_bolt",
+		"canonical save should still normalize proxy active ids on load"
+	)
+	assert_eq(
+		str(GameState.get_hotbar_slot(5).get("skill_id", "")),
+		"plant_vine_snare",
+		"canonical save should still normalize deploy proxy ids on load"
+	)
+	assert_eq(str(GameState.get_hotbar_slot(10).get("action", "")), "tail_a")
+	assert_eq(str(GameState.get_hotbar_slot(10).get("label", "")), "F1")
+	assert_eq(str(GameState.get_hotbar_slot(10).get("skill_id", "")), "dark_grave_echo")
+	assert_eq(str(GameState.get_hotbar_slot(12).get("label", "")), "F3")
+	assert_eq(str(GameState.get_hotbar_slot(12).get("skill_id", "")), "")
+	assert_eq((InputMap.action_get_events("slot_1")[0] as InputEventKey).physical_keycode, KEY_1)
+	assert_eq((InputMap.action_get_events("slot_0")[0] as InputEventKey).physical_keycode, KEY_0)
+
+
+func test_load_save_payload_keeps_legacy_thirteen_slot_spell_hotbar_compatible() -> void:
+	var payload: Dictionary = GameState._build_save_payload()
+	payload["spell_hotbar"] = [
+		{"action": "legacy_1", "skill_id": "holy_healing_pulse", "label": "1"},
+		{"action": "legacy_2", "skill_id": "dark_abyss_gate", "label": "2"},
+		{"action": "legacy_3", "skill_id": "plant_root_bind", "label": "3"},
+		{"action": "legacy_4", "skill_id": "water_aqua_bullet", "label": "4"},
+		{"action": "legacy_5", "skill_id": "wind_gale_cutter", "label": "5"},
+		{"action": "legacy_6", "skill_id": "earth_tremor", "label": "6"},
+		{"action": "legacy_7", "skill_id": "holy_radiant_burst", "label": "7"},
+		{"action": "legacy_8", "skill_id": "dark_void_bolt", "label": "8"},
+		{"action": "legacy_9", "skill_id": "arcane_force_pulse", "label": "9"},
+		{"action": "legacy_0", "skill_id": "fire_bolt", "label": "0"},
+		{"action": "legacy_tail_a", "skill_id": "holy_mana_veil", "label": "F1"},
+		{"action": "legacy_tail_b", "skill_id": "fire_pyre_heart", "label": "F2"},
+		{"action": "legacy_tail_c", "skill_id": "ice_frostblood_ward", "label": "F3"}
+	]
+	payload.erase(GameState.LEGACY_HOTBAR_TAIL_SAVE_KEY)
+	payload.erase(GameState.VISIBLE_HOTBAR_SHORTCUT_SAVE_KEY)
+	GameState._load_save_payload(payload)
+	assert_eq(str(GameState.get_hotbar_slot(0).get("action", "")), "legacy_1")
+	assert_eq(str(GameState.get_hotbar_slot(0).get("label", "")), "1")
+	assert_eq(str(GameState.get_hotbar_slot(0).get("skill_id", "")), "holy_radiant_burst")
+	assert_eq(str(GameState.get_hotbar_slot(10).get("action", "")), "legacy_tail_a")
+	assert_eq(str(GameState.get_hotbar_slot(10).get("label", "")), "F1")
+	assert_eq(str(GameState.get_hotbar_slot(10).get("skill_id", "")), "holy_mana_veil")
+	assert_eq((InputMap.action_get_events("legacy_1")[0] as InputEventKey).physical_keycode, KEY_1)
+
+
+func test_reset_visible_hotbar_shortcuts_restores_default_labels_and_events() -> void:
+	assert_true(GameState.set_visible_hotbar_shortcut(0, KEY_1))
+	assert_true(GameState.set_visible_hotbar_shortcut(1, KEY_2))
+	GameState.reset_visible_hotbar_shortcuts_to_default()
+	assert_eq(str(GameState.get_hotbar_slot(0).get("label", "")), "Z")
+	assert_eq(str(GameState.get_hotbar_slot(1).get("label", "")), "C")
+	assert_eq((InputMap.action_get_events("spell_fire")[0] as InputEventKey).physical_keycode, KEY_Z)
+	assert_eq((InputMap.action_get_events("spell_ice")[0] as InputEventKey).physical_keycode, KEY_C)
 
 
 func test_plant_vine_snare_skill_type_is_deploy() -> void:
@@ -2286,7 +2792,59 @@ func test_dark_void_bolt_links_to_dark_abyss_gate() -> void:
 	assert_eq(
 		str(skill_id),
 		"dark_abyss_gate",
-		"dark_void_bolt must map to dark_abyss_gate via LEGACY_SPELL_TO_SKILL"
+		"dark_void_bolt must map to dark_abyss_gate via the central runtime spell mapping"
+	)
+
+
+func test_runtime_school_resolver_prefers_spell_row_then_skill_fallback() -> void:
+	GameState.reset_progress_for_tests()
+	assert_eq(
+		GameState.resolve_runtime_school("fire_ember_dart", "fire_bolt", "ice"),
+		"fire",
+		"runtime spell row school must win over conflicting hints"
+	)
+	assert_eq(
+		GameState.resolve_runtime_school("holy_crystal_aegis", "", "dark"),
+		"holy",
+		"skill element must be the fallback school when no runtime spell row exists"
+	)
+
+
+func test_fire_school_resolver_keeps_mastery_xp_and_runtime_modifier_in_sync() -> void:
+	GameState.reset_progress_for_tests()
+	assert_eq(GameState.resolve_runtime_school("fire_bolt"), "fire")
+	var modifiers := GameState.get_mastery_runtime_modifiers_for_skill("fire_bolt")
+	assert_eq(
+		str(modifiers.get("mastery_id", "")),
+		"fire_mastery",
+		"runtime mastery modifier path must resolve fire_bolt as fire school"
+	)
+	var base_level: int = GameState.get_skill_level("fire_mastery")
+	GameState.register_skill_damage("fire_bolt", 140.0)
+	assert_true(
+		GameState.get_skill_level("fire_mastery") > base_level,
+		"mastery XP progression must resolve fire_bolt as the same fire school"
+	)
+
+
+func test_proxy_active_runtime_school_resolver_routes_dark_void_bolt_consistently() -> void:
+	GameState.reset_progress_for_tests()
+	assert_eq(
+		GameState.resolve_runtime_school("dark_abyss_gate", "dark_void_bolt", "holy"),
+		"dark",
+		"proxy-active row must reuse the runtime spell school before linked skill fallback"
+	)
+	assert_eq(
+		str(GameState.get_spell_runtime("dark_void_bolt").get("school", "")),
+		"dark",
+		"runtime spell summary must expose the shared resolved school"
+	)
+	assert_true(GameState.set_skill_level("dark_magic_mastery", 30))
+	var modifiers := GameState.get_mastery_runtime_modifiers_for_skill("dark_void_bolt")
+	assert_eq(
+		str(modifiers.get("mastery_id", "")),
+		"dark_magic_mastery",
+		"proxy-active runtime modifier path must use the shared dark school resolver"
 	)
 
 
@@ -2310,6 +2868,71 @@ func test_fire_mastery_skill_level_reflects_fire_damage() -> void:
 	assert_true(
 		new_level > base_level,
 		"fire_mastery level must increase when fire_bolt damage is registered"
+	)
+
+
+func test_fire_mastery_level_10_applies_damage_and_cooldown_before_equipment() -> void:
+	GameState.reset_progress_for_tests()
+	assert_true(GameState.set_skill_level("fire_mastery", 10))
+	var fire_runtime_without_gear: Dictionary = GameState.get_spell_runtime("fire_bolt")
+	assert_eq(
+		int(fire_runtime_without_gear.get("damage", 0)),
+		26,
+		"fire_mastery level 10 must raise fire_bolt damage by the documented +45% from level delta before any gear"
+	)
+	assert_almost_eq(
+		float(fire_runtime_without_gear.get("cooldown", 0.0)),
+		0.2134,
+		0.0001,
+		"fire_mastery level 10 must apply the 3% cooldown milestone bonus to fire_bolt"
+	)
+	assert_true(GameState.set_equipped_item("weapon", "weapon_ember_staff"))
+	var fire_runtime_with_gear: Dictionary = GameState.get_spell_runtime("fire_bolt")
+	var mastery_first_damage := int(
+		round(
+			float(fire_runtime_without_gear.get("damage", 0))
+			* GameState.get_equipment_damage_multiplier("fire")
+		)
+	)
+	var equipment_first_damage := int(
+		round(
+			float(
+				int(round(18.0 * GameState.get_equipment_damage_multiplier("fire")))
+			) * 1.45
+		)
+	)
+	assert_eq(
+		int(fire_runtime_with_gear.get("damage", 0)),
+		mastery_first_damage,
+		"fire_bolt damage must apply fire_mastery before equipment multipliers"
+	)
+	assert_ne(
+		int(fire_runtime_with_gear.get("damage", 0)),
+		equipment_first_damage,
+		"fire_bolt damage must not match the equipment-first rounding path"
+	)
+
+
+func test_water_mastery_level_30_applies_active_damage_cooldown_and_mana_on_shared_runtime_path() -> void:
+	GameState.reset_progress_for_tests()
+	assert_true(GameState.set_skill_level("water_mastery", 30))
+	var water_runtime: Dictionary = GameState.get_spell_runtime("water_aqua_bullet")
+	assert_eq(
+		int(water_runtime.get("damage", 0)),
+		18,
+		"water active runtime damage must read water_mastery through the shared runtime helper"
+	)
+	assert_almost_eq(
+		float(water_runtime.get("cooldown", 0.0)),
+		0.238,
+		0.0001,
+		"water active runtime cooldown must read water_mastery through the shared runtime helper"
+	)
+	assert_almost_eq(
+		GameState.get_skill_mana_cost("water_aqua_bullet"),
+		7.04,
+		0.0001,
+		"water active mana cost must read water_mastery through the shared mana helper"
 	)
 
 

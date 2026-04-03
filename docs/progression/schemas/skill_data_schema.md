@@ -14,14 +14,14 @@ update_when:
   - schema_changed
   - runtime_changed
   - status_changed
-last_updated: 2026-04-02
-last_verified: 2026-04-02
+last_updated: 2026-04-03
+last_verified: 2026-04-03
 ---
 
 # 스킬 데이터 스키마
 
 상태: 사용 중  
-최종 갱신: 2026-04-02  
+최종 갱신: 2026-04-03  
 섹션: 성장 시스템
 
 ## 범위
@@ -270,17 +270,24 @@ last_verified: 2026-04-02
 | passive_family | string | `mastery` |
 | applies_to_school | string | 적용 계열 |
 | applies_to_element | string | 적용 속성 |
-| final_multiplier_per_level | float | 레벨당 최종 배수 증가 |
-| threshold_bonuses | array[object] | 5,10,15... 구간 보너스 |
+| final_multiplier_per_level | float | mastery의 레벨당 최종 피해 증가. 일반 mastery는 `0.05`, `arcane_magic_mastery`는 `0.10`을 기준으로 잠근다 |
+| threshold_bonuses | array[object] | `5/10/15/20/25/30` milestone마다 열리는 고정 보너스. `damage`, `mana_cost_reduction`, `cooldown_reduction` 계열 effect를 허용한다 |
 
 `threshold_bonuses` 예시:
 
 ```json
 [
-  { "level": 5, "effect": "mana_cost_reduction", "value": 0.02 },
-  { "level": 10, "effect": "cooldown_reduction", "value": 0.03 }
+  { "level": 5, "effect": "final_damage_bonus", "value": 0.05 },
+  { "level": 10, "effect": "mana_cost_reduction", "value": 0.02 },
+  { "level": 15, "effect": "cooldown_reduction", "value": 0.03 }
 ]
 ```
+
+추가 규칙:
+
+- 일반 mastery(`fire`/`water`/`ice`/`lightning`/`wind`/`earth`/`plant`/`dark`)는 해당 school의 `active / deploy / toggle` 전부에 적용합니다.
+- mastery 계산은 `mastery -> 장비/버프/공명 등 다른 최종 배수` 순서로 적용합니다.
+- `arcane_magic_mastery`는 예외적으로 모든 마법 스킬 사용으로 숙련도가 오르며, 모든 속성 스킬에 적용합니다.
 
 ## 예시 스킬 데이터
 

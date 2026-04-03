@@ -12,14 +12,14 @@ depends_on:
 update_when:
   - handoff_changed
   - status_changed
-last_updated: 2026-04-02
-last_verified: 2026-04-02
+last_updated: 2026-04-03
+last_verified: 2026-04-03
 ---
 
 # 기획 구체화 우선순위 백로그
 
 상태: 사용 중  
-최종 갱신: 2026-04-02  
+최종 갱신: 2026-04-03  
 섹션: 구현 기준
 
 ## 목적
@@ -53,10 +53,11 @@ AI가 아래 요청을 받으면 이 문서를 먼저 읽는다.
 
 | 우선순위 | 항목 | 상태 | 왜 지금 필요한가 | 연결 문서 | 다음 질문 초점 |
 | --- | --- | --- | --- | --- | --- |
-| `P1` | 전투 HUD 그래픽 GUI 최종 명세 | `open` | [combat_increment_06_combat_ui.md](/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/docs/implementation/increments/combat_increment_06_combat_ui.md)의 목표는 분명하지만, 최종 레이아웃, 슬롯 상호작용, 툴팁/클릭/더블클릭 규칙이 구현 수준으로 아직 잠기지 않았다. | [combat_increment_06_combat_ui.md](/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/docs/implementation/increments/combat_increment_06_combat_ui.md), [combat_first_build_plan.md](/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/docs/implementation/plans/combat_first_build_plan.md) | HP/MP 바 배치, 13슬롯 핫바 시각 구조, 마우스 상호작용, 툴팁 정보량, 디버그 fallback 경계 |
+| `P1` | 전투 HUD 그래픽 GUI 최종 명세 | `ready_for_implementation` | 2026-04-03 두 번째 라운드까지 반영해 읽기 우선순위, 하단 중앙 자원 배치, 상단 좌측 활성 버프 row, `사용자 등록형 10칸 액션 row`, 자유 혼합 타입, 사용자 키 재바인딩, `13키 레거시 처리`, `10슬롯 저장 canonical`, 우클릭 언바인드, drag swap, HUD 숨김 중 키보드 전투 유지, 검증 기준까지 구현 수준으로 잠겼다. | [combat_increment_06_combat_ui.md](/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/docs/implementation/increments/combat_increment_06_combat_ui.md), [combat_first_build_plan.md](/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/docs/implementation/plans/combat_first_build_plan.md), [combat_hud_gui_schema.md](/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/docs/implementation/combat_hud_gui_schema.md) | 없음. 다음 단계는 구현 handoff 또는 [$dungeon-mage-spec-to-godot](/Users/leesanghyun/.codex/skills/dungeon-mage-spec-to-godot/SKILL.md) 전환 |
 | `P2` | 관리자 장비/인벤토리 그래픽 GUI 명세 | `open` | [combat_increment_08_admin_tabs_and_inventory.md](/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/docs/implementation/increments/combat_increment_08_admin_tabs_and_inventory.md)는 그래픽 GUI 목표를 적고 있지만, 슬롯 좌표 체계, 아이템 크기 규칙, 드래그/드롭과 키보드 대체 흐름이 아직 모호하다. | [combat_increment_08_admin_tabs_and_inventory.md](/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/docs/implementation/increments/combat_increment_08_admin_tabs_and_inventory.md) | 인벤토리 그리드 크기, 아이콘 점유 칸 수, 이동 규칙, 장착 패널 대응, 입력 우선순위 |
 | `P3` | Phase 3 legacy combat 스킬 canonical 확정 | `open` | [skills_json_canonical_migration_plan.md](/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/docs/progression/plans/skills_json_canonical_migration_plan.md)는 `Phase 3`이 blocked이며, 이 결정을 잠가야 이후 데이터/문서 정렬이 안전해진다. | [skills_json_canonical_migration_plan.md](/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/docs/progression/plans/skills_json_canonical_migration_plan.md), [skill_implementation_tracker.md](/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/docs/progression/trackers/skill_implementation_tracker.md), [skill_system_design.md](/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/docs/progression/rules/skill_system_design.md) | `ice_frost_needle`, `earth_stone_spire`, `fire_flame_arc`, `water_tidal_ring`, `lightning_thunder_lance`의 1:1 대응 여부 |
 | `P4` | 7서클 이상 대표 스킬의 실제 구현 핸드오프 수준 구체화 | `open` | 현재 스킬 라인업은 길게 정의되어 있지만, 어떤 스킬을 어떤 런타임 패턴으로 먼저 구현할지 handoff 수준으로 좁혀진 문서가 부족하다. | [skill_system_design.md](/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/docs/progression/rules/skill_system_design.md), [combat_increment_02_spell_runtime.md](/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/docs/implementation/increments/combat_increment_02_spell_runtime.md), [combat_first_build_plan.md](/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/docs/implementation/plans/combat_first_build_plan.md) | 대표 스킬 선정, 구현 순서, proxy 허용 범위, 이펙트/레벨 스케일 검증 기준 |
+| `P5` | mastery `data-only` 런타임 규칙 잠금 | `ready_for_implementation` | 2026-04-03 답변으로 `final_multiplier_per_level`, `threshold_bonuses`, 일반 mastery 적용 대상, 계산 순서, `arcane_magic_mastery` 예외 규칙, 최소 검증 기준이 구현 수준으로 잠겼다. 이제 문서 잠금보다 runtime wiring과 GUT 검증이 다음 단계다. | [skill_system_design.md](/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/docs/progression/rules/skill_system_design.md), [skill_data_schema.md](/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/docs/progression/schemas/skill_data_schema.md), [skill_implementation_tracker.md](/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/docs/progression/trackers/skill_implementation_tracker.md) | 다음 질문 없음. `fire_mastery`부터 runtime wiring과 GUT 검증 증분으로 넘긴다 |
 
 ## AI 선택 규칙
 

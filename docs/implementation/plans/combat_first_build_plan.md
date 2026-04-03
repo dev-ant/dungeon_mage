@@ -14,14 +14,14 @@ update_when:
   - rule_changed
   - runtime_changed
   - handoff_changed
-last_updated: 2026-04-02
-last_verified: 2026-04-02
+last_updated: 2026-04-03
+last_verified: 2026-04-03
 ---
 
 # 전투 우선 구현 계획
 
 상태: 사용 중  
-최종 갱신: 2026-04-02  
+최종 갱신: 2026-04-03  
 섹션: 구현 기준
 
 ## 목표
@@ -126,7 +126,7 @@ last_verified: 2026-04-02
 | 3. 버프 중심 액션 루프 구축 | 진행 중 | Prismatic Guard(배리어), Time Collapse(할인 시전 3회), Ashen Rite(스택·폭발·종료 페널티: 마나 소진·방어 약화 10초·재시전 봉인 6초), Overclock Circuit(번개 연계·활성화 메시지), Funeral Bloom(배치킬 감지·ICD·corruption_burst 폭발) 모두 런타임 구현 완료. notify_deploy_kill() 연결 완료(main.gd, player.gd). 관리자 버프 강제 발동 탭은 남아 있음 |
 | 4. 몬스터 전투 세트 구축 | 완료 | `enemy_base.gd`에 10종 구현 완료. `enemies.json` 분리·JSON 기반 수치 로드, `has_super_armor_attack` 플래그(JSON `super_armor_tags` 연결), leaper 착지 예고 마커 완료. bomber는 곡선 감속 폭탄 + 타깃 고정 warning marker + 터미널 burst 이펙트까지 보강됨. admin spawn 탭 자동 표시. `EnemyBase.tscn` 씬 파일 생성 및 `main.gd`가 씬 기반 인스턴스화로 전환 완료. 다음 우선 구현은 신규 에셋 5종(`Rat`, `tooth walker`, `Eye ball Monster`, `Trash Monster`, `Sword`)의 정식 몬스터 편입과 에셋 적용으로 고정한다 |
 | 5. 장비 시스템 최소 버전 | 진행 중 | 장비 데이터, 프리셋, 런타임 반영, HUD/관리자 연결 완료. 지급→인벤토리→장착/해제 루프, 정렬/필터/페이지, `Candidate Detail/Selection/Nav/List` 구조, 비교 섹션, 후보 패널 페이지 구조 전환(EQUIPMENT_PAGE_SIZE 통일) 완료 |
-| 6. 전투 UI 구축 | 진행 중 | HP/MP 그래픽 바(빨강/파랑) + 수치 레이블, 핫바 스킨(`Buttons.png`/`Action_panel.png`), 마우스 클릭 핫바, 부유 데미지 숫자(`DamageLabel`), 플레이어 스프라이트(male_hero, scale=1.4), 버섯 적 스프라이트(Mushroom), 카메라 흔들림, 히트스탑(0.06s). 313개 GUT 통과 (2026-03-30). **[완료]** 몬스터 체력바 구현 완료 (초록/주황/빨강 3단계, 전 적 타입 공통 적용). **[시범 확장]** 스킬 이펙트 에셋 적용 완료: `fire_bolt` (`assets/effects/fire_bolt/`, 15프레임 루프), `volt_spear` (`assets/effects/volt_spear/`, 15프레임 루프, 방향 자동 반전), `frost_nova` (`assets/effects/frost_nova/`, 8프레임 burst, 비반전). **[실제 분리 연결]** `volt_spear`, `fire_bolt`, `holy_radiant_burst`, `water_aqua_bullet`, `wind_gale_cutter`, `earth_tremor`, `dark_void_bolt`는 각각 `assets/effects/<skill>_attack/` + `assets/effects/<skill>_hit/`로 시전 시작점과 명중 지점을 서로 다른 one-shot 이펙트로 읽히게 했다. **[다음 확장]** 같은 구조를 다른 액티브 스킬로 확장한다 |
+| 6. 전투 UI 구축 | 진행 중 | HP/MP 그래픽 바(빨강/파랑) + 수치 레이블, 핫바 스킨(`Buttons.png`/`Action_panel.png`), 부유 데미지 숫자(`DamageLabel`), 플레이어 스프라이트(male_hero, scale=1.4), 버섯 적 스프라이트(Mushroom), 카메라 흔들림, 히트스탑(0.06s)까지 반영. **[Cycle A 런타임 셸 완료]** `game_ui.gd`가 상단 좌측 primary target panel, 하단 중앙 resource cluster, 상단 좌측 buff chip row, visible `10슬롯` hotbar, hover tooltip, 좌클릭 cast, 우클릭 clear, drag swap, unavailable dim state, runtime local row hide toggle을 실제로 렌더한다. 현재 target panel의 target source는 `플레이어와 가장 가까운 살아 있는 적` 휴리스틱이다. **[완료]** 몬스터 체력바 구현 완료 (초록/주황/빨강 3단계, 전 적 타입 공통 적용). **[시범 확장]** 스킬 이펙트 에셋 적용 완료: `fire_bolt` (`assets/effects/fire_bolt/`, 15프레임 루프), `volt_spear` (`assets/effects/volt_spear/`, 15프레임 루프, 방향 자동 반전), `frost_nova` (`assets/effects/frost_nova/`, 8프레임 burst, 비반전). **[실제 분리 연결]** `volt_spear`, `fire_bolt`, `holy_radiant_burst`, `water_aqua_bullet`, `wind_gale_cutter`, `earth_tremor`, `dark_void_bolt`는 각각 `assets/effects/<skill>_attack/` + `assets/effects/<skill>_hit/`로 시전 시작점과 명중 지점을 서로 다른 one-shot 이펙트로 읽히게 했다. **[현재 잔여]** explicit target source, icon atlas, settings persistence, keyboard selection border, 수동 플레이 검증 |
 | 7. 관리자 모드 구축 | 완료 | 5탭 구조(hotbar/resources/equipment/spawn/buffs), 장비 탭 2패널 side-by-side 완성, buffs 탭 조합 요건 `[v]`/`[ ]` 표시. 탭/장비 슬롯/핫바 슬롯/owned 목록 아이템/candidate 목록 아이템/소환 타입/자원 토글/버프 항목/프리셋/스킬 라이브러리 항목/장착-해제 액션 모두 마우스 클릭 버튼 추가(2026-03-29). 306개 GUT 통과 |
 | 9. Soul Dominion 리스크 | 완료 | MP 재생 차단, 피해 배수 증가, 종료 후 후유증, HUD 표시 모두 구현 완료 |
 
@@ -724,19 +724,32 @@ last_verified: 2026-04-02
 ### 목표
 
 현재 전투 상태를 빠르게 읽을 수 있고, 테스트 중 조정 지점을 바로 파악할 수 있어야 한다.
-전투 중 조작 가능한 UI는 키보드와 마우스 양쪽 경로를 모두 제공해야 하며, 핫바와 패널 상호작용 감각은 메이플스토리에 가깝게 정리해야 한다.
+전투 중 조작 가능한 UI는 `키보드 100% 플레이 가능`을 기준선으로 삼고, 마우스는 같은 기능을 보조하는 경로로 제공해야 한다.
 최종 목표는 숫자와 텍스트만 나열하는 HUD가 아니라, 메이플스토리나 마비노기처럼 그래픽 바, 슬롯, 아이콘, 패널 프레임이 실제로 보이는 GUI다.
+
+### 2026-04-03 구체화 잠금
+
+- 전투 중 시선 우선순위는 `대상 HP -> 플레이어 자원/캐릭터 정보 -> 핫바`로 고정한다.
+- 상단 좌측에는 `활성 버프 / 디버프 row`, 하단 중앙에는 `HP / MP / 캐릭터 정보` 묶음을 둔다.
+- 플레이어 노출용 핫바는 `사용자 등록형 1행 10칸 액션 row`를 기준으로 하고, 스킬/버프/토글/설치형/아이템을 같은 row에서 자유 혼합해 다룬다.
+- 활성 버프 row는 액션 핫바와 별도 상태 row로 유지한다.
+- `액션 row`와 `활성 버프 row`는 설정에서 각각 on/off 토글 가능해야 한다.
+- 화면에는 언제나 10개 슬롯만 보이고, 슬롯 키는 설정에서 사용자가 자유롭게 다시 바인딩할 수 있어야 한다.
+- 기존 텍스트 HUD는 최종 출력이 아니라 디버그 / 테스트 fallback 으로만 남긴다.
+- `13키 바인딩` 기준선은 레거시 메모로만 남기고, 입력 canonical 과 저장 canonical 은 모두 `10슬롯` 기준으로 이행한다.
 
 ### 필수 UI
 
+- 대상 몬스터 HP 패널
 - HP 바
 - MP 바
-- 스킬 슬롯 6칸
+- 캐릭터 핵심 정보 묶음
+- 플레이어 노출용 사용자 등록형 액션 슬롯 10칸 row
+- 활성 버프 / 디버프 row
 - 버프 아이콘 및 중첩 수
 - 조합 효과 표시
 - 현재 서클
 - 주요 전투 스탯 요약
-- 대상 몬스터 HP 바
 - 데미지 숫자
 - 관리자 모드 활성 표시
 - 스킬/버프/장비 아이콘
@@ -745,13 +758,18 @@ last_verified: 2026-04-02
 
 ### 상호작용 기준
 
-- 스킬 슬롯, 버프 슬롯, 장비 슬롯, 탭 버튼은 마우스 hover / click / double-click 상호작용을 지원한다.
-- 키보드 단축키로 수행 가능한 기능은 대응되는 마우스 조작 경로도 제공한다.
-- 마우스로 슬롯 hover 시 이름, 쿨타임, 설명, 비용, 상태 변화가 즉시 읽혀야 한다.
-- 핫바, 장비, 인벤토리, 관리자 탭의 선택 상태는 키보드 포커스와 마우스 선택이 서로 충돌 없이 동기화되어야 한다.
+- 키보드 단축키만으로 전투를 끝까지 진행할 수 있어야 하고, 마우스는 같은 기능을 보조 경로로만 제공한다.
+- 액션 슬롯, 버프 슬롯, 장비 슬롯, 탭 버튼은 마우스 hover 를 지원한다.
+- 액션 슬롯은 좌클릭 즉시 실행, 우클릭 단축키 해제, click-hold drag-rebind 를 지원한다.
+- 전투 HUD는 더블클릭을 기본 상호작용으로 요구하지 않는다.
+- 마우스로 슬롯 hover 시 이름, 쿨타임, 비용, 설명, 현재 상태, 레벨, 마스터리가 즉시 읽혀야 한다.
+- 핫바, 장비, 인벤토리, 관리자 탭의 선택 상태는 `키보드 선택 테두리 유지 + 마우스 hover 오버레이` 규칙으로 동기화되어야 한다.
+- 사용 불가 슬롯은 평상시에도 dim 처리하고, 입력 시 짧은 실패 문구를 보여 줘야 한다.
+- drag-rebind 대상 칸이 이미 차 있으면 두 칸을 swap 한다.
 - HP/MP는 텍스트 수치만 단독 노출하는 방식이 아니라, 그래픽 바와 수치가 함께 보이는 형태를 기본 기준으로 삼는다.
 - 장비창과 인벤토리는 텍스트 목록이 아니라 슬롯, 아이콘, 점유 크기, 위치 이동을 시각적으로 보여주는 GUI를 목표로 한다.
 - 스킬, 버프, 장비, 관리자 탭도 텍스트 전용 디버그 패널이 아니라 그래픽 슬롯/버튼/패널 기반 GUI로 확장되어야 한다.
+- HUD를 숨겨도 키보드 전투 입력은 유지해야 하며, 숨겨진 HUD row는 마우스 상호작용 대상에서 제외한다.
 - 이 기준은 현재 구현 완료 항목이 아니라, 이번 계획 문서에서 새로 확정한 구현 목표다.
 
 ### 구현 대상 파일
@@ -768,11 +786,14 @@ last_verified: 2026-04-02
 
 - 플레이 중 필요한 전투 정보가 HUD에서 모두 보인다.
 - 스킬 쿨타임과 버프 유지 시간이 직관적으로 확인된다.
-- 키보드 단축키만으로도 조작 가능하고, 동일한 UI 기능이 마우스 클릭/hover로도 동작한다.
+- 키보드 단축키만으로도 조작 가능하고, 동일한 UI 기능이 마우스 클릭/hover/drag 로도 동작한다.
 - 메이플스토리식 UI 사용감에 맞는 슬롯 선택, 툴팁, 패널 상호작용이 실제 런타임에 구현된다.
 - 전투 정보와 조작 UI가 텍스트 위주가 아니라 그래픽 바, 아이콘, 패널 프레임이 보이는 GUI로 제공된다.
 - HP/MP, 핫바, 버프, 장비, 관리자 UI가 모두 그래픽 기반으로 표시된다.
 - 지정된 `Action_panel / Buttons / Settings` PNG가 HUD 스타일링의 기본 리소스로 실제 연결된다.
+- 사용 불가 슬롯이 dim 처리되고, 실패 입력 시 짧은 이유 문구가 표시된다.
+- headless 테스트와 최소 1회 수동 플레이 검증을 모두 통과한다.
+- HUD 숨김 on/off 상태에서도 키보드 전투가 유지된다.
 - 위 마우스 상호작용 기준은 현재 문서에만 추가되었고 아직 구현 완료로 간주하지 않는다.
 - 위 그래픽 GUI 기준 역시 현재 문서에 새로 추가된 요구사항이며 아직 미구현이다.
 

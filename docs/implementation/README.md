@@ -12,14 +12,14 @@ depends_on:
 update_when:
   - structure_changed
   - runtime_changed
-last_updated: 2026-04-02
-last_verified: 2026-04-02
+last_updated: 2026-04-03
+last_verified: 2026-04-03
 ---
 
 # 구현 기준 인덱스
 
 상태: 사용 중  
-최종 갱신: 2026-04-02
+최종 갱신: 2026-04-03
 
 ## 범위
 
@@ -74,6 +74,11 @@ last_verified: 2026-04-02
 ### `runbooks`
 
 - [godot_mcp_setup.md](/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/docs/implementation/runbooks/godot_mcp_setup.md)
+
+### 루트 schema
+
+- [combat_hud_gui_schema.md](/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/docs/implementation/combat_hud_gui_schema.md)
+  - 전투 HUD 그래픽 GUI의 레이아웃 상태, 상호작용 상태, 설정 토글 필드 기준
 
 ### 루트 tracker
 

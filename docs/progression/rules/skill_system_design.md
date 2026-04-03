@@ -14,14 +14,14 @@ update_when:
   - rule_changed
   - runtime_changed
   - status_changed
-last_updated: 2026-04-02
-last_verified: 2026-04-02
+last_updated: 2026-04-03
+last_verified: 2026-04-03
 ---
 
 # 스킬 시스템 설계 기준
 
 상태: 최신 기준 / 소스 오브 트루스  
-최종 갱신: 2026-04-02  
+최종 갱신: 2026-04-03  
 섹션: 성장 시스템
 
 ## 이 문서의 역할
@@ -110,21 +110,93 @@ last_verified: 2026-04-02
   - `arcane_astral_compression`: 표기명 `아스트랄 압축`, 공용 `마나 효율 버프`
   - `arcane_world_hourglass`: 표기명 `월드 아워글래스 오브 아케인`, 공용 `극딜 창구 버프`
 - `holy_healing_pulse`, `dark_abyss_gate`, `lightning_tempest_crown`, `plant_genesis_arbor`는 모두 row key rename 없이 유지하며, 현재 runtime proxy나 runtime row도 그대로 유지한다.
+- `Phase 6` row key 유지 결론을 다시 검토한 결과, canonical row key 유지 자체는 계속 안전하다. 2026-04-03 hardening 증분부터는 admin library / hotbar assignment와 `spell_hotbar` save path도 runtime-castable ID 기준으로 정규화한다.
+  - `holy_healing_pulse`를 hotbar에 넣으면 저장값은 `holy_radiant_burst`로 정규화한다.
+  - `dark_abyss_gate`를 hotbar에 넣으면 저장값은 `dark_void_bolt`로 정규화한다.
+  - `plant_root_bind`를 hotbar에 넣으면 저장값은 `plant_vine_snare`로 정규화한다.
+  - hotbar가 해석할 수 없는 stale invalid ID는 assignment에서 거부하고, 과거 save에 남은 값은 hotbar 초기화 시 slot default로 정리한다.
 - row-level canonical 마이그레이션 다음 단계는 새 canonical 추가가 아니라 후속 검증이다.
-  - 첫 post-migration verification 기준선은 `fire_mastery`다. 현재 코드에서 확인된 범위는 `SCHOOL_TO_MASTERY["fire"]`와 `register_skill_damage("fire_bolt", dealt)`를 통한 mastery XP/레벨 progression hook까지다.
-  - `water_mastery`도 같은 방식으로 `SCHOOL_TO_MASTERY["water"]`와 `register_skill_damage("water_aqua_bullet", dealt)`를 통한 mastery XP/레벨 progression hook까지 확인됐다.
+  - 첫 post-migration verification 기준선 `fire_mastery`는 2026-04-03 runtime wiring까지 닫았다.
+    - `SCHOOL_TO_MASTERY["fire"]`와 `register_skill_damage("fire_bolt", dealt)`를 통한 mastery XP/레벨 progression hook 검증 완료
+    - `GameState.get_spell_runtime()`, `GameState.get_skill_mana_cost()`, `scripts/player/spell_manager.gd`의 data-driven runtime builder가 fire school `active / deploy / toggle`에 `fire_mastery`를 먼저 적용
+    - 실제 GUT 잠금은 `fire_mastery` lv10의 `fire_bolt` 피해 상승과 lv10 `cooldown_reduction = 0.03` milestone 반영
+  - `water_mastery`도 같은 방식으로 `SCHOOL_TO_MASTERY["water"]`와 `register_skill_damage("water_aqua_bullet", dealt)`를 통한 mastery XP/레벨 progression hook까지 확인됐고, 이번 구조 개선 후속 증분에서 shared helper 경로의 active damage / cooldown / mana contract까지 잠갔다.
   - `ice_mastery`도 같은 방식으로 `SCHOOL_TO_MASTERY["ice"]`와 `register_skill_damage("frost_nova", dealt)`를 통한 mastery XP/레벨 progression hook까지 확인됐다.
   - `lightning_mastery`도 같은 방식으로 `SCHOOL_TO_MASTERY["lightning"]`와 `register_skill_damage("volt_spear", dealt)`를 통한 mastery XP/레벨 progression hook까지 확인됐다.
   - `wind_mastery`도 같은 방식으로 `SCHOOL_TO_MASTERY["wind"]`와 `register_skill_damage("wind_gale_cutter", dealt)`를 통한 mastery XP/레벨 progression hook까지 확인됐다.
   - `earth_mastery`도 같은 방식으로 `SCHOOL_TO_MASTERY["earth"]`와 `register_skill_damage("earth_tremor", dealt)`를 통한 mastery XP/레벨 progression hook까지 확인됐다.
-  - `plant_mastery`도 `plant_vine_snare`를 plant school runtime spell entry로 정의한 뒤, `SCHOOL_TO_MASTERY["plant"]`와 `register_skill_damage("plant_vine_snare", dealt)`를 통한 mastery XP/레벨 progression hook까지 확인됐다.
-  - `dark_magic_mastery`도 같은 방식으로 `SCHOOL_TO_MASTERY["dark"]`와 `register_skill_damage("dark_void_bolt", dealt)`를 통한 mastery XP/레벨 progression hook까지 확인됐다.
+  - `plant_mastery`도 `plant_vine_snare`를 plant school runtime spell entry로 정의한 뒤, `SCHOOL_TO_MASTERY["plant"]`와 `register_skill_damage("plant_vine_snare", dealt)`를 통한 mastery XP/레벨 progression hook까지 확인됐고, 이번 구조 개선 후속 증분에서 shared helper 경로의 deploy damage / cooldown / mana contract까지 잠갔다.
+  - `dark_magic_mastery`도 같은 방식으로 `SCHOOL_TO_MASTERY["dark"]`와 `register_skill_damage("dark_void_bolt", dealt)`를 통한 mastery XP/레벨 progression hook까지 확인됐고, 이번 구조 개선 후속 증분에서 `dark_grave_echo` toggle의 damage / cooldown / sustain mana contract까지 shared helper로 잠갔다.
   - 토글 대표 row `lightning_tempest_crown`는 level 1의 base `pierce = 2`, level 24 milestone 이후 `pierce = 4`가 실제 tick payload에 반영됨을 검증했다.
   - 설치형 대표 row `plant_root_bind`는 `plant_vine_snare` runtime proxy 기준으로 deploy payload의 `duration`과 `size`가 level 1 대비 level 30에서 실제 증가함을 검증했다.
   - burst 대표 row `arcane_world_hourglass`는 buff activation 후 cooldown 압축, downside penalty, level 1 대비 level 30 duration scaling이 실제 runtime에 반영됨을 검증했다.
-  - 반면 `final_multiplier_per_level`와 `threshold_bonuses`는 아직 전투/마나/쿨타임 계산 경로에 직접 연결되지 않아 data-only 상태로 본다.
+  - 2026-04-03 사용자 답변으로 mastery `data-only` 규칙은 구현 스펙 수준으로 잠겼다.
+    - 일반 mastery(`fire`/`water`/`ice`/`lightning`/`wind`/`earth`/`plant`/`dark`)의 핵심 경험은 `해당 school의 active / deploy / toggle을 모두 강화하는 범용 숙련 패시브`다.
+    - 일반 mastery의 `final_multiplier_per_level`는 `레벨당 최종 피해 +5%`다.
+    - mastery 시스템 전체는 `최종 피해 + 마나 비용 + 쿨다운`에 영향을 준다. per-level 기본 성장축은 최종 피해로 읽고, `threshold_bonuses`는 `damage + mana + cooldown` bonus slot으로 쓴다.
+    - `threshold_bonuses`는 `5/10/15/20/25/30` milestone마다 열린다.
+    - 일반 mastery의 적용 대상은 `해당 school의 active / deploy / toggle` 전부다.
+    - 계산 순서는 `mastery를 먼저 적용하고 그 뒤에 장비 / 버프 / 공명 등 다른 최종 배수 계열을 곱연산`으로 올린다.
+    - `arcane_magic_mastery`는 예외 규칙이다. 어떤 마법 스킬을 쓰든 숙련도가 오르고, 모든 속성 스킬에 영향을 주는 공용 mastery로 유지한다.
+    - `arcane_magic_mastery`의 `final_multiplier_per_level`는 일반 mastery보다 높은 `레벨당 최종 피해 +10%`다.
+    - 최소 구현 완료 판정은 `fire_mastery` 10레벨에서 `fire_bolt` 피해 상승과 10레벨 milestone의 마나 또는 쿨다운 bonus가 GUT 1개로 검증되는 상태다.
+  - 2026-04-03 구현 증분으로 일반 mastery의 school-specific runtime path는 공통 helper까지 실제 연결됐다.
+    - fire school `active / deploy / toggle`는 `mastery -> 장비 / 버프 / 공명` 순서로 `damage + mana + cooldown`을 계산한다.
+    - 이번 구조 개선 후속 증분에서 `GameState.get_mastery_runtime_modifiers_for_skill()`의 `fire_mastery` 단일 하드코딩을 제거했고, school-specific mastery row는 같은 공통 helper를 탄다.
+    - 대표 계약 테스트는 `water_aqua_bullet` active, `plant_vine_snare` deploy, `dark_grave_echo` toggle로 잠갔다.
+    - `arcane_magic_mastery`는 `applies_to_school = all`, `applies_to_element = all` 예외 규칙이므로 shared school-specific helper에 합치지 않고 다음 증분으로 남긴다.
+  - 2026-04-03 구조 개선 증분으로 active와 deploy/toggle는 공통 runtime 계산 경로를 먼저 공유한다.
+    - 공통 source of truth는 `/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/scripts/autoload/game_state.gd`의 `build_common_runtime_stat_block()`과 `get_common_scaled_mana_value()`다.
+    - `GameState.get_spell_runtime()`와 `scripts/player/spell_manager.gd`의 `_build_skill_runtime()`는 level scaling, mastery modifier, equipment multiplier, 공통 mana scaling을 이 helper에서 먼저 읽는다.
+    - type-specific 후처리는 그대로 바깥에 남긴다. active buff 후처리는 `_apply_buff_runtime_modifiers()`, deploy 전용 후처리는 `apply_deploy_buff_modifiers()`, toggle tick payload 후처리는 `apply_spell_modifiers()`가 담당한다.
+    - 향후 스킬 구현은 이 공통 runtime 계산 경로를 기준으로 진행한다.
+    - 새 mastery / buff / equipment 계산 규칙은 타입별 개별 구현보다 공통 runtime 계산 경로에 먼저 추가하고, 정말 필요한 type-specific 후처리만 각 캐스트 타입에 남긴다.
+  - 2026-04-03 구조 개선 후속 증분으로 proxy-active / runtime spell ↔ canonical skill 연결도 중앙 mapping 구조 기준으로 잠근다.
+    - source of truth는 `data/spells.json`의 `source_skill_id`와 `/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/scripts/autoload/game_database.gd`가 구성하는 forward / reverse mapping table이다.
+    - `GameState.get_skill_id_for_spell()`, `GameState.get_runtime_castable_hotbar_skill_id()`, hotbar/save normalization, admin assignment, cast 진입 전 정규화는 이 중앙 mapping을 먼저 읽는다.
+    - 이후 새 proxy-active / runtime spell 연결은 코드 상수 추가가 아니라 이 중앙 mapping 구조에 먼저 등록한다.
+    - 이후 스킬 구현은 공통 runtime 계산 경로와 함께 이 mapping 구조를 기준으로 진행한다.
+  - 2026-04-03 구조 개선 후속 증분으로 admin skill library도 runtime-castable 전체 기준의 data-driven catalog를 source of truth로 잠근다.
+    - source of truth는 `/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/scripts/autoload/game_database.gd`의 `get_runtime_castable_skill_catalog()`다.
+    - `/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/scripts/admin/admin_menu.gd`는 빈 슬롯 UI 항목만 별도로 붙이고, 실제 배치 가능한 스킬 목록은 이 catalog만 렌더링한다.
+    - canonical-only row는 admin 배치 대상에 직접 섞이지 않고, proxy-active row는 대응 runtime spell ID로만 노출한다.
+    - 이후 새 스킬의 admin 배치 가능 여부는 하드코딩 목록 추가가 아니라 중앙 mapping + runtime-castable 구조를 만족하는지로 결정한다.
+    - 이후 스킬 구현은 공통 runtime 계산 경로, 중앙 mapping 구조와 함께 이 admin/library 구조를 기준으로 진행한다.
+  - 2026-04-03 구조 개선 후속 증분으로 `skills.json / spells.json` 최소 validation도 구현 기준으로 잠근다.
+    - source of truth는 `/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/scripts/autoload/game_database.gd`의 `validate_skill_entry()`, `validate_spell_entry()`, `validate_skill_spell_link()`, `validate_spell_skill_link()`다.
+    - 로드 시점에 식별자/타입 필드, `skill_type` 최소 계약, runtime spell 기본 필드, proxy-active 연결 누락, spell school ↔ skill element drift를 먼저 검증한다.
+    - 이후 새 skill / spell / proxy 연결 추가 시 구현 완료 판정은 이 validation 통과를 전제로 한다.
+    - 이후 새 proxy-active / mastery / deploy / toggle 규칙을 추가하면 validation도 같은 턴에 함께 갱신한다.
+    - 이후 스킬 구현은 공통 runtime 계산 경로, 중앙 mapping 구조, admin/library 구조와 함께 이 validation 구조를 기준으로 진행한다.
+  - 2026-04-03 구조 개선 후속 증분으로 school 판정도 공통 resolver 기준으로 잠근다.
+    - source of truth는 `/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/scripts/autoload/game_state.gd`의 `resolve_runtime_school()`다.
+    - 우선순위는 `runtime spell row.school -> linked/canonical skill row.element -> linked/canonical skill row.school -> caller hint`다.
+    - mastery XP progression, school-specific mastery runtime modifier, runtime tooltip/runtime summary school 표기는 이 helper를 먼저 읽는다.
+    - school 충돌은 기존 `skills.json / spells.json` validation이 spell school ↔ skill element drift를 먼저 잡고, 런타임에서는 위 우선순위로 해석한다.
+    - 이후 새 mastery / deploy / toggle / proxy-active 구현은 개별 함수마다 school 규칙을 따로 넣지 않고 이 공통 school resolver를 기준으로 진행한다.
+  - 2026-04-03 hardening 증분으로 runtime scaling option 기본값도 공통 builder 기준으로 잠근다.
+    - source of truth는 `/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/scripts/autoload/game_state.gd`의 `build_active_spell_runtime_options()`와 `build_data_driven_skill_runtime_options()`다.
+    - `GameState.get_spell_runtime()`와 `scripts/player/spell_manager.gd`의 data-driven runtime builder는 이제 공통 stat helper에 넘기는 level / school / mastery / equipment scaling option 세트를 이 builder에서 먼저 읽는다.
+    - 이후 새 mastery / deploy / toggle / active scaling 규칙은 개별 call site에 딕셔너리를 덧붙이지 말고 이 공통 option builder에 먼저 반영한다.
+  - 2026-04-03 hardening 증분으로 data-driven deploy / toggle base runtime block도 공통 helper 기준으로 잠근다.
+    - source of truth는 `/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/scripts/autoload/game_state.gd`의 `build_data_driven_skill_base_runtime()`다.
+    - `scripts/player/spell_manager.gd`의 `_build_skill_runtime()`는 damage formula, base cooldown / duration / size, tick interval, knockback, milestone pierce, utility_effects의 초기 블록을 이 helper에서 먼저 읽는다.
+    - 이후 새 deploy / toggle runtime 기본 필드를 추가할 때는 `SpellManager` call site에 직접 딕셔너리를 늘리지 말고 이 base runtime helper를 먼저 갱신한다.
+  - 2026-04-03 hardening 후속 증분으로 data-driven deploy / toggle 최종 runtime 조립도 공통 entrypoint 기준으로 잠근다.
+    - source of truth는 `/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/scripts/autoload/game_state.gd`의 `get_data_driven_skill_runtime()`와 `get_data_driven_skill_mana_drain_per_tick()`다.
+    - `scripts/player/spell_manager.gd`의 `_build_skill_runtime()`와 toggle sustain cost helper는 이제 이 공통 entrypoint에 위임만 한다.
+    - 이후 새 deploy / toggle 후처리는 `SpellManager`에 직접 추가하지 말고 이 공통 runtime entrypoint를 먼저 갱신한다.
+  - 2026-04-03 hardening 다음 증분으로 deploy / toggle cast payload seed도 공통 helper 기준으로 잠근다.
+    - source of truth는 `/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/scripts/autoload/game_state.gd`의 `build_data_driven_combat_payload()`다.
+    - `scripts/player/spell_manager.gd`의 `_cast_deploy()`와 toggle tick payload path는 공통 payload 필드를 이 helper에서 먼저 읽고, 위치/타입별 후처리만 덧붙인다.
+    - 이후 새 deploy / toggle payload 필드는 `SpellManager` call site에 직접 딕셔너리를 늘리지 말고 이 공통 payload helper를 먼저 갱신한다.
+  - 2026-04-03 hardening 다음 증분으로 representative runtime payload contract test도 구현 기준으로 잠근다.
+    - representative coverage는 `fire_bolt` active, `plant_root_bind -> plant_vine_snare` deploy, `lightning_tempest_crown` toggle, `holy_healing_pulse -> holy_radiant_burst` proxy-active다.
+    - 이후 새 스킬 구현이나 payload 구조 변경은 내부 helper 수정만으로 완료로 보지 않고, 같은 턴에 representative payload contract test를 먼저 또는 함께 추가한다.
+    - 이후 새 active / deploy / toggle / proxy-active 규칙은 “payload에 어떤 필드가 최종 보장되는가”를 계약 테스트로 남기는 것을 기본 원칙으로 한다.
   - mastery / buff / deploy row의 effect / level scaling 상태를 `verified`까지 끌어올린다.
-  - `Phase 6` row key 유지 결론에 맞춰 save / UI / runtime 잔여 리스크를 재검토한다.
+  - `Phase 6` row key 유지 결론에 맞춘 save / UI / runtime 잔여 리스크 재검토와 hotbar/save hardening은 완료했다.
+  - 다음 후속 증분은 `arcane_magic_mastery` global modifier layer와 대표 proxy-active row의 effect 검증 확대다.
   - 필요하면 [current_runtime_baseline.md](/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/docs/implementation/baselines/current_runtime_baseline.md)와 tracker 검증 상태를 같은 턴에 동기화한다.
 
 ## 목적

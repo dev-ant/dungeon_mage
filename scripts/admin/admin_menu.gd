@@ -681,11 +681,8 @@ func _build_ui() -> void:
 
 
 func _build_skill_catalog() -> void:
-	skill_catalog = ["", "fire_bolt", "frost_nova", "volt_spear"]
-	for skill in GameDatabase.get_all_skills():
-		var skill_type := str(skill.get("skill_type", ""))
-		if skill_type in ["buff", "deploy", "toggle"]:
-			skill_catalog.append(str(skill.get("skill_id", "")))
+	skill_catalog = [""]
+	skill_catalog.append_array(GameDatabase.get_runtime_castable_skill_catalog())
 
 
 func _build_buff_catalog() -> void:
@@ -2605,7 +2602,7 @@ func _get_selected_skill_detail(skill_id: String) -> String:
 		return "Skill  (empty)"
 	var skill_data: Dictionary = GameDatabase.get_skill_data(skill_id)
 	if skill_data.is_empty():
-		var linked_skill_id := GameState.get_skill_id_for_spell(skill_id)
+		var linked_skill_id := GameDatabase.get_skill_id_for_runtime_spell(skill_id)
 		if linked_skill_id != "":
 			skill_data = GameDatabase.get_skill_data(linked_skill_id)
 	var circle_text := "?"

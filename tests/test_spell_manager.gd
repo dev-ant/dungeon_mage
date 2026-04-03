@@ -87,6 +87,20 @@ func _find_effect_sprite(root: Node2D, effect_id: String, effect_stage: String) 
 			return sprite
 	return null
 
+func _get_slot_action(manager, slot_index: int) -> String:
+	var bindings: Array = manager.get_slot_bindings()
+	if slot_index < 0 or slot_index >= bindings.size():
+		return ""
+	return str(bindings[slot_index].get("action", ""))
+
+func _assert_numeric_payload_field_matches(payload: Dictionary, expected: Dictionary, field: String, message: String) -> void:
+	assert_almost_eq(
+		float(payload.get(field, 0.0)),
+		float(expected.get(field, 0.0)),
+		0.0001,
+		message
+	)
+
 func test_spell_manager_starts_cooldown_after_cast() -> void:
 	var player = autofree(PLAYER_SCRIPT.new())
 	var manager = SPELL_MANAGER_SCRIPT.new()
@@ -122,6 +136,107 @@ func test_spell_manager_can_reassign_slot_and_persist_to_game_state() -> void:
 	var saved_bindings: Array = GameState.get_spell_hotbar()
 	assert_eq(str(saved_bindings[0].get("skill_id", "")), "volt_spear")
 
+
+func test_spell_manager_assignment_normalizes_canonical_active_rows_to_runtime_spell_ids() -> void:
+	var player = autofree(PLAYER_SCRIPT.new())
+	var manager = SPELL_MANAGER_SCRIPT.new()
+	manager.setup(player)
+	assert_true(manager.assign_skill_to_slot(0, "holy_healing_pulse"))
+	var bindings: Array = manager.get_slot_bindings()
+	assert_eq(str(bindings[0].get("skill_id", "")), "holy_radiant_burst")
+	var saved_bindings: Array = GameState.get_spell_hotbar()
+	assert_eq(str(saved_bindings[0].get("skill_id", "")), "holy_radiant_burst")
+
+
+func test_spell_manager_visible_slot_bindings_return_first_ten_slots_only() -> void:
+	var player = autofree(PLAYER_SCRIPT.new())
+	var manager = SPELL_MANAGER_SCRIPT.new()
+	manager.setup(player)
+	var visible_bindings: Array = manager.get_visible_slot_bindings()
+	assert_eq(
+		visible_bindings.size(),
+		GameState.VISIBLE_HOTBAR_SLOT_COUNT,
+		"spell manager visible bindings should expose only the first ten slots"
+	)
+	assert_eq(str(visible_bindings[0].get("label", "")), "Z")
+	assert_eq(str(visible_bindings[9].get("label", "")), "M")
+
+
+func test_spell_manager_attempt_cast_by_action_uses_visible_hotbar_only() -> void:
+	var player = autofree(PLAYER_SCRIPT.new())
+	var manager = SPELL_MANAGER_SCRIPT.new()
+	manager.setup(player)
+	GameState.mana = GameState.max_mana
+	assert_false(
+		manager.attempt_cast_by_action("buff_guard"),
+		"legacy hidden tail actions should not remain combat-castable through the primary input path"
+	)
+	assert_eq(GameState.active_buffs.size(), 0)
+	assert_true(manager.assign_skill_to_slot(0, "holy_mana_veil"))
+	assert_true(
+		manager.attempt_cast_by_action("spell_fire"),
+		"visible slot actions must still cast whatever skill is currently assigned to that visible slot"
+	)
+	assert_eq(GameState.active_buffs.size(), 1)
+
+
+func test_spell_manager_tooltip_data_contains_required_fields_for_assigned_slot() -> void:
+	var player = autofree(PLAYER_SCRIPT.new())
+	var manager = SPELL_MANAGER_SCRIPT.new()
+	manager.setup(player)
+	assert_true(manager.assign_skill_to_slot(0, "holy_mana_veil"))
+	var tooltip: Dictionary = manager.get_hotbar_slot_tooltip_data(0)
+	assert_eq(str(tooltip.get("label", "")), "Z")
+	assert_eq(str(tooltip.get("skill_id", "")), "holy_mana_veil")
+	assert_string_contains(str(tooltip.get("name", "")), "마나 베일")
+	assert_true(tooltip.has("cooldown"), "tooltip should expose cooldown")
+	assert_true(tooltip.has("cost"), "tooltip should expose mana cost")
+	assert_true(tooltip.has("description"), "tooltip should expose description")
+	assert_eq(str(tooltip.get("current_state", "")), "ready")
+	assert_eq(int(tooltip.get("level", 0)), GameState.get_skill_level("holy_mana_veil"))
+	assert_eq(int(tooltip.get("mastery", -1)), int(GameState.spell_mastery.get("holy_mana_veil", 0)))
+	assert_true(bool(tooltip.get("can_use", false)), "ready slot should be usable")
+
+
+func test_spell_manager_tooltip_school_reuses_common_runtime_school_resolver() -> void:
+	var player = autofree(PLAYER_SCRIPT.new())
+	var manager = SPELL_MANAGER_SCRIPT.new()
+	manager.setup(player)
+	var tooltip: Dictionary = manager.get_hotbar_slot_tooltip_data(8)
+	assert_eq(str(tooltip.get("skill_id", "")), "dark_void_bolt")
+	assert_eq(
+		str(tooltip.get("school", "")),
+		"dark",
+		"tooltip school must use the shared runtime school resolver for proxy-active rows"
+	)
+
+
+func test_spell_manager_tooltip_data_marks_empty_slot_as_empty_state() -> void:
+	var player = autofree(PLAYER_SCRIPT.new())
+	var manager = SPELL_MANAGER_SCRIPT.new()
+	manager.setup(player)
+	assert_true(manager.clear_slot(0))
+	var tooltip: Dictionary = manager.get_hotbar_slot_tooltip_data(0)
+	assert_eq(str(tooltip.get("skill_id", "")), "")
+	assert_eq(str(tooltip.get("current_state", "")), "empty")
+	assert_false(bool(tooltip.get("can_use", true)), "empty slot should be unusable")
+	assert_eq(str(tooltip.get("failure_reason", "")), "empty_slot")
+
+
+func test_spell_manager_can_swap_slots_and_refresh_bindings() -> void:
+	var player = autofree(PLAYER_SCRIPT.new())
+	var manager = SPELL_MANAGER_SCRIPT.new()
+	manager.setup(player)
+	var before_first: Dictionary = manager.get_slot_bindings()[0]
+	var before_second: Dictionary = manager.get_slot_bindings()[1]
+	assert_true(manager.swap_slots(0, 1))
+	var bindings: Array = manager.get_slot_bindings()
+	assert_eq(str(bindings[0].get("skill_id", "")), str(before_second.get("skill_id", "")))
+	assert_eq(str(bindings[1].get("skill_id", "")), str(before_first.get("skill_id", "")))
+	assert_eq(str(bindings[0].get("label", "")), str(before_first.get("label", "")))
+	assert_eq(str(bindings[1].get("label", "")), str(before_second.get("label", "")))
+
+
 func test_spell_manager_can_cast_deploy_skill_from_reassigned_slot() -> void:
 	var player = autofree(PLAYER_SCRIPT.new())
 	var manager = SPELL_MANAGER_SCRIPT.new()
@@ -135,6 +250,203 @@ func test_spell_manager_can_cast_deploy_skill_from_reassigned_slot() -> void:
 	assert_eq(str(payloads[0].get("school", "")), "earth")
 	assert_eq(float(payloads[0].get("knockback", 180.0)), 0.0, "Stone Spire deploy payload should not eject targets out of its pulse zone")
 	assert_eq(str(payloads[0].get("hitstop_mode", "")), "none", "Persistent deploy hits must not freeze the whole combat loop")
+
+func test_fire_bolt_hotbar_action_emits_active_payload_contract() -> void:
+	GameState.reset_progress_for_tests()
+	GameState.set_admin_ignore_cooldowns(true)
+	GameState.set_admin_infinite_mana(true)
+	assert_true(GameState.set_skill_level("fire_mastery", 10))
+	GameState.set_equipped_item("weapon", "weapon_ember_staff")
+	var player = autofree(PLAYER_SCRIPT.new())
+	player.global_position = Vector2(12, 6)
+	player.facing = 1
+	var manager = SPELL_MANAGER_SCRIPT.new()
+	manager.setup(player)
+	assert_true(manager.assign_skill_to_slot(0, "fire_bolt"))
+	var payloads: Array = []
+	manager.spell_cast.connect(func(payload: Dictionary) -> void: payloads.append(payload))
+	var runtime: Dictionary = GameState.get_spell_runtime("fire_bolt")
+	var action := _get_slot_action(manager, 0)
+	assert_true(manager.attempt_cast_by_action(action))
+	assert_eq(payloads.size(), 1)
+	var payload: Dictionary = payloads[0]
+	assert_eq(str(payload.get("spell_id", "")), "fire_bolt")
+	assert_eq(str(payload.get("school", "")), str(runtime.get("school", "")))
+	assert_eq(int(payload.get("damage", 0)), int(runtime.get("damage", 0)))
+	_assert_numeric_payload_field_matches(
+		payload,
+		runtime,
+		"cooldown",
+		"fire_bolt active payload must keep runtime cooldown after mastery/equipment scaling"
+	)
+	_assert_numeric_payload_field_matches(
+		payload,
+		runtime,
+		"speed",
+		"fire_bolt active payload must keep runtime projectile speed"
+	)
+	assert_eq(
+		payload.get("velocity", Vector2.ZERO),
+		Vector2(float(runtime.get("speed", 0.0)) * GameState.get_equipment_projectile_speed_multiplier(), 0.0),
+		"fire_bolt active payload must keep the final velocity contract from runtime speed and equipment speed multiplier"
+	)
+	assert_eq(str(payload.get("attack_effect_id", "")), "fire_bolt_attack")
+	assert_eq(str(payload.get("hit_effect_id", "")), "fire_bolt_hit")
+
+func test_common_runtime_stat_block_matches_deploy_runtime_builder() -> void:
+	GameState.reset_progress_for_tests()
+	var manager = SPELL_MANAGER_SCRIPT.new()
+	var skill_id := "earth_stone_spire"
+	var skill_data: Dictionary = GameDatabase.get_skill_data(skill_id)
+	var level: int = GameState.get_skill_level(skill_id)
+	var expected := GameState.get_data_driven_skill_runtime(skill_id, skill_data, level)
+	var actual := manager._build_skill_runtime(skill_id, skill_data)
+	assert_eq(
+		int(actual.get("damage", 0)),
+		int(expected.get("damage", 0)),
+		"deploy runtime damage must delegate to the shared data-driven runtime helper"
+	)
+	assert_eq(
+		float(actual.get("cooldown", 0.0)),
+		float(expected.get("cooldown", 0.0)),
+		"deploy runtime cooldown must delegate to the shared data-driven runtime helper"
+	)
+	assert_eq(
+		float(actual.get("duration", 0.0)),
+		float(expected.get("duration", 0.0)),
+		"deploy runtime duration must delegate to the shared data-driven runtime helper"
+	)
+	assert_eq(
+		float(actual.get("size", 0.0)),
+		float(expected.get("size", 0.0)),
+		"deploy runtime size must delegate to the shared data-driven runtime helper"
+	)
+	assert_eq(int(actual.get("pierce", -1)), 0)
+	assert_eq(str(actual.get("school", "")), "earth")
+
+
+func test_deploy_cast_payload_reuses_shared_data_driven_payload_helper() -> void:
+	GameState.reset_progress_for_tests()
+	GameState.set_admin_ignore_cooldowns(true)
+	GameState.set_admin_infinite_mana(true)
+	var player = autofree(PLAYER_SCRIPT.new())
+	player.global_position = Vector2(16, 8)
+	player.facing = 1
+	var manager = SPELL_MANAGER_SCRIPT.new()
+	manager.setup(player)
+	var payloads: Array = []
+	manager.spell_cast.connect(func(payload: Dictionary) -> void: payloads.append(payload))
+	var skill_id := "earth_stone_spire"
+	var skill_data: Dictionary = GameDatabase.get_skill_data(skill_id)
+	var runtime := GameState.apply_deploy_buff_modifiers(
+		GameState.get_data_driven_skill_runtime(skill_id, skill_data)
+	)
+	var expected_payload := GameState.build_data_driven_combat_payload(
+		skill_id,
+		runtime,
+		{
+			"position": player.global_position + Vector2(48 * player.facing, -4),
+			"target_count": int(skill_data.get("target_count_base", 0))
+			+ GameState.get_skill_milestone_runtime_bonus(
+				skill_data,
+				"target_count",
+				GameState.get_skill_level(skill_id)
+			),
+			"color": "#c8a56a",
+			"owner": player
+		}
+	)
+	assert_true(manager.attempt_cast(skill_id))
+	assert_eq(payloads.size(), 1)
+	assert_eq(payloads[0].get("position", Vector2.ZERO), expected_payload.get("position", Vector2.ZERO))
+	assert_eq(int(payloads[0].get("damage", 0)), int(expected_payload.get("damage", 0)))
+	assert_eq(float(payloads[0].get("size", 0.0)), float(expected_payload.get("size", 0.0)))
+	assert_eq(float(payloads[0].get("duration", 0.0)), float(expected_payload.get("duration", 0.0)))
+	assert_eq(int(payloads[0].get("target_count", 0)), int(expected_payload.get("target_count", 0)))
+	assert_eq(str(payloads[0].get("school", "")), str(expected_payload.get("school", "")))
+	assert_eq(str(payloads[0].get("color", "")), str(expected_payload.get("color", "")))
+
+func test_plant_root_bind_canonical_hotbar_action_emits_runtime_deploy_payload_contract() -> void:
+	GameState.reset_progress_for_tests()
+	GameState.set_admin_ignore_cooldowns(true)
+	GameState.set_admin_infinite_mana(true)
+	GameState.skill_level_data["plant_vine_snare"] = 30
+	var player = autofree(PLAYER_SCRIPT.new())
+	player.global_position = Vector2(18, 10)
+	player.facing = 1
+	var manager = SPELL_MANAGER_SCRIPT.new()
+	manager.setup(player)
+	assert_true(manager.assign_skill_to_slot(0, "plant_root_bind"))
+	assert_eq(str(manager.get_slot_bindings()[0].get("skill_id", "")), "plant_vine_snare")
+	var payloads: Array = []
+	manager.spell_cast.connect(func(payload: Dictionary) -> void: payloads.append(payload))
+	var skill_id := "plant_vine_snare"
+	var skill_data: Dictionary = GameDatabase.get_skill_data(skill_id)
+	var runtime := GameState.apply_deploy_buff_modifiers(
+		GameState.get_data_driven_skill_runtime(skill_id, skill_data)
+	)
+	var expected_payload := GameState.build_data_driven_combat_payload(
+		skill_id,
+		runtime,
+		{
+			"position": player.global_position + Vector2(48 * player.facing, -4),
+			"target_count": int(skill_data.get("target_count_base", 0))
+			+ GameState.get_skill_milestone_runtime_bonus(
+				skill_data,
+				"target_count",
+				GameState.get_skill_level(skill_id)
+			),
+			"color": "#3fa34d",
+			"owner": player
+		}
+	)
+	var action := _get_slot_action(manager, 0)
+	assert_true(manager.attempt_cast_by_action(action))
+	assert_eq(payloads.size(), 1)
+	var payload: Dictionary = payloads[0]
+	assert_eq(str(payload.get("spell_id", "")), "plant_vine_snare")
+	assert_eq(str(payload.get("school", "")), "plant")
+	assert_eq(int(payload.get("damage", 0)), int(expected_payload.get("damage", 0)))
+	_assert_numeric_payload_field_matches(
+		payload,
+		expected_payload,
+		"duration",
+		"plant_root_bind canonical deploy cast must keep runtime duration on the runtime payload"
+	)
+	_assert_numeric_payload_field_matches(
+		payload,
+		expected_payload,
+		"size",
+		"plant_root_bind canonical deploy cast must keep runtime size on the runtime payload"
+	)
+	assert_eq(int(payload.get("target_count", 0)), int(expected_payload.get("target_count", 0)))
+	var utility_effects: Array = payload.get("utility_effects", [])
+	assert_eq(str(utility_effects[0].get("type", "")), "root")
+
+
+func test_plant_mastery_level_30_applies_deploy_damage_cooldown_and_mana_through_shared_runtime_builder() -> void:
+	GameState.reset_progress_for_tests()
+	assert_true(GameState.set_skill_level("plant_mastery", 30))
+	var manager = SPELL_MANAGER_SCRIPT.new()
+	var skill_data: Dictionary = GameDatabase.get_skill_data("plant_vine_snare")
+	var runtime := manager._build_skill_runtime("plant_vine_snare", skill_data)
+	assert_eq(
+		int(runtime.get("damage", 0)),
+		11,
+		"plant deploy runtime damage must read plant_mastery through the shared runtime helper"
+	)
+	assert_almost_eq(
+		float(runtime.get("cooldown", 0.0)),
+		3.825,
+		0.0001,
+		"plant deploy runtime cooldown must read plant_mastery through the shared runtime helper"
+	)
+	assert_almost_eq(
+		GameState.get_skill_mana_cost("plant_vine_snare"),
+		13.2,
+		0.0001,
+		"plant deploy mana cost must read plant_mastery through the shared mana helper"
+	)
 
 func test_spell_manager_toggle_skill_emits_periodic_aura_and_can_turn_off() -> void:
 	var player = autofree(PLAYER_SCRIPT.new())
@@ -213,6 +525,49 @@ func test_toggle_skill_uses_data_driven_sustain_cost() -> void:
 	assert_gt(mana_spent, 15.0)
 	assert_lt(mana_spent, 17.5)
 
+func test_toggle_sustain_cost_reuses_common_scaled_mana_helper() -> void:
+	var manager = SPELL_MANAGER_SCRIPT.new()
+	var skill_data: Dictionary = GameDatabase.get_skill_data("dark_grave_echo")
+	var runtime_options := GameState.build_data_driven_skill_runtime_options(
+		"dark_grave_echo",
+		skill_data
+	)
+	var expected := GameState.get_data_driven_skill_mana_drain_per_tick(
+		"dark_grave_echo",
+		skill_data,
+		runtime_options
+	)
+	assert_eq(
+		manager._get_toggle_mana_drain_per_tick("dark_grave_echo", skill_data, runtime_options),
+		expected,
+		"toggle sustain mana must delegate to the shared data-driven mana helper"
+	)
+
+
+func test_dark_mastery_level_30_applies_toggle_damage_cooldown_and_sustain_mana_through_shared_runtime_builder() -> void:
+	GameState.reset_progress_for_tests()
+	assert_true(GameState.set_skill_level("dark_magic_mastery", 30))
+	var manager = SPELL_MANAGER_SCRIPT.new()
+	var skill_data: Dictionary = GameDatabase.get_skill_data("dark_grave_echo")
+	var runtime := manager._build_skill_runtime("dark_grave_echo", skill_data)
+	assert_eq(
+		int(runtime.get("damage", 0)),
+		19,
+		"dark toggle runtime damage must read dark mastery through the shared runtime helper"
+	)
+	assert_almost_eq(
+		float(runtime.get("cooldown", 0.0)),
+		0.85,
+		0.0001,
+		"dark toggle runtime cooldown must read dark mastery through the shared runtime helper"
+	)
+	assert_almost_eq(
+		float(runtime.get("mana_drain_per_tick", 0.0)),
+		2.64,
+		0.0001,
+		"dark toggle sustain mana must read dark mastery through the shared mana helper"
+	)
+
 func test_toggle_sustain_cost_scales_down_with_skill_level() -> void:
 	var player = autofree(PLAYER_SCRIPT.new())
 	var manager = SPELL_MANAGER_SCRIPT.new()
@@ -239,6 +594,120 @@ func test_glacial_dominion_toggle_emits_slow_utility_payload() -> void:
 	var utility_effects: Array = payloads[0].get("utility_effects", [])
 	assert_eq(str(utility_effects[0].get("type", "")), "slow")
 	assert_eq(str(payloads[0].get("hitstop_mode", "")), "none", "Toggle aura ticks must not trigger hitstop")
+
+
+func test_toggle_tick_payload_reuses_shared_data_driven_payload_helper() -> void:
+	GameState.reset_progress_for_tests()
+	GameState.set_admin_ignore_cooldowns(true)
+	GameState.set_admin_infinite_mana(true)
+	var player = autofree(PLAYER_SCRIPT.new())
+	player.global_position = Vector2(24, 12)
+	var manager = SPELL_MANAGER_SCRIPT.new()
+	manager.setup(player)
+	var payloads: Array = []
+	manager.spell_cast.connect(func(payload: Dictionary) -> void: payloads.append(payload))
+	var skill_id := "dark_grave_echo"
+	assert_true(manager.attempt_cast(skill_id))
+	var toggle_state: Dictionary = manager.active_toggles.get(skill_id, {}).duplicate(true)
+	var expected_payload := GameState.build_data_driven_combat_payload(
+		skill_id,
+		toggle_state,
+		{
+			"position": player.global_position + Vector2(0, -10),
+			"knockback": 70.0,
+			"duration": 0.12,
+			"color": str(toggle_state.get("color", "#8f77d8")),
+			"owner": player
+		}
+	)
+	manager.tick(0.2)
+	assert_true(payloads.size() >= 1)
+	assert_eq(payloads[0].get("position", Vector2.ZERO), expected_payload.get("position", Vector2.ZERO))
+	assert_eq(int(payloads[0].get("damage", 0)), int(expected_payload.get("damage", 0)))
+	assert_eq(int(payloads[0].get("pierce", 0)), int(expected_payload.get("pierce", 0)))
+	assert_eq(float(payloads[0].get("size", 0.0)), float(expected_payload.get("size", 0.0)))
+	assert_eq(str(payloads[0].get("school", "")), str(expected_payload.get("school", "")))
+	assert_eq(str(payloads[0].get("color", "")), str(expected_payload.get("color", "")))
+
+func test_lightning_tempest_crown_hotbar_action_emits_runtime_toggle_payload_contract() -> void:
+	GameState.reset_progress_for_tests()
+	GameState.set_admin_ignore_cooldowns(true)
+	GameState.set_admin_infinite_mana(true)
+	GameState.skill_level_data["lightning_tempest_crown"] = 24
+	var player = autofree(PLAYER_SCRIPT.new())
+	player.global_position = Vector2(8, -2)
+	var manager = SPELL_MANAGER_SCRIPT.new()
+	manager.setup(player)
+	assert_true(manager.assign_skill_to_slot(2, "lightning_tempest_crown"))
+	var payloads: Array = []
+	manager.spell_cast.connect(func(payload: Dictionary) -> void: payloads.append(payload))
+	var action := _get_slot_action(manager, 2)
+	assert_true(manager.attempt_cast_by_action(action))
+	var toggle_state: Dictionary = manager.active_toggles.get("lightning_tempest_crown", {}).duplicate(true)
+	var expected_payload := GameState.build_data_driven_combat_payload(
+		"lightning_tempest_crown",
+		toggle_state,
+		{
+			"position": player.global_position + Vector2(0, -10),
+			"knockback": 70.0,
+			"duration": 0.12,
+			"color": str(toggle_state.get("color", "#f0d44f")),
+			"owner": player
+		}
+	)
+	manager.tick(0.2)
+	assert_true(payloads.size() >= 1)
+	var payload: Dictionary = payloads[0]
+	assert_eq(str(payload.get("spell_id", "")), "lightning_tempest_crown")
+	assert_eq(str(payload.get("school", "")), "lightning")
+	assert_eq(int(payload.get("damage", 0)), int(expected_payload.get("damage", 0)))
+	assert_eq(int(payload.get("pierce", 0)), int(expected_payload.get("pierce", 0)))
+	_assert_numeric_payload_field_matches(
+		payload,
+		expected_payload,
+		"size",
+		"lightning_tempest_crown toggle payload must keep runtime size"
+	)
+	_assert_numeric_payload_field_matches(
+		payload,
+		expected_payload,
+		"duration",
+		"lightning_tempest_crown toggle payload must keep runtime tick duration override"
+	)
+
+func test_holy_healing_pulse_canonical_hotbar_action_emits_runtime_active_payload_contract() -> void:
+	GameState.reset_progress_for_tests()
+	GameState.set_admin_ignore_cooldowns(true)
+	GameState.set_admin_infinite_mana(true)
+	var player = autofree(PLAYER_SCRIPT.new())
+	player.global_position = Vector2(20, 4)
+	player.facing = 1
+	var manager = SPELL_MANAGER_SCRIPT.new()
+	manager.setup(player)
+	assert_true(manager.assign_skill_to_slot(0, "holy_healing_pulse"))
+	assert_eq(str(manager.get_slot_bindings()[0].get("skill_id", "")), "holy_radiant_burst")
+	var runtime: Dictionary = GameState.get_spell_runtime("holy_radiant_burst")
+	var payloads: Array = []
+	manager.spell_cast.connect(func(payload: Dictionary) -> void: payloads.append(payload))
+	var action := _get_slot_action(manager, 0)
+	assert_true(manager.attempt_cast_by_action(action))
+	assert_eq(payloads.size(), 1)
+	var payload: Dictionary = payloads[0]
+	assert_eq(str(payload.get("spell_id", "")), "holy_radiant_burst")
+	assert_eq(str(payload.get("school", "")), str(runtime.get("school", "")))
+	assert_eq(int(payload.get("damage", 0)), int(runtime.get("damage", 0)))
+	_assert_numeric_payload_field_matches(
+		payload,
+		runtime,
+		"cooldown",
+		"holy_healing_pulse canonical input must keep runtime cooldown after proxy normalization"
+	)
+	_assert_numeric_payload_field_matches(
+		payload,
+		runtime,
+		"speed",
+		"holy_healing_pulse canonical input must keep runtime projectile speed after proxy normalization"
+	)
 
 
 func test_earth_tremor_active_payload_uses_area_burst_hitstop_policy() -> void:

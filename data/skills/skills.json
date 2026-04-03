@@ -42,7 +42,7 @@
       "passive_family": "mastery",
       "applies_to_school": "elemental",
       "applies_to_element": "fire",
-      "final_multiplier_per_level": 0.004,
+      "final_multiplier_per_level": 0.05,
       "threshold_bonuses": [
         { "level": 5, "effect": "mana_cost_reduction", "value": 0.02 },
         { "level": 10, "effect": "cooldown_reduction", "value": 0.03 },

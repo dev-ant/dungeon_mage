@@ -1,6 +1,7 @@
 {
   "earth_tremor": {
     "id": "earth_tremor",
+    "source_skill_id": "earth_terra_break",
     "name": "Tremor",
     "school": "earth",
     "color": "#a0764a",
@@ -47,6 +48,7 @@
   },
   "holy_radiant_burst": {
     "id": "holy_radiant_burst",
+    "source_skill_id": "holy_healing_pulse",
     "name": "Radiant Burst",
     "school": "holy",
     "color": "#fff4a0",
@@ -102,6 +104,7 @@
   },
   "fire_bolt": {
     "id": "fire_bolt",
+    "source_skill_id": "fire_ember_dart",
     "name": "파이어 볼트",
     "school": "fire",
     "color": "#ff8f45",
@@ -120,6 +123,7 @@
   },
   "frost_nova": {
     "id": "frost_nova",
+    "source_skill_id": "ice_frost_needle",
     "name": "Frost Nova",
     "school": "ice",
     "color": "#8cecff",
@@ -146,6 +150,7 @@
   },
   "volt_spear": {
     "id": "volt_spear",
+    "source_skill_id": "lightning_thunder_lance",
     "name": "Volt Spear",
     "school": "lightning",
     "color": "#f7ef6a",
@@ -165,6 +170,7 @@
   },
   "dark_void_bolt": {
     "id": "dark_void_bolt",
+    "source_skill_id": "dark_abyss_gate",
     "name": "Void Bolt",
     "school": "dark",
     "color": "#7c3aed",
