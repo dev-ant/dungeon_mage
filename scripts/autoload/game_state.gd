@@ -554,6 +554,9 @@ func damage(amount: int, school: String = "") -> void:
 			push_message("Prismatic barrier absorbs the impact.", 0.8)
 		if combo_barrier <= 0.0 and combo_barrier_combo_id == "combo_prismatic_guard":
 			push_message("Prismatic Guard shatters in a sharp mana burst.", 1.2)
+			var barrier_break_payload := _build_prismatic_guard_break_payload()
+			if not barrier_break_payload.is_empty():
+				_emit_combo_effect(barrier_break_payload)
 	if reduced_amount <= 0:
 		stats_changed.emit()
 		return
@@ -1113,7 +1116,7 @@ func register_skill_damage(spell_id: String, amount: float) -> void:
 	if mastery_id != "":
 		_add_skill_experience(mastery_id, dealt)
 	if ashen_rite_active:
-		ash_stacks = min(ash_stacks + 1, 20)
+		ash_stacks = min(ash_stacks + 1, _get_ashen_rite_stack_cap())
 	spell_mastery[spell_id] = int(round(float(skill_experience.get(linked_skill_id, 0.0))))
 	_sync_runtime_spell_level(spell_id)
 	stats_changed.emit()
@@ -2487,28 +2490,16 @@ func _tick_buff_runtime(delta: float) -> void:
 		soul_dominion_aftershock_timer = maxf(soul_dominion_aftershock_timer - delta, 0.0)
 	if funeral_bloom_icd_timer > 0.0:
 		funeral_bloom_icd_timer = maxf(funeral_bloom_icd_timer - delta, 0.0)
-	var has_ash_burst := ashen_rite_active
-	if not has_ash_burst:
-		for _effect in _collect_active_effects():
-			if (
-				str(_effect.get("stat", "")) == "ash_residue_burst"
-				and int(_effect.get("value", 0)) > 0
-			):
-				has_ash_burst = true
-				break
+	var has_ash_burst := ashen_rite_active or _has_active_buff_effect_enabled(
+		"dark_throne_of_ash", "ash_residue_burst"
+	)
 	if has_ash_burst:
 		ash_residue_timer = max(ash_residue_timer - delta, 0.0)
 		if ash_residue_timer <= 0.0:
-			ash_residue_timer = 1.25
-			_emit_combo_effect(
-				{
-					"effect_id": "ash_residue_burst",
-					"damage": 16 + ash_stacks * 2,
-					"radius": 54.0,
-					"school": "fire",
-					"color": "#ff9a54"
-				}
-			)
+			ash_residue_timer = _get_ash_residue_interval()
+			var ash_residue_payload := _build_ash_residue_payload()
+			if not ash_residue_payload.is_empty():
+				_emit_combo_effect(ash_residue_payload)
 	_tick_active_buff_drains(delta)
 	_refresh_combo_runtime()
 	if not expired.is_empty():
@@ -2631,6 +2622,50 @@ func _expire_buff(buff: Dictionary) -> void:
 		active_penalties.append(penalty)
 
 
+func _apply_combo_penalties(raw_penalties: Variant) -> void:
+	if typeof(raw_penalties) != TYPE_ARRAY:
+		return
+	var penalties: Array = raw_penalties
+	for raw_penalty in penalties:
+		if typeof(raw_penalty) != TYPE_DICTIONARY:
+			continue
+		var penalty: Dictionary = raw_penalty.duplicate(true)
+		var stat_name := str(penalty.get("stat", ""))
+		var duration := float(penalty.get("duration", 0.0))
+		if (
+			stat_name == "mana_percent"
+			and str(penalty.get("mode", "")) == "set"
+			and duration <= 0.0
+		):
+			mana = clampf(max_mana * float(penalty.get("value", 1.0)), 0.0, max_mana)
+			continue
+		if duration > 0.0:
+			penalty["remaining"] = duration
+			active_penalties.append(penalty)
+
+
+func _build_ashen_rite_aftermath_message(raw_penalties: Variant) -> String:
+	var guard_break_duration := 0.0
+	var recast_lock_duration := 0.0
+	if typeof(raw_penalties) == TYPE_ARRAY:
+		for raw_penalty in raw_penalties:
+			if typeof(raw_penalty) != TYPE_DICTIONARY:
+				continue
+			var penalty: Dictionary = raw_penalty
+			var stat_name := str(penalty.get("stat", ""))
+			var duration := float(penalty.get("duration", 0.0))
+			if stat_name == "defense_multiplier":
+				guard_break_duration = max(guard_break_duration, duration)
+			elif stat_name == "ritual_recast_lock":
+				recast_lock_duration = max(recast_lock_duration, duration)
+	var parts: Array[String] = ["The Ashen Rite consumes your reserves."]
+	if guard_break_duration > 0.0:
+		parts.append("Defense broken for %.0fs." % guard_break_duration)
+	if recast_lock_duration > 0.0:
+		parts.append("Recasting locked for %.0fs." % recast_lock_duration)
+	return " ".join(parts)
+
+
 func _collect_active_effects() -> Array:
 	var effects: Array = []
 	for buff in active_buffs:
@@ -2642,6 +2677,72 @@ func _collect_active_effects() -> Array:
 	for penalty in active_penalties:
 		effects.append(penalty)
 	return effects
+
+
+func _find_active_buff_effect(skill_id: String, stat_name: String) -> Dictionary:
+	for raw_buff in active_buffs:
+		if typeof(raw_buff) != TYPE_DICTIONARY:
+			continue
+		var buff: Dictionary = raw_buff
+		if str(buff.get("skill_id", "")) != skill_id:
+			continue
+		for raw_effect in buff.get("effects", []):
+			if typeof(raw_effect) != TYPE_DICTIONARY:
+				continue
+			var effect: Dictionary = raw_effect
+			if str(effect.get("stat", "")).strip_edges() == stat_name:
+				return effect.duplicate(true)
+	return {}
+
+
+func _get_active_buff_effect_value(skill_id: String, stat_name: String) -> Variant:
+	var effect := _find_active_buff_effect(skill_id, stat_name)
+	if effect.is_empty():
+		return null
+	return effect.get("value", null)
+
+
+func _has_active_buff_effect_enabled(skill_id: String, stat_name: String) -> bool:
+	var effect := _find_active_buff_effect(skill_id, stat_name)
+	if effect.is_empty():
+		return false
+	return int(effect.get("value", 0)) > 0
+
+
+func _build_active_buff_secondary_effect_payload(
+	skill_id: String, payload_prefix: String, base_damage: float
+) -> Dictionary:
+	var effect_id_value: Variant = _get_active_buff_effect_value(
+		skill_id, "%s_effect_id" % payload_prefix
+	)
+	var school_value: Variant = _get_active_buff_effect_value(skill_id, "%s_school" % payload_prefix)
+	var damage_ratio_value: Variant = _get_active_buff_effect_value(
+		skill_id, "%s_damage_ratio" % payload_prefix
+	)
+	var radius_value: Variant = _get_active_buff_effect_value(skill_id, "%s_radius" % payload_prefix)
+	var color_value: Variant = _get_active_buff_effect_value(skill_id, "%s_color" % payload_prefix)
+	if (
+		typeof(effect_id_value) != TYPE_STRING
+		or str(effect_id_value).strip_edges().is_empty()
+		or typeof(school_value) != TYPE_STRING
+		or str(school_value).strip_edges().is_empty()
+		or typeof(color_value) != TYPE_STRING
+		or str(color_value).strip_edges().is_empty()
+	):
+		return {}
+	if typeof(damage_ratio_value) != TYPE_INT and typeof(damage_ratio_value) != TYPE_FLOAT:
+		return {}
+	if typeof(radius_value) != TYPE_INT and typeof(radius_value) != TYPE_FLOAT:
+		return {}
+	var school := str(school_value).strip_edges()
+	return {
+		"effect_id": str(effect_id_value).strip_edges(),
+		"school": school,
+		"damage_school": school,
+		"damage": int(round(base_damage * float(damage_ratio_value))),
+		"radius": float(radius_value),
+		"color": str(color_value).strip_edges()
+	}
 
 
 func _get_penalty_remaining(stat_name: String) -> float:
@@ -2711,9 +2812,11 @@ func _refresh_combo_runtime() -> void:
 			time_combo_found = true
 			break
 	if time_combo_found and not time_collapse_active:
-		time_collapse_active = true
-		time_collapse_charges = 3
-		push_message("Time Collapse opens a brief overclocked casting window.", 1.2)
+		var opening_charges := _get_time_collapse_charge_count()
+		if opening_charges > 0:
+			time_collapse_active = true
+			time_collapse_charges = opening_charges
+			push_message("Time Collapse opens a brief overclocked casting window.", 1.2)
 	elif not time_combo_found:
 		time_collapse_active = false
 		time_collapse_charges = 0
@@ -2746,31 +2849,17 @@ func _refresh_combo_runtime() -> void:
 	if ashen_found and not ashen_rite_active:
 		ashen_rite_active = true
 		ash_stacks = 0
-		ash_residue_timer = 1.25
+		ash_residue_timer = _get_ash_residue_interval()
 		push_message("Ashen Rite begins. Spell impacts now feed the ritual.", 1.2)
 	elif not ashen_found and ashen_rite_active:
 		if ash_stacks > 0:
-			_emit_combo_effect(
-				{
-					"effect_id": "ash_detonation",
-					"damage": 24 + ash_stacks * 7,
-					"radius": 68.0 + ash_stacks * 3.0,
-					"school": "fire",
-					"color": "#ff7446",
-					"stacks": ash_stacks
-				}
-			)
-		mana = 0.0
-		active_penalties.append(
-			{"stat": "defense_multiplier", "mode": "mul", "value": 0.75, "remaining": 10.0}
-		)
-		active_penalties.append(
-			{"stat": "ritual_recast_lock", "mode": "set", "value": 1, "remaining": 6.0}
-		)
-		push_message(
-			"The Ashen Rite consumes your reserves. Defense broken for 10s, recasting locked for 6s.",
-			2.0
-		)
+			var end_payload := _build_ashen_rite_end_payload()
+			if not end_payload.is_empty():
+				_emit_combo_effect(end_payload)
+		var ashen_combo := GameDatabase.get_buff_combo("combo_ashen_rite")
+		var penalties: Variant = ashen_combo.get("penalties", [])
+		_apply_combo_penalties(penalties)
+		push_message(_build_ashen_rite_aftermath_message(penalties), 2.0)
 		ashen_rite_active = false
 		ash_stacks = 0
 		ash_residue_timer = 0.0
@@ -2886,19 +2975,178 @@ func notify_enemy_killed() -> void:
 		stats_changed.emit()
 
 
+func _find_combo_trigger_rule(combo_id: String, event_name: String) -> Dictionary:
+	var combo := GameDatabase.get_buff_combo(combo_id)
+	if combo.is_empty():
+		return {}
+	for raw_rule in combo.get("trigger_rules", []):
+		if typeof(raw_rule) != TYPE_DICTIONARY:
+			continue
+		var rule: Dictionary = raw_rule
+		if str(rule.get("event", "")).strip_edges() == event_name:
+			return rule.duplicate(true)
+	return {}
+
+
+func _find_combo_applied_effect(combo_id: String, stat_name: String) -> Dictionary:
+	var combo := GameDatabase.get_buff_combo(combo_id)
+	if combo.is_empty():
+		return {}
+	for raw_effect in combo.get("applied_effects", []):
+		if typeof(raw_effect) != TYPE_DICTIONARY:
+			continue
+		var effect: Dictionary = raw_effect
+		if str(effect.get("stat", "")).strip_edges() == stat_name:
+			return effect.duplicate(true)
+	return {}
+
+
+func _get_combo_applied_effect_value(combo_id: String, stat_name: String, fallback: Variant) -> Variant:
+	var combo_effect := _find_combo_applied_effect(combo_id, stat_name)
+	if combo_effect.is_empty():
+		return fallback
+	return combo_effect.get("value", fallback)
+
+
+func _get_time_collapse_charge_count() -> int:
+	var charge_value: Variant = _get_combo_applied_effect_value(
+		"combo_time_collapse", "discounted_cast_charges", 0
+	)
+	if typeof(charge_value) != TYPE_INT and typeof(charge_value) != TYPE_FLOAT:
+		return 0
+	return maxi(int(round(float(charge_value))), 1)
+
+
+func _get_ashen_rite_stack_cap() -> int:
+	var trigger_rule := _find_combo_trigger_rule("combo_ashen_rite", "on_spell_hit")
+	if trigger_rule.is_empty():
+		return 20
+	return max(int(trigger_rule.get("max_stacks", 20)), 1)
+
+
+func _get_ash_residue_interval() -> float:
+	for effect in _collect_active_effects():
+		if str(effect.get("stat", "")) == "ash_residue_interval":
+			return max(float(effect.get("value", 1.25)), 0.05)
+	var combo_effect := _find_combo_applied_effect("combo_ashen_rite", "ash_residue_interval")
+	if combo_effect.is_empty():
+		return 1.25
+	return max(float(combo_effect.get("value", 1.25)), 0.05)
+
+
+func _get_ash_residue_effect_value(stat_name: String, fallback: Variant) -> Variant:
+	return _get_combo_applied_effect_value("combo_ashen_rite", stat_name, fallback)
+
+
+func _build_ash_residue_payload() -> Dictionary:
+	var effect_id_value: Variant = _get_ash_residue_effect_value("ash_residue_effect_id", null)
+	var school_value: Variant = _get_ash_residue_effect_value("ash_residue_school", null)
+	var damage_value: Variant = _get_ash_residue_effect_value("ash_residue_damage", null)
+	var damage_per_stack_value: Variant = _get_ash_residue_effect_value("ash_residue_damage_per_stack", null)
+	var radius_value: Variant = _get_ash_residue_effect_value("ash_residue_radius", null)
+	var color_value: Variant = _get_ash_residue_effect_value("ash_residue_color", null)
+	if (
+		typeof(effect_id_value) != TYPE_STRING
+		or str(effect_id_value).strip_edges().is_empty()
+		or typeof(school_value) != TYPE_STRING
+		or str(school_value).strip_edges().is_empty()
+		or typeof(color_value) != TYPE_STRING
+		or str(color_value).strip_edges().is_empty()
+	):
+		return {}
+	if (
+		(typeof(damage_value) != TYPE_INT and typeof(damage_value) != TYPE_FLOAT)
+		or (typeof(damage_per_stack_value) != TYPE_INT and typeof(damage_per_stack_value) != TYPE_FLOAT)
+		or (typeof(radius_value) != TYPE_INT and typeof(radius_value) != TYPE_FLOAT)
+	):
+		return {}
+	var effect_id := str(effect_id_value).strip_edges()
+	var school := str(school_value).strip_edges()
+	var damage := float(damage_value)
+	var damage_per_stack := float(damage_per_stack_value)
+	return {
+		"effect_id": effect_id,
+		"damage": damage + ash_stacks * damage_per_stack,
+		"radius": float(radius_value),
+		"school": school,
+		"damage_school": school,
+		"color": str(color_value).strip_edges()
+	}
+
+
+func _build_ashen_rite_end_payload() -> Dictionary:
+	var end_trigger_rule := _find_combo_trigger_rule("combo_ashen_rite", "on_combo_end")
+	if end_trigger_rule.is_empty():
+		return {}
+	var effect_id := str(end_trigger_rule.get("spawn_effect", "")).strip_edges()
+	var school := str(end_trigger_rule.get("damage_school", "")).strip_edges()
+	var color := str(end_trigger_rule.get("color", "")).strip_edges()
+	if effect_id.is_empty() or school.is_empty() or color.is_empty():
+		return {}
+	for field_name in ["damage", "damage_per_stack", "radius", "radius_per_stack"]:
+		var field_value: Variant = end_trigger_rule.get(field_name, null)
+		if typeof(field_value) != TYPE_INT and typeof(field_value) != TYPE_FLOAT:
+			return {}
+	return {
+		"effect_id": effect_id,
+		"damage": float(end_trigger_rule.get("damage", 0.0))
+			+ ash_stacks * float(end_trigger_rule.get("damage_per_stack", 0.0)),
+		"radius": float(end_trigger_rule.get("radius", 0.0))
+			+ ash_stacks * float(end_trigger_rule.get("radius_per_stack", 0.0)),
+		"school": school,
+		"damage_school": school,
+		"color": color,
+		"stacks": ash_stacks
+	}
+
+
+func _build_prismatic_guard_break_payload() -> Dictionary:
+	var trigger_rule := _find_combo_trigger_rule("combo_prismatic_guard", "on_barrier_break")
+	if trigger_rule.is_empty():
+		return {}
+	var effect_id := str(trigger_rule.get("spawn_effect", "")).strip_edges()
+	var radius_value: Variant = trigger_rule.get("radius", null)
+	if effect_id.is_empty():
+		return {}
+	if typeof(radius_value) != TYPE_INT and typeof(radius_value) != TYPE_FLOAT:
+		return {}
+	return {
+		"effect_id": effect_id,
+		"radius": float(radius_value)
+	}
+
+
 func notify_deploy_kill() -> void:
 	if not funeral_bloom_active:
 		return
 	if funeral_bloom_icd_timer > 0.0:
 		return
-	funeral_bloom_icd_timer = 1.5
+	var combo := GameDatabase.get_buff_combo("combo_funeral_bloom")
+	var trigger_rule := _find_combo_trigger_rule("combo_funeral_bloom", "on_deploy_kill")
+	if combo.is_empty() or trigger_rule.is_empty():
+		return
+	var effect_id := str(trigger_rule.get("spawn_effect", "")).strip_edges()
+	var damage_school := str(trigger_rule.get("damage_school", "")).strip_edges()
+	var apply_status := str(trigger_rule.get("apply_status", "")).strip_edges()
+	var color := str(trigger_rule.get("color", "")).strip_edges()
+	var radius_value: Variant = trigger_rule.get("radius", null)
+	if (
+		effect_id.is_empty()
+		or damage_school.is_empty()
+		or apply_status.is_empty()
+		or color.is_empty()
+		or (typeof(radius_value) != TYPE_INT and typeof(radius_value) != TYPE_FLOAT)
+	):
+		return
+	funeral_bloom_icd_timer = float(combo.get("internal_cooldown", 0.0))
 	_emit_combo_effect(
 		{
-			"effect_id": "corruption_burst",
-			"radius": 96.0,
-			"damage_school": "dark",
-			"apply_status": "snare",
-			"color": "#6a1d8a"
+			"effect_id": effect_id,
+			"radius": float(radius_value),
+			"school": damage_school,
+			"damage_school": damage_school,
+			"apply_status": apply_status,
+			"color": color
 		}
 	)
 
@@ -2911,37 +3159,27 @@ func _emit_combo_effect(payload: Dictionary) -> void:
 func apply_spell_modifiers(data: Dictionary) -> Dictionary:
 	data = _apply_buff_runtime_modifiers(data)
 	if str(data.get("school", "")) == "lightning":
-		for effect in _collect_active_effects():
-			if (
-				str(effect.get("stat", "")) == "extra_lightning_ping"
-				and int(effect.get("value", 0)) > 0
-			):
-				_emit_combo_effect(
-					{
-						"effect_id": "lightning_ping",
-						"school": "lightning",
-						"damage": int(round(float(data.get("damage", 10)) * 0.45)),
-						"radius": 52.0,
-						"color": "#a8c8ff"
-					}
-				)
-				break
+		var lightning_ping_trigger := _find_active_buff_effect(
+			"lightning_conductive_surge", "extra_lightning_ping"
+		)
+		if int(lightning_ping_trigger.get("value", 0)) > 0:
+			var lightning_ping_payload := _build_active_buff_secondary_effect_payload(
+				"lightning_conductive_surge",
+				"lightning_ping",
+				float(data.get("damage", 0.0))
+			)
+			if not lightning_ping_payload.is_empty():
+				_emit_combo_effect(lightning_ping_payload)
 	if str(data.get("school", "")) == "ice":
-		for effect in _collect_active_effects():
-			if (
-				str(effect.get("stat", "")) == "ice_reflect_wave"
-				and int(effect.get("value", 0)) > 0
-			):
-				_emit_combo_effect(
-					{
-						"effect_id": "ice_reflect_wave",
-						"school": "ice",
-						"damage": int(round(float(data.get("damage", 10)) * 0.35)),
-						"radius": 60.0,
-						"color": "#b8e8ff"
-					}
-				)
-				break
+		var ice_reflect_trigger := _find_active_buff_effect("ice_frostblood_ward", "ice_reflect_wave")
+		if int(ice_reflect_trigger.get("value", 0)) > 0:
+			var ice_reflect_payload := _build_active_buff_secondary_effect_payload(
+				"ice_frostblood_ward",
+				"ice_reflect_wave",
+				float(data.get("damage", 0.0))
+			)
+			if not ice_reflect_payload.is_empty():
+				_emit_combo_effect(ice_reflect_payload)
 	return data
 
 

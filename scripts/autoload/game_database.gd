@@ -10,9 +10,12 @@ var runtime_spell_to_skill_id: Dictionary = {}
 var skill_to_runtime_spell_id: Dictionary = {}
 var skill_to_runtime_spell_ids: Dictionary = {}
 var skill_validation_errors: Array[String] = []
+var skill_validation_warnings: Array[String] = []
 var spell_validation_errors: Array[String] = []
 var buff_combos: Array = []
 var buff_combo_by_id: Dictionary = {}
+var buff_combo_validation_errors: Array[String] = []
+var buff_combo_validation_warnings: Array[String] = []
 var equipment_catalog: Array = []
 var equipment_by_id: Dictionary = {}
 var enemy_catalog: Array = []
@@ -106,23 +109,155 @@ const VALID_SKILL_ELEMENTS := [
 	"plant",
 	"dark",
 	"holy",
+	"arcane",
+	"none"
+]
+const VALID_RUNTIME_SPELL_SCHOOLS := [
+	"fire",
+	"water",
+	"ice",
+	"lightning",
+	"wind",
+	"earth",
+	"plant",
+	"dark",
+	"holy",
 	"arcane"
+]
+const VALID_SKILL_UNLOCK_STATES := ["starter", "story", "boss", "record", "late_game"]
+const VALID_SKILL_HIT_SHAPES := ["projectile", "line", "cone", "circle", "aura", "wall"]
+const VALID_BUFF_CATEGORIES := ["defense", "offense", "tempo", "ritual", "utility"]
+const VALID_STACK_RULE_IDS := [
+	"default_diminishing_buff",
+	"heavy_diminishing_buff",
+	"ritual_single_focus"
+]
+const VALID_BUFF_COMBO_TYPES := ["sustain", "instant", "trigger", "ritual"]
+const VALID_BUFF_COMBO_EFFECT_MODES := ["set", "add", "mul"]
+const VALID_BUFF_COMBO_TRIGGER_EVENTS := [
+	"on_barrier_break",
+	"on_deploy_kill",
+	"on_spell_hit",
+	"on_combo_end"
+]
+const VALID_BUFF_COMBO_STACK_KEYS := ["ash"]
+const VALID_BUFF_COMBO_APPLY_STATUS_TAGS := ["snare"]
+const VALID_BUFF_COMBO_EFFECT_TAGS := [
+	"aftercast_cut",
+	"ash_stack",
+	"cast_speed_up",
+	"chain_clear",
+	"chain_up",
+	"cheap_first_casts",
+	"dash_cast",
+	"deploy_kill_burst",
+	"ending_burst",
+	"final_damage_up",
+	"fire_dark_finisher",
+	"poise_ignore",
+	"shield",
+	"shockwave",
+	"snare"
+]
+const VALID_SKILL_ROLE_TAGS := [
+	"aoe",
+	"arcane",
+	"aura",
+	"auto_strike",
+	"bind",
+	"boss_burst",
+	"burst",
+	"burst_window",
+	"cast_speed",
+	"chain",
+	"circle",
+	"cleanse",
+	"cone",
+	"control",
+	"curse",
+	"dark",
+	"defense",
+	"deploy",
+	"dot",
+	"drain",
+	"earth",
+	"finisher",
+	"fire",
+	"fire_dark",
+	"fortress",
+	"global",
+	"heal",
+	"heavy",
+	"ice",
+	"lightning",
+	"line",
+	"main_deploy",
+	"mastery",
+	"melee",
+	"mob_clear",
+	"mobility",
+	"offense",
+	"pierce",
+	"plant",
+	"poke",
+	"projectile",
+	"pull",
+	"push",
+	"reflect",
+	"resist",
+	"ritual",
+	"rule_break",
+	"single_target",
+	"slow",
+	"soft_cc",
+	"stability",
+	"starter",
+	"summon",
+	"super_armor",
+	"tempo",
+	"universal",
+	"utility",
+	"wall",
+	"water",
+	"wind"
+]
+const VALID_SKILL_GROWTH_TRACKS := [
+	"buff_power",
+	"damage",
+	"duration",
+	"final_multiplier",
+	"heal",
+	"milestone",
+	"pierce",
+	"projectiles",
+	"range",
+	"targets",
+	"threshold_bonuses"
+]
+const VALID_BUFF_COMBO_TAGS := [
+	"arcane",
+	"ash",
+	"compression",
+	"dark",
+	"deploy",
+	"fire",
+	"guard",
+	"holy",
+	"ice",
+	"ignition",
+	"lightning",
+	"plant",
+	"ritual",
+	"tempo",
+	"time",
+	"veil",
+	"ward",
+	"wind"
 ]
 const RUNTIME_SPELL_REQUIRED_NUMERIC_FIELDS := ["damage", "speed", "range", "cooldown", "size"]
 
 
 func _ready() -> void:
-	spells = _load_json("res://data/spells.json")
-	var room_blob: Dictionary = _load_json("res://data/rooms.json")
-	var skill_blob: Dictionary = _load_json("res://data/skills/skills.json")
-	var combo_blob: Dictionary = _load_json("res://data/skills/buff_combos.json")
-	var equipment_blob: Dictionary = _load_json("res://data/items/equipment.json")
-	var enemy_blob: Dictionary = _load_json("res://data/enemies/enemies.json")
-	rooms = room_blob.get("rooms", [])
-	skill_catalog = skill_blob.get("skills", [])
-	buff_combos = combo_blob.get("combos", [])
-	equipment_catalog = equipment_blob.get("equipment", [])
-	enemy_catalog = enemy_blob.get("enemies", [])
 	room_by_id.clear()
 	skill_by_id.clear()
 	skill_alias_to_id.clear()
@@ -130,12 +265,25 @@ func _ready() -> void:
 	skill_to_runtime_spell_id.clear()
 	skill_to_runtime_spell_ids.clear()
 	skill_validation_errors.clear()
+	skill_validation_warnings.clear()
 	spell_validation_errors.clear()
 	buff_combo_by_id.clear()
+	buff_combo_validation_errors.clear()
+	buff_combo_validation_warnings.clear()
 	equipment_by_id.clear()
 	enemy_by_id.clear()
 	enemy_validation_errors.clear()
 	room_spawn_validation_errors.clear()
+	spells = _load_json("res://data/spells.json")
+	var room_blob: Dictionary = _load_json("res://data/rooms.json")
+	var combo_blob: Dictionary = _load_json("res://data/skills/buff_combos.json")
+	var equipment_blob: Dictionary = _load_json("res://data/items/equipment.json")
+	var enemy_blob: Dictionary = _load_json("res://data/enemies/enemies.json")
+	skill_catalog = _load_skill_catalog("res://data/skills/skills.json")
+	rooms = room_blob.get("rooms", [])
+	buff_combos = _extract_buff_combo_entries(combo_blob, "res://data/skills/buff_combos.json")
+	equipment_catalog = equipment_blob.get("equipment", [])
+	enemy_catalog = enemy_blob.get("enemies", [])
 	for room in rooms:
 		room_by_id[room["id"]] = room
 	for skill in skill_catalog:
@@ -398,6 +546,58 @@ func has_skill_validation_errors() -> bool:
 	return not skill_validation_errors.is_empty()
 
 
+func get_valid_buff_categories() -> Array[String]:
+	var categories: Array[String] = []
+	for buff_category in VALID_BUFF_CATEGORIES:
+		categories.append(str(buff_category))
+	return categories
+
+
+func get_valid_stack_rule_ids() -> Array[String]:
+	var ids: Array[String] = []
+	for stack_rule_id in VALID_STACK_RULE_IDS:
+		ids.append(str(stack_rule_id))
+	return ids
+
+
+func get_valid_buff_combo_stack_keys() -> Array[String]:
+	var stack_keys: Array[String] = []
+	for stack_key in VALID_BUFF_COMBO_STACK_KEYS:
+		stack_keys.append(str(stack_key))
+	return stack_keys
+
+
+func get_valid_buff_combo_apply_status_tags() -> Array[String]:
+	var status_tags: Array[String] = []
+	for status_tag in VALID_BUFF_COMBO_APPLY_STATUS_TAGS:
+		status_tags.append(str(status_tag))
+	return status_tags
+
+
+func get_skill_validation_warnings() -> Array[String]:
+	return skill_validation_warnings.duplicate()
+
+
+func has_skill_validation_warnings() -> bool:
+	return not skill_validation_warnings.is_empty()
+
+
+func get_buff_combo_validation_errors() -> Array[String]:
+	return buff_combo_validation_errors.duplicate()
+
+
+func has_buff_combo_validation_errors() -> bool:
+	return not buff_combo_validation_errors.is_empty()
+
+
+func get_buff_combo_validation_warnings() -> Array[String]:
+	return buff_combo_validation_warnings.duplicate()
+
+
+func has_buff_combo_validation_warnings() -> bool:
+	return not buff_combo_validation_warnings.is_empty()
+
+
 func get_spell_validation_errors() -> Array[String]:
 	return spell_validation_errors.duplicate()
 
@@ -538,6 +738,46 @@ func _load_json(path: String) -> Dictionary:
 	return parsed
 
 
+func _load_skill_catalog(path: String) -> Array:
+	if not FileAccess.file_exists(path):
+		_record_skill_validation_error("Missing skill data file: %s" % path)
+		return []
+	var raw := FileAccess.get_file_as_string(path)
+	return _extract_skill_catalog_entries(JSON.parse_string(raw), path)
+
+
+func _extract_skill_catalog_entries(parsed: Variant, path: String) -> Array:
+	if typeof(parsed) != TYPE_DICTIONARY:
+		_record_skill_validation_error(
+			"Skill data file '%s' must be a dictionary with array field 'skills'" % path
+		)
+		return []
+	var blob: Dictionary = parsed
+	var raw_skills = blob.get("skills", null)
+	if typeof(raw_skills) != TYPE_ARRAY:
+		_record_skill_validation_error(
+			"Skill data file '%s' is missing array field 'skills'" % path
+		)
+		return []
+	return Array(raw_skills).duplicate(true)
+
+
+func _extract_buff_combo_entries(parsed: Variant, path: String) -> Array:
+	if typeof(parsed) != TYPE_DICTIONARY:
+		_record_buff_combo_validation_error(
+			"Buff combo data file '%s' must be a dictionary with array field 'combos'" % path
+		)
+		return []
+	var blob: Dictionary = parsed
+	var raw_combos = blob.get("combos", null)
+	if typeof(raw_combos) != TYPE_ARRAY:
+		_record_buff_combo_validation_error(
+			"Buff combo data file '%s' is missing array field 'combos'" % path
+		)
+		return []
+	return Array(raw_combos).duplicate(true)
+
+
 func validate_skill_entry(skill_id: String, entry: Dictionary) -> Array[String]:
 	var errors: Array[String] = []
 	var entry_skill_id := str(entry.get("skill_id", ""))
@@ -556,24 +796,22 @@ func validate_skill_entry(skill_id: String, entry: Dictionary) -> Array[String]:
 	var display_name = entry.get("display_name", null)
 	if typeof(display_name) != TYPE_STRING or str(display_name).strip_edges().is_empty():
 		_append_validation_error(errors, "Skill data row '%s' has invalid display_name" % skill_id)
-	var school = entry.get("school", null)
-	if typeof(school) != TYPE_STRING or not VALID_SKILL_SCHOOLS.has(str(school)):
-		_append_validation_error(
-			errors, "Skill data row '%s' has invalid school '%s'" % [skill_id, str(school)]
-		)
-	var element = entry.get("element", null)
-	if typeof(element) != TYPE_STRING or not VALID_SKILL_ELEMENTS.has(str(element)):
-		_append_validation_error(
-			errors, "Skill data row '%s' has invalid element '%s'" % [skill_id, str(element)]
-		)
-	var skill_type = entry.get("skill_type", null)
-	if typeof(skill_type) != TYPE_STRING or not VALID_SKILL_TYPES.has(str(skill_type)):
-		_append_validation_error(
-			errors, "Skill data row '%s' has invalid skill_type '%s'" % [skill_id, str(skill_type)]
-		)
+	_validate_required_enum_string_field(
+		errors, skill_id, entry, "school", VALID_SKILL_SCHOOLS
+	)
+	_validate_required_enum_string_field(
+		errors, skill_id, entry, "element", VALID_SKILL_ELEMENTS
+	)
+	var normalized_skill_type := _validate_required_enum_string_field(
+		errors, skill_id, entry, "skill_type", VALID_SKILL_TYPES
+	)
+	_validate_required_string_array_field(errors, skill_id, entry, "role_tags")
+	_validate_required_string_array_field(errors, skill_id, entry, "growth_tracks")
+	_validate_required_enum_string_field(
+		errors, skill_id, entry, "unlock_state", VALID_SKILL_UNLOCK_STATES
+	)
 	if not _is_numeric_variant(entry.get("max_level", null)):
 		_append_validation_error(errors, "Skill data row '%s' is missing numeric max_level" % skill_id)
-	var normalized_skill_type := str(skill_type)
 	if normalized_skill_type == "passive":
 		var passive_family = entry.get("passive_family", null)
 		if typeof(passive_family) != TYPE_STRING or str(passive_family).strip_edges().is_empty():
@@ -599,11 +837,122 @@ func validate_skill_entry(skill_id: String, entry: Dictionary) -> Array[String]:
 			_append_validation_error(
 				errors, "Skill runtime row '%s' is missing numeric cooldown_base" % skill_id
 			)
+		if normalized_skill_type in ["active", "deploy", "toggle"]:
+			_validate_required_enum_string_field(
+				errors, skill_id, entry, "hit_shape", VALID_SKILL_HIT_SHAPES
+			)
+		if normalized_skill_type == "buff":
+			var normalized_buff_category := _validate_required_enum_string_field(
+				errors, skill_id, entry, "buff_category", VALID_BUFF_CATEGORIES
+			)
+			_validate_required_enum_string_field(
+				errors, skill_id, entry, "stack_rule_id", VALID_STACK_RULE_IDS
+			)
+			_validate_required_string_array_field(errors, skill_id, entry, "combo_tags")
+			_validate_buff_secondary_payload_fields(errors, skill_id, entry)
+			if not normalized_buff_category.is_empty():
+				_validate_required_role_tag_membership(
+					errors, skill_id, entry, normalized_buff_category, "buff_category"
+				)
 		if normalized_skill_type == "active" and typeof(entry.get("damage_formula", null)) != TYPE_DICTIONARY:
 			_append_validation_error(
 				errors, "Skill active row '%s' is missing dictionary damage_formula" % skill_id
 			)
 	return errors
+
+
+func collect_skill_entry_warnings(skill_id: String, entry: Dictionary) -> Array[String]:
+	var warnings: Array[String] = []
+	_collect_unknown_string_array_member_warnings(
+		warnings, skill_id, entry, "role_tags", VALID_SKILL_ROLE_TAGS
+	)
+	_collect_unknown_string_array_member_warnings(
+		warnings, skill_id, entry, "growth_tracks", VALID_SKILL_GROWTH_TRACKS
+	)
+	if str(entry.get("skill_type", "")) == "buff":
+		_collect_unknown_string_array_member_warnings(
+			warnings, skill_id, entry, "combo_tags", VALID_BUFF_COMBO_TAGS
+		)
+	return warnings
+
+
+func validate_buff_combo_entry(combo_id: String, entry: Dictionary) -> Array[String]:
+	var errors: Array[String] = []
+	var entry_combo_id := str(entry.get("combo_id", ""))
+	if entry_combo_id.is_empty():
+		_append_validation_error(errors, "Buff combo data missing required combo_id for row '%s'" % combo_id)
+	elif entry_combo_id != combo_id:
+		_append_validation_error(
+			errors, "Buff combo row '%s' has mismatched combo_id '%s'" % [combo_id, entry_combo_id]
+		)
+	var display_name = entry.get("display_name", null)
+	if typeof(display_name) != TYPE_STRING or str(display_name).strip_edges().is_empty():
+		_append_validation_error(errors, "Buff combo row '%s' has invalid display_name" % combo_id)
+	_validate_required_combo_string_array_field(errors, combo_id, entry, "required_buffs")
+	_validate_required_combo_enum_string_field(
+		errors, combo_id, entry, "combo_type", VALID_BUFF_COMBO_TYPES
+	)
+	_validate_required_combo_string_array_field(errors, combo_id, entry, "effect_tags")
+	for field_name in ["priority", "internal_cooldown", "active_window"]:
+		if not _is_numeric_variant(entry.get(field_name, null)):
+			_append_validation_error(
+				errors, "Buff combo row '%s' is missing numeric %s" % [combo_id, field_name]
+			)
+	for field_name in ["applied_effects", "trigger_rules", "penalties"]:
+		if typeof(entry.get(field_name, null)) != TYPE_ARRAY:
+			_append_validation_error(
+				errors, "Buff combo row '%s' has invalid %s; expected array" % [combo_id, field_name]
+			)
+	_validate_buff_combo_effect_rows(errors, combo_id, entry.get("applied_effects", []))
+	_validate_buff_combo_trigger_rule_rows(errors, combo_id, entry.get("trigger_rules", []))
+	_validate_buff_combo_trigger_rule_links(errors, combo_id, entry.get("trigger_rules", []))
+	_validate_buff_combo_penalty_rows(errors, combo_id, entry.get("penalties", []))
+	_validate_required_buff_combo_runtime_payload_fields(errors, combo_id, entry)
+	var visual_profile = entry.get("visual_profile", null)
+	if typeof(visual_profile) != TYPE_STRING or str(visual_profile).strip_edges().is_empty():
+		_append_validation_error(errors, "Buff combo row '%s' has invalid visual_profile" % combo_id)
+	var notes = entry.get("notes", null)
+	if typeof(notes) != TYPE_STRING or str(notes).strip_edges().is_empty():
+		_append_validation_error(errors, "Buff combo row '%s' has invalid notes" % combo_id)
+	return errors
+
+
+func validate_buff_combo_links(combo_id: String, entry: Dictionary) -> Array[String]:
+	var errors: Array[String] = []
+	var raw_required_buffs = entry.get("required_buffs", null)
+	if typeof(raw_required_buffs) != TYPE_ARRAY:
+		return errors
+	var required_buffs: Array = raw_required_buffs
+	if required_buffs.is_empty():
+		_append_validation_error(errors, "Buff combo row '%s' must include at least one required_buffs entry" % combo_id)
+		return errors
+	for required_buff_id in required_buffs:
+		var buff_id := str(required_buff_id).strip_edges()
+		if buff_id.is_empty():
+			continue
+		if not skill_by_id.has(buff_id):
+			_append_validation_error(
+				errors, "Buff combo row '%s' references unknown required buff '%s'" % [combo_id, buff_id]
+			)
+			continue
+		var skill_entry: Dictionary = skill_by_id.get(buff_id, {})
+		if str(skill_entry.get("skill_type", "")) != "buff":
+			_append_validation_error(
+				errors, "Buff combo row '%s' required buff '%s' must point to buff skill row" % [combo_id, buff_id]
+			)
+	return errors
+
+
+func collect_buff_combo_entry_warnings(combo_id: String, entry: Dictionary) -> Array[String]:
+	var warnings: Array[String] = []
+	_collect_unknown_buff_combo_string_array_member_warnings(
+		warnings, combo_id, entry, "effect_tags", VALID_BUFF_COMBO_EFFECT_TAGS
+	)
+	_collect_buff_combo_effect_tag_runtime_candidate_warnings(warnings, combo_id, entry)
+	_collect_unknown_buff_combo_trigger_rule_string_warnings(
+		warnings, combo_id, entry, "apply_status", VALID_BUFF_COMBO_APPLY_STATUS_TAGS
+	)
+	return warnings
 
 
 func validate_spell_entry(spell_id: String, entry: Dictionary) -> Array[String]:
@@ -619,7 +968,7 @@ func validate_spell_entry(spell_id: String, entry: Dictionary) -> Array[String]:
 	if typeof(name) != TYPE_STRING or str(name).strip_edges().is_empty():
 		_append_validation_error(errors, "Spell data row '%s' has invalid name" % spell_id)
 	var school = entry.get("school", null)
-	if typeof(school) != TYPE_STRING or not VALID_SKILL_ELEMENTS.has(str(school)):
+	if typeof(school) != TYPE_STRING or not VALID_RUNTIME_SPELL_SCHOOLS.has(str(school)):
 		_append_validation_error(
 			errors, "Spell data row '%s' has invalid school '%s'" % [spell_id, str(school)]
 		)
@@ -744,11 +1093,21 @@ func _validate_progression_data() -> void:
 			continue
 		for message in validate_skill_entry(skill_id, skill):
 			_record_skill_validation_error(message)
+		for message in collect_skill_entry_warnings(skill_id, skill):
+			_record_skill_validation_warning(message)
 	for raw_spell_id in spells.keys():
 		var spell_id := str(raw_spell_id)
 		var spell_entry: Dictionary = spells.get(spell_id, {})
 		for message in validate_spell_entry(spell_id, spell_entry):
 			_record_spell_validation_error(message)
+	for combo in buff_combos:
+		var combo_id := str(combo.get("combo_id", ""))
+		if combo_id.is_empty():
+			continue
+		for message in validate_buff_combo_entry(combo_id, combo):
+			_record_buff_combo_validation_error(message)
+		for message in collect_buff_combo_entry_warnings(combo_id, combo):
+			_record_buff_combo_validation_warning(message)
 	for skill in skill_catalog:
 		var skill_id := str(skill.get("skill_id", ""))
 		if skill_id.is_empty():
@@ -760,6 +1119,12 @@ func _validate_progression_data() -> void:
 		var spell_entry: Dictionary = spells.get(spell_id, {})
 		for message in validate_spell_skill_link(spell_id, spell_entry):
 			_record_spell_validation_error(message)
+	for combo in buff_combos:
+		var combo_id := str(combo.get("combo_id", ""))
+		if combo_id.is_empty():
+			continue
+		for message in validate_buff_combo_links(combo_id, combo):
+			_record_buff_combo_validation_error(message)
 
 
 func _find_runtime_spell_id_for_skill_in_lookup(
@@ -786,6 +1151,19 @@ func _record_skill_validation_error(message: String) -> void:
 	push_error(message)
 
 
+func _record_skill_validation_warning(message: String) -> void:
+	skill_validation_warnings.append(message)
+
+
+func _record_buff_combo_validation_error(message: String) -> void:
+	buff_combo_validation_errors.append(message)
+	push_error(message)
+
+
+func _record_buff_combo_validation_warning(message: String) -> void:
+	buff_combo_validation_warnings.append(message)
+
+
 func _record_spell_validation_error(message: String) -> void:
 	spell_validation_errors.append(message)
 	push_error(message)
@@ -793,6 +1171,988 @@ func _record_spell_validation_error(message: String) -> void:
 
 func _append_validation_error(errors: Array[String], message: String) -> void:
 	errors.append(message)
+
+
+func _validate_required_enum_string_field(
+	errors: Array[String],
+	row_id: String,
+	entry: Dictionary,
+	field_name: String,
+	valid_values: Array
+) -> String:
+	var raw_value = entry.get(field_name, null)
+	var normalized_value := ""
+	var display_value := ""
+	if raw_value != null:
+		display_value = str(raw_value)
+	if typeof(raw_value) == TYPE_STRING:
+		normalized_value = str(raw_value).strip_edges()
+		display_value = normalized_value
+	if normalized_value.is_empty() or not valid_values.has(normalized_value):
+		_append_validation_error(
+			errors,
+			"Skill data row '%s' has invalid %s '%s'" % [row_id, field_name, display_value]
+		)
+		return ""
+	return normalized_value
+
+
+func _validate_required_string_array_field(
+	errors: Array[String], row_id: String, entry: Dictionary, field_name: String
+) -> void:
+	var raw_value = entry.get(field_name, null)
+	if typeof(raw_value) != TYPE_ARRAY:
+		_append_validation_error(
+			errors,
+			"Skill data row '%s' has invalid %s; expected array[string]"
+			% [row_id, field_name]
+		)
+		return
+	var values: Array = raw_value
+	for index in range(values.size()):
+		if typeof(values[index]) != TYPE_STRING or str(values[index]).strip_edges().is_empty():
+			_append_validation_error(
+				errors,
+				"Skill data row '%s' has invalid %s[%d]" % [row_id, field_name, index]
+			)
+			return
+
+
+func _validate_required_role_tag_membership(
+	errors: Array[String], row_id: String, entry: Dictionary, required_tag: String, source_field: String
+) -> void:
+	var raw_value = entry.get("role_tags", null)
+	if typeof(raw_value) != TYPE_ARRAY:
+		return
+	var role_tags: Array = raw_value
+	for role_tag in role_tags:
+		if str(role_tag).strip_edges() == required_tag:
+			return
+	_append_validation_error(
+		errors,
+		"Skill data row '%s' must include role_tag '%s' matching %s'" % [row_id, required_tag, source_field]
+	)
+
+
+func _validate_buff_secondary_payload_fields(
+	errors: Array[String], skill_id: String, entry: Dictionary
+) -> void:
+	var effect_lookup := _extract_skill_effect_lookup(errors, skill_id, entry, "buff_effects")
+	if effect_lookup.is_empty():
+		return
+	_validate_required_secondary_payload_effect_bundle(
+		errors,
+		skill_id,
+		effect_lookup,
+		"extra_lightning_ping",
+		"lightning_ping",
+		"lightning_conductive_surge"
+	)
+	_validate_required_secondary_payload_effect_bundle(
+		errors,
+		skill_id,
+		effect_lookup,
+		"ice_reflect_wave",
+		"ice_reflect_wave",
+		"ice_frostblood_ward"
+	)
+	if skill_id == "dark_throne_of_ash":
+		_validate_required_effect_numeric_value(
+			errors,
+			skill_id,
+			effect_lookup,
+			"dark_throne_of_ash",
+			"ash_residue_burst"
+		)
+		_validate_required_effect_mode(
+			errors,
+			skill_id,
+			effect_lookup,
+			"dark_throne_of_ash",
+			"ash_residue_burst",
+			"add"
+		)
+
+
+func _extract_skill_effect_lookup(
+	errors: Array[String], row_id: String, entry: Dictionary, field_name: String
+) -> Dictionary:
+	var raw_rows = entry.get(field_name, null)
+	if typeof(raw_rows) != TYPE_ARRAY:
+		_append_validation_error(
+			errors,
+			"Skill data row '%s' has invalid %s; expected array[object]" % [row_id, field_name]
+		)
+		return {}
+	var effect_lookup := {}
+	var rows: Array = raw_rows
+	for index in range(rows.size()):
+		if typeof(rows[index]) != TYPE_DICTIONARY:
+			_append_validation_error(
+				errors, "Skill data row '%s' has invalid %s[%d]" % [row_id, field_name, index]
+			)
+			continue
+		var effect: Dictionary = rows[index]
+		var stat_name := str(effect.get("stat", "")).strip_edges()
+		if stat_name.is_empty():
+			_append_validation_error(
+				errors, "Skill data row '%s' has invalid %s[%d].stat" % [row_id, field_name, index]
+			)
+			continue
+		effect_lookup[stat_name] = effect
+	return effect_lookup
+
+
+func _validate_required_secondary_payload_effect_bundle(
+	errors: Array[String],
+	skill_id: String,
+	effect_lookup: Dictionary,
+	trigger_stat: String,
+	payload_prefix: String,
+	required_skill_id: String
+) -> void:
+	if skill_id != required_skill_id or not effect_lookup.has(trigger_stat):
+		return
+	_validate_required_effect_string_value(
+		errors, skill_id, effect_lookup, trigger_stat, "%s_effect_id" % payload_prefix
+	)
+	_validate_required_effect_mode(
+		errors, skill_id, effect_lookup, trigger_stat, "%s_effect_id" % payload_prefix, "set"
+	)
+	_validate_required_effect_numeric_value(
+		errors, skill_id, effect_lookup, trigger_stat, "%s_damage_ratio" % payload_prefix
+	)
+	_validate_required_effect_mode(
+		errors, skill_id, effect_lookup, trigger_stat, "%s_damage_ratio" % payload_prefix, "set"
+	)
+	_validate_required_effect_numeric_value(
+		errors, skill_id, effect_lookup, trigger_stat, "%s_radius" % payload_prefix
+	)
+	_validate_required_effect_mode(
+		errors, skill_id, effect_lookup, trigger_stat, "%s_radius" % payload_prefix, "set"
+	)
+	_validate_required_effect_runtime_school_value(
+		errors, skill_id, effect_lookup, trigger_stat, "%s_school" % payload_prefix
+	)
+	_validate_required_effect_mode(
+		errors, skill_id, effect_lookup, trigger_stat, "%s_school" % payload_prefix, "set"
+	)
+	_validate_required_effect_string_value(
+		errors, skill_id, effect_lookup, trigger_stat, "%s_color" % payload_prefix
+	)
+	_validate_required_effect_mode(
+		errors, skill_id, effect_lookup, trigger_stat, "%s_color" % payload_prefix, "set"
+	)
+
+
+func _validate_required_effect_string_value(
+	errors: Array[String],
+	skill_id: String,
+	effect_lookup: Dictionary,
+	trigger_stat: String,
+	stat_name: String
+) -> void:
+	var effect := _require_secondary_payload_effect(errors, skill_id, effect_lookup, trigger_stat, stat_name)
+	if effect.is_empty():
+		return
+	var value = effect.get("value", null)
+	if typeof(value) != TYPE_STRING or str(value).strip_edges().is_empty():
+		_append_validation_error(
+			errors, "Skill data row '%s' has invalid buff_effects stat '%s'" % [skill_id, stat_name]
+		)
+
+
+func _validate_required_effect_numeric_value(
+	errors: Array[String],
+	skill_id: String,
+	effect_lookup: Dictionary,
+	trigger_stat: String,
+	stat_name: String
+) -> void:
+	var effect := _require_secondary_payload_effect(errors, skill_id, effect_lookup, trigger_stat, stat_name)
+	if effect.is_empty():
+		return
+	if not _is_numeric_variant(effect.get("value", null)):
+		_append_validation_error(
+			errors, "Skill data row '%s' has invalid buff_effects stat '%s'" % [skill_id, stat_name]
+		)
+
+
+func _validate_required_effect_runtime_school_value(
+	errors: Array[String],
+	skill_id: String,
+	effect_lookup: Dictionary,
+	trigger_stat: String,
+	stat_name: String
+) -> void:
+	var effect := _require_secondary_payload_effect(errors, skill_id, effect_lookup, trigger_stat, stat_name)
+	if effect.is_empty():
+		return
+	var school_value = effect.get("value", null)
+	if typeof(school_value) != TYPE_STRING or not VALID_RUNTIME_SPELL_SCHOOLS.has(str(school_value).strip_edges()):
+		_append_validation_error(
+			errors, "Skill data row '%s' has invalid buff_effects stat '%s'" % [skill_id, stat_name]
+		)
+
+
+func _validate_required_effect_mode(
+	errors: Array[String],
+	skill_id: String,
+	effect_lookup: Dictionary,
+	trigger_stat: String,
+	stat_name: String,
+	required_mode: String
+) -> void:
+	var effect := _require_secondary_payload_effect(errors, skill_id, effect_lookup, trigger_stat, stat_name)
+	if effect.is_empty():
+		return
+	if str(effect.get("mode", "")).strip_edges() != required_mode:
+		_append_validation_error(
+			errors,
+			(
+				"Skill data row '%s' buff_effects stat '%s' must use mode '%s'"
+				% [skill_id, stat_name, required_mode]
+			)
+		)
+
+
+func _require_secondary_payload_effect(
+	errors: Array[String],
+	skill_id: String,
+	effect_lookup: Dictionary,
+	trigger_stat: String,
+	stat_name: String
+) -> Dictionary:
+	if not effect_lookup.has(stat_name):
+		_append_validation_error(
+			errors,
+			(
+				"Skill data row '%s' is missing buff_effects stat '%s' required by '%s'"
+				% [skill_id, stat_name, trigger_stat]
+			)
+		)
+		return {}
+	return effect_lookup.get(stat_name, {})
+
+
+func _validate_required_combo_enum_string_field(
+	errors: Array[String],
+	row_id: String,
+	entry: Dictionary,
+	field_name: String,
+	valid_values: Array
+) -> String:
+	var raw_value = entry.get(field_name, null)
+	var normalized_value := ""
+	var display_value := ""
+	if raw_value != null:
+		display_value = str(raw_value)
+	if typeof(raw_value) == TYPE_STRING:
+		normalized_value = str(raw_value).strip_edges()
+		display_value = normalized_value
+	if normalized_value.is_empty() or not valid_values.has(normalized_value):
+		_append_validation_error(
+			errors,
+			"Buff combo row '%s' has invalid %s '%s'" % [row_id, field_name, display_value]
+		)
+		return ""
+	return normalized_value
+
+
+func _validate_required_combo_string_array_field(
+	errors: Array[String], row_id: String, entry: Dictionary, field_name: String
+) -> void:
+	var raw_value = entry.get(field_name, null)
+	if typeof(raw_value) != TYPE_ARRAY:
+		_append_validation_error(
+			errors,
+			"Buff combo row '%s' has invalid %s; expected array[string]" % [row_id, field_name]
+		)
+		return
+	var values: Array = raw_value
+	for index in range(values.size()):
+		if typeof(values[index]) != TYPE_STRING or str(values[index]).strip_edges().is_empty():
+			_append_validation_error(
+				errors,
+				"Buff combo row '%s' has invalid %s[%d]" % [row_id, field_name, index]
+			)
+			return
+
+
+func _validate_buff_combo_effect_rows(
+	errors: Array[String], combo_id: String, raw_rows: Variant
+) -> void:
+	if typeof(raw_rows) != TYPE_ARRAY:
+		return
+	var rows: Array = raw_rows
+	for index in range(rows.size()):
+		var row = rows[index]
+		if typeof(row) != TYPE_DICTIONARY:
+			_append_validation_error(
+				errors, "Buff combo row '%s' has invalid applied_effects[%d]" % [combo_id, index]
+			)
+			continue
+		var effect: Dictionary = row
+		var stat := str(effect.get("stat", "")).strip_edges()
+		if stat.is_empty():
+			_append_validation_error(
+				errors, "Buff combo row '%s' has invalid applied_effects[%d].stat" % [combo_id, index]
+			)
+		var mode := str(effect.get("mode", "")).strip_edges()
+		if mode.is_empty() or not VALID_BUFF_COMBO_EFFECT_MODES.has(mode):
+			_append_validation_error(
+				errors,
+				"Buff combo row '%s' has invalid applied_effects[%d].mode '%s'"
+				% [combo_id, index, mode]
+			)
+		if not effect.has("value"):
+			_append_validation_error(
+				errors, "Buff combo row '%s' is missing applied_effects[%d].value" % [combo_id, index]
+			)
+			continue
+		var value = effect.get("value", null)
+		if value == null or (typeof(value) == TYPE_STRING and str(value).strip_edges().is_empty()):
+			_append_validation_error(
+				errors, "Buff combo row '%s' has invalid applied_effects[%d].value" % [combo_id, index]
+			)
+
+
+func _validate_buff_combo_trigger_rule_rows(
+	errors: Array[String], combo_id: String, raw_rows: Variant
+) -> void:
+	if typeof(raw_rows) != TYPE_ARRAY:
+		return
+	var rows: Array = raw_rows
+	for index in range(rows.size()):
+		var row = rows[index]
+		if typeof(row) != TYPE_DICTIONARY:
+			_append_validation_error(
+				errors, "Buff combo row '%s' has invalid trigger_rules[%d]" % [combo_id, index]
+			)
+			continue
+		var rule: Dictionary = row
+		var event_name := str(rule.get("event", "")).strip_edges()
+		if event_name.is_empty() or not VALID_BUFF_COMBO_TRIGGER_EVENTS.has(event_name):
+			_append_validation_error(
+				errors,
+				"Buff combo row '%s' has invalid trigger_rules[%d].event '%s'"
+				% [combo_id, index, event_name]
+			)
+		if not _is_numeric_variant(rule.get("cooldown", null)):
+			_append_validation_error(
+				errors, "Buff combo row '%s' is missing numeric trigger_rules[%d].cooldown" % [combo_id, index]
+			)
+		for string_field in [
+			"spawn_effect", "damage_school", "apply_status", "stack_name", "scales_with_stack", "color"
+		]:
+			if not rule.has(string_field):
+				continue
+			if typeof(rule.get(string_field, null)) != TYPE_STRING or str(rule.get(string_field, "")).strip_edges().is_empty():
+				_append_validation_error(
+					errors, "Buff combo row '%s' has invalid trigger_rules[%d].%s" % [combo_id, index, string_field]
+				)
+		if rule.has("damage_school"):
+			var damage_school := str(rule.get("damage_school", "")).strip_edges()
+			if not damage_school.is_empty() and not VALID_RUNTIME_SPELL_SCHOOLS.has(damage_school):
+				_append_validation_error(
+					errors,
+					"Buff combo row '%s' has invalid trigger_rules[%d].damage_school '%s'"
+					% [combo_id, index, damage_school]
+				)
+		for numeric_field in ["radius", "max_stacks", "damage", "damage_per_stack", "radius_per_stack"]:
+			if not rule.has(numeric_field):
+				continue
+			if not _is_numeric_variant(rule.get(numeric_field, null)):
+				_append_validation_error(
+					errors,
+					"Buff combo row '%s' has invalid trigger_rules[%d].%s" % [combo_id, index, numeric_field]
+				)
+
+
+func _validate_buff_combo_trigger_rule_links(
+	errors: Array[String], combo_id: String, raw_rows: Variant
+) -> void:
+	if typeof(raw_rows) != TYPE_ARRAY:
+		return
+	var rows: Array = raw_rows
+	var declared_stack_keys: Array[String] = []
+	for index in range(rows.size()):
+		var row = rows[index]
+		if typeof(row) != TYPE_DICTIONARY:
+			continue
+		var rule: Dictionary = row
+		if not rule.has("stack_name"):
+			continue
+		var stack_name := str(rule.get("stack_name", "")).strip_edges()
+		if stack_name.is_empty():
+			continue
+		if not VALID_BUFF_COMBO_STACK_KEYS.has(stack_name):
+			_append_validation_error(
+				errors,
+				"Buff combo row '%s' has invalid trigger_rules[%d].stack_name '%s'"
+				% [combo_id, index, stack_name]
+			)
+			continue
+		if not declared_stack_keys.has(stack_name):
+			declared_stack_keys.append(stack_name)
+	for index in range(rows.size()):
+		var row = rows[index]
+		if typeof(row) != TYPE_DICTIONARY:
+			continue
+		var rule: Dictionary = row
+		if not rule.has("scales_with_stack"):
+			continue
+		var stack_name := str(rule.get("scales_with_stack", "")).strip_edges()
+		if stack_name.is_empty():
+			continue
+		if not VALID_BUFF_COMBO_STACK_KEYS.has(stack_name):
+			_append_validation_error(
+				errors,
+				"Buff combo row '%s' has invalid trigger_rules[%d].scales_with_stack '%s'"
+				% [combo_id, index, stack_name]
+			)
+			continue
+		if not declared_stack_keys.has(stack_name):
+			_append_validation_error(
+				errors,
+				(
+					"Buff combo row '%s' trigger_rules[%d].scales_with_stack '%s' must reference a declared stack_name in the same combo"
+					% [combo_id, index, stack_name]
+				)
+			)
+
+
+func _validate_buff_combo_penalty_rows(
+	errors: Array[String], combo_id: String, raw_rows: Variant
+) -> void:
+	if typeof(raw_rows) != TYPE_ARRAY:
+		return
+	var rows: Array = raw_rows
+	for index in range(rows.size()):
+		var row = rows[index]
+		if typeof(row) != TYPE_DICTIONARY:
+			_append_validation_error(
+				errors, "Buff combo row '%s' has invalid penalties[%d]" % [combo_id, index]
+			)
+			continue
+		var penalty: Dictionary = row
+		var stat := str(penalty.get("stat", "")).strip_edges()
+		if stat.is_empty():
+			_append_validation_error(
+				errors, "Buff combo row '%s' has invalid penalties[%d].stat" % [combo_id, index]
+			)
+		var mode := str(penalty.get("mode", "")).strip_edges()
+		if mode.is_empty() or not VALID_BUFF_COMBO_EFFECT_MODES.has(mode):
+			_append_validation_error(
+				errors,
+				"Buff combo row '%s' has invalid penalties[%d].mode '%s'" % [combo_id, index, mode]
+			)
+		if not penalty.has("value") or not _is_numeric_variant(penalty.get("value", null)):
+			_append_validation_error(
+				errors, "Buff combo row '%s' has invalid penalties[%d].value" % [combo_id, index]
+			)
+		if penalty.has("duration") and not _is_numeric_variant(penalty.get("duration", null)):
+			_append_validation_error(
+				errors, "Buff combo row '%s' has invalid penalties[%d].duration" % [combo_id, index]
+			)
+
+
+func _validate_required_buff_combo_runtime_payload_fields(
+	errors: Array[String], combo_id: String, entry: Dictionary
+) -> void:
+	var applied_effect_lookup := _extract_combo_effect_lookup(errors, combo_id, entry, "applied_effects")
+	var trigger_rule_lookup := _extract_combo_trigger_rule_lookup(errors, combo_id, entry)
+	if combo_id == "combo_prismatic_guard":
+		_validate_required_combo_effect_positive_value(
+			errors, combo_id, applied_effect_lookup, "max_hp_barrier_ratio"
+		)
+		_validate_required_combo_effect_mode(
+			errors, combo_id, applied_effect_lookup, "max_hp_barrier_ratio", "add"
+		)
+		_validate_required_combo_trigger_rule_string_value(
+			errors, combo_id, trigger_rule_lookup, "on_barrier_break", "spawn_effect"
+		)
+		_validate_required_combo_trigger_rule_numeric_value(
+			errors, combo_id, trigger_rule_lookup, "on_barrier_break", "radius"
+		)
+	elif combo_id == "combo_overclock_circuit":
+		_validate_required_combo_effect_numeric_value(
+			errors, combo_id, applied_effect_lookup, "lightning_aftercast_multiplier"
+		)
+		_validate_required_combo_effect_mode(
+			errors, combo_id, applied_effect_lookup, "lightning_aftercast_multiplier", "mul"
+		)
+		_validate_required_combo_effect_positive_count(
+			errors, combo_id, applied_effect_lookup, "lightning_chain_bonus"
+		)
+		_validate_required_combo_effect_mode(
+			errors, combo_id, applied_effect_lookup, "lightning_chain_bonus", "add"
+		)
+		_validate_required_combo_effect_numeric_value(
+			errors, combo_id, applied_effect_lookup, "dash_cast_speed_multiplier"
+		)
+		_validate_required_combo_effect_mode(
+			errors, combo_id, applied_effect_lookup, "dash_cast_speed_multiplier", "mul"
+		)
+	elif combo_id == "combo_time_collapse":
+		_validate_required_combo_effect_positive_count(
+			errors, combo_id, applied_effect_lookup, "discounted_cast_charges"
+		)
+		_validate_required_combo_effect_mode(
+			errors, combo_id, applied_effect_lookup, "discounted_cast_charges", "set"
+		)
+	elif combo_id == "combo_ashen_rite":
+		_validate_required_combo_effect_string_value(
+			errors, combo_id, applied_effect_lookup, "ash_residue_effect_id"
+		)
+		_validate_required_combo_effect_mode(
+			errors, combo_id, applied_effect_lookup, "ash_residue_effect_id", "set"
+		)
+		_validate_required_combo_effect_numeric_value(
+			errors, combo_id, applied_effect_lookup, "ash_residue_interval"
+		)
+		_validate_required_combo_effect_mode(
+			errors, combo_id, applied_effect_lookup, "ash_residue_interval", "set"
+		)
+		_validate_required_combo_effect_numeric_value(
+			errors, combo_id, applied_effect_lookup, "ash_residue_damage"
+		)
+		_validate_required_combo_effect_mode(
+			errors, combo_id, applied_effect_lookup, "ash_residue_damage", "set"
+		)
+		_validate_required_combo_effect_numeric_value(
+			errors, combo_id, applied_effect_lookup, "ash_residue_damage_per_stack"
+		)
+		_validate_required_combo_effect_mode(
+			errors, combo_id, applied_effect_lookup, "ash_residue_damage_per_stack", "set"
+		)
+		_validate_required_combo_effect_numeric_value(
+			errors, combo_id, applied_effect_lookup, "ash_residue_radius"
+		)
+		_validate_required_combo_effect_mode(
+			errors, combo_id, applied_effect_lookup, "ash_residue_radius", "set"
+		)
+		_validate_required_combo_effect_runtime_school_value(
+			errors, combo_id, applied_effect_lookup, "ash_residue_school"
+		)
+		_validate_required_combo_effect_mode(
+			errors, combo_id, applied_effect_lookup, "ash_residue_school", "set"
+		)
+		_validate_required_combo_effect_string_value(
+			errors, combo_id, applied_effect_lookup, "ash_residue_color"
+		)
+		_validate_required_combo_effect_mode(
+			errors, combo_id, applied_effect_lookup, "ash_residue_color", "set"
+		)
+		_validate_required_combo_trigger_rule_string_value(
+			errors, combo_id, trigger_rule_lookup, "on_combo_end", "spawn_effect"
+		)
+		_validate_required_combo_trigger_rule_runtime_school_value(
+			errors, combo_id, trigger_rule_lookup, "on_combo_end", "damage_school"
+		)
+		_validate_required_combo_trigger_rule_string_value(
+			errors, combo_id, trigger_rule_lookup, "on_combo_end", "color"
+		)
+		for numeric_field in ["damage", "damage_per_stack", "radius", "radius_per_stack"]:
+			_validate_required_combo_trigger_rule_numeric_value(
+				errors, combo_id, trigger_rule_lookup, "on_combo_end", numeric_field
+			)
+	elif combo_id == "combo_funeral_bloom":
+		_validate_required_combo_trigger_rule_string_value(
+			errors, combo_id, trigger_rule_lookup, "on_deploy_kill", "spawn_effect"
+		)
+		_validate_required_combo_trigger_rule_numeric_value(
+			errors, combo_id, trigger_rule_lookup, "on_deploy_kill", "radius"
+		)
+		_validate_required_combo_trigger_rule_runtime_school_value(
+			errors, combo_id, trigger_rule_lookup, "on_deploy_kill", "damage_school"
+		)
+		_validate_required_combo_trigger_rule_string_value(
+			errors, combo_id, trigger_rule_lookup, "on_deploy_kill", "apply_status"
+		)
+		_validate_required_combo_trigger_rule_string_value(
+			errors, combo_id, trigger_rule_lookup, "on_deploy_kill", "color"
+		)
+
+
+func _extract_combo_effect_lookup(
+	_errors: Array[String], _combo_id: String, entry: Dictionary, field_name: String
+) -> Dictionary:
+	var raw_rows = entry.get(field_name, null)
+	if typeof(raw_rows) != TYPE_ARRAY:
+		return {}
+	var effect_lookup := {}
+	var rows: Array = raw_rows
+	for index in range(rows.size()):
+		if typeof(rows[index]) != TYPE_DICTIONARY:
+			continue
+		var effect: Dictionary = rows[index]
+		var stat_name := str(effect.get("stat", "")).strip_edges()
+		if stat_name.is_empty():
+			continue
+		effect_lookup[stat_name] = effect
+	return effect_lookup
+
+
+func _extract_combo_trigger_rule_lookup(_errors: Array[String], _combo_id: String, entry: Dictionary) -> Dictionary:
+	var raw_rows = entry.get("trigger_rules", null)
+	if typeof(raw_rows) != TYPE_ARRAY:
+		return {}
+	var trigger_rule_lookup := {}
+	var rows: Array = raw_rows
+	for index in range(rows.size()):
+		if typeof(rows[index]) != TYPE_DICTIONARY:
+			continue
+		var rule: Dictionary = rows[index]
+		var event_name := str(rule.get("event", "")).strip_edges()
+		if event_name.is_empty():
+			continue
+		trigger_rule_lookup[event_name] = rule
+	return trigger_rule_lookup
+
+
+func _validate_required_combo_effect_string_value(
+	errors: Array[String], combo_id: String, effect_lookup: Dictionary, stat_name: String
+) -> void:
+	var effect := _require_combo_effect(errors, combo_id, effect_lookup, stat_name)
+	if effect.is_empty():
+		return
+	var value = effect.get("value", null)
+	if typeof(value) != TYPE_STRING or str(value).strip_edges().is_empty():
+		_append_validation_error(
+			errors, "Buff combo row '%s' has invalid applied_effects stat '%s'" % [combo_id, stat_name]
+		)
+
+
+func _validate_required_combo_effect_numeric_value(
+	errors: Array[String], combo_id: String, effect_lookup: Dictionary, stat_name: String
+) -> void:
+	var effect := _require_combo_effect(errors, combo_id, effect_lookup, stat_name)
+	if effect.is_empty():
+		return
+	if not _is_numeric_variant(effect.get("value", null)):
+		_append_validation_error(
+			errors, "Buff combo row '%s' has invalid applied_effects stat '%s'" % [combo_id, stat_name]
+		)
+
+
+func _validate_required_combo_effect_positive_count(
+	errors: Array[String], combo_id: String, effect_lookup: Dictionary, stat_name: String
+) -> void:
+	var effect := _require_combo_effect(errors, combo_id, effect_lookup, stat_name)
+	if effect.is_empty():
+		return
+	if not _is_numeric_variant(effect.get("value", null)) or float(effect.get("value", 0.0)) < 1.0:
+		_append_validation_error(
+			errors, "Buff combo row '%s' has invalid applied_effects stat '%s'" % [combo_id, stat_name]
+		)
+
+
+func _validate_required_combo_effect_positive_value(
+	errors: Array[String], combo_id: String, effect_lookup: Dictionary, stat_name: String
+) -> void:
+	var effect := _require_combo_effect(errors, combo_id, effect_lookup, stat_name)
+	if effect.is_empty():
+		return
+	if not _is_numeric_variant(effect.get("value", null)) or float(effect.get("value", 0.0)) <= 0.0:
+		_append_validation_error(
+			errors, "Buff combo row '%s' has invalid applied_effects stat '%s'" % [combo_id, stat_name]
+		)
+
+
+func _validate_required_combo_effect_mode(
+	errors: Array[String],
+	combo_id: String,
+	effect_lookup: Dictionary,
+	stat_name: String,
+	required_mode: String
+) -> void:
+	var effect := _require_combo_effect(errors, combo_id, effect_lookup, stat_name)
+	if effect.is_empty():
+		return
+	if str(effect.get("mode", "")).strip_edges() != required_mode:
+		_append_validation_error(
+			errors,
+			(
+				"Buff combo row '%s' applied_effects stat '%s' must use mode '%s'"
+				% [combo_id, stat_name, required_mode]
+			)
+		)
+
+
+func _validate_required_combo_effect_runtime_school_value(
+	errors: Array[String], combo_id: String, effect_lookup: Dictionary, stat_name: String
+) -> void:
+	var effect := _require_combo_effect(errors, combo_id, effect_lookup, stat_name)
+	if effect.is_empty():
+		return
+	var school_value = effect.get("value", null)
+	if typeof(school_value) != TYPE_STRING or not VALID_RUNTIME_SPELL_SCHOOLS.has(str(school_value).strip_edges()):
+		_append_validation_error(
+			errors, "Buff combo row '%s' has invalid applied_effects stat '%s'" % [combo_id, stat_name]
+		)
+
+
+func _require_combo_effect(
+	errors: Array[String], combo_id: String, effect_lookup: Dictionary, stat_name: String
+) -> Dictionary:
+	if not effect_lookup.has(stat_name):
+		_append_validation_error(
+			errors, "Buff combo row '%s' is missing applied_effects stat '%s'" % [combo_id, stat_name]
+		)
+		return {}
+	return effect_lookup.get(stat_name, {})
+
+
+func _validate_required_combo_trigger_rule_string_value(
+	errors: Array[String],
+	combo_id: String,
+	trigger_rule_lookup: Dictionary,
+	event_name: String,
+	field_name: String
+) -> void:
+	var rule := _require_combo_trigger_rule(errors, combo_id, trigger_rule_lookup, event_name)
+	if rule.is_empty():
+		return
+	var value = rule.get(field_name, null)
+	if typeof(value) != TYPE_STRING or str(value).strip_edges().is_empty():
+		_append_validation_error(
+			errors,
+			"Buff combo row '%s' has invalid trigger_rules[%s].%s" % [combo_id, event_name, field_name]
+		)
+
+
+func _validate_required_combo_trigger_rule_numeric_value(
+	errors: Array[String],
+	combo_id: String,
+	trigger_rule_lookup: Dictionary,
+	event_name: String,
+	field_name: String
+) -> void:
+	var rule := _require_combo_trigger_rule(errors, combo_id, trigger_rule_lookup, event_name)
+	if rule.is_empty():
+		return
+	if not _is_numeric_variant(rule.get(field_name, null)):
+		_append_validation_error(
+			errors,
+			"Buff combo row '%s' has invalid trigger_rules[%s].%s" % [combo_id, event_name, field_name]
+		)
+
+
+func _validate_required_combo_trigger_rule_runtime_school_value(
+	errors: Array[String],
+	combo_id: String,
+	trigger_rule_lookup: Dictionary,
+	event_name: String,
+	field_name: String
+) -> void:
+	var rule := _require_combo_trigger_rule(errors, combo_id, trigger_rule_lookup, event_name)
+	if rule.is_empty():
+		return
+	var school_value = rule.get(field_name, null)
+	if typeof(school_value) != TYPE_STRING or not VALID_RUNTIME_SPELL_SCHOOLS.has(str(school_value).strip_edges()):
+		_append_validation_error(
+			errors,
+			"Buff combo row '%s' has invalid trigger_rules[%s].%s" % [combo_id, event_name, field_name]
+		)
+
+
+func _require_combo_trigger_rule(
+	errors: Array[String], combo_id: String, trigger_rule_lookup: Dictionary, event_name: String
+) -> Dictionary:
+	if not trigger_rule_lookup.has(event_name):
+		_append_validation_error(
+			errors, "Buff combo row '%s' is missing trigger_rules event '%s'" % [combo_id, event_name]
+		)
+		return {}
+	var rule: Dictionary = trigger_rule_lookup.get(event_name, {})
+	return rule
+
+
+func _collect_unknown_string_array_member_warnings(
+	warnings: Array[String],
+	row_id: String,
+	entry: Dictionary,
+	field_name: String,
+	valid_values: Array
+) -> void:
+	var raw_value = entry.get(field_name, null)
+	if typeof(raw_value) != TYPE_ARRAY:
+		return
+	var values: Array = raw_value
+	for index in range(values.size()):
+		var tag_value := str(values[index]).strip_edges()
+		if tag_value.is_empty() or valid_values.has(tag_value):
+			continue
+		warnings.append(
+			(
+				"Skill data row '%s' uses unknown %s '%s'; update the matching catalog if intentional"
+				% [row_id, field_name.trim_suffix("s"), tag_value]
+			)
+		)
+
+
+func _collect_unknown_buff_combo_string_array_member_warnings(
+	warnings: Array[String],
+	row_id: String,
+	entry: Dictionary,
+	field_name: String,
+	valid_values: Array
+) -> void:
+	var raw_value = entry.get(field_name, null)
+	if typeof(raw_value) != TYPE_ARRAY:
+		return
+	var values: Array = raw_value
+	for index in range(values.size()):
+		var tag_value := str(values[index]).strip_edges()
+		if tag_value.is_empty() or valid_values.has(tag_value):
+			continue
+		warnings.append(
+			(
+				"Buff combo row '%s' uses unknown %s '%s'; update the matching catalog if intentional"
+				% [row_id, field_name.trim_suffix("s"), tag_value]
+			)
+		)
+
+
+func _collect_unknown_buff_combo_trigger_rule_string_warnings(
+	warnings: Array[String],
+	combo_id: String,
+	entry: Dictionary,
+	field_name: String,
+	valid_values: Array
+) -> void:
+	var raw_rules = entry.get("trigger_rules", null)
+	if typeof(raw_rules) != TYPE_ARRAY:
+		return
+	var rules: Array = raw_rules
+	for index in range(rules.size()):
+		var raw_rule = rules[index]
+		if typeof(raw_rule) != TYPE_DICTIONARY:
+			continue
+		var rule: Dictionary = raw_rule
+		if not rule.has(field_name):
+			continue
+		var field_value := str(rule.get(field_name, "")).strip_edges()
+		if field_value.is_empty() or valid_values.has(field_value):
+			continue
+		warnings.append(
+			(
+				"Buff combo row '%s' uses unknown trigger_rules[%d].%s '%s'; update the matching catalog if intentional"
+				% [combo_id, index, field_name, field_value]
+			)
+		)
+
+
+func _collect_buff_combo_effect_tag_runtime_candidate_warnings(
+	warnings: Array[String], combo_id: String, entry: Dictionary
+) -> void:
+	var effect_lookup := _extract_combo_effect_lookup([], combo_id, entry, "applied_effects")
+	var trigger_rule_lookup := _extract_combo_trigger_rule_lookup([], combo_id, entry)
+	if _buff_combo_has_effect_tag(entry, "poise_ignore"):
+		if not _buff_combo_required_buffs_include(entry, "holy_crystal_aegis"):
+			warnings.append(
+				(
+					"Buff combo row '%s' uses effect_tag 'poise_ignore' without required buff 'holy_crystal_aegis'; keep the runtime source aligned before promotion"
+					% combo_id
+				)
+			)
+		elif not _skill_row_has_numeric_buff_effect("holy_crystal_aegis", "super_armor_charges", "add", 1.0):
+			warnings.append(
+				(
+					"Buff combo row '%s' uses effect_tag 'poise_ignore' but runtime source 'holy_crystal_aegis.buff_effects.super_armor_charges' is missing or invalid"
+					% combo_id
+				)
+			)
+	if _buff_combo_has_effect_tag(entry, "shield") and not _combo_effect_has_numeric_value(
+		effect_lookup, "max_hp_barrier_ratio", "add", 0.0
+	):
+		warnings.append(
+			(
+				"Buff combo row '%s' uses effect_tag 'shield' but runtime source 'applied_effects.max_hp_barrier_ratio' is missing or invalid"
+				% combo_id
+			)
+		)
+	if _buff_combo_has_effect_tag(entry, "shockwave") and not _combo_trigger_rule_has_runtime_payload(
+		trigger_rule_lookup, "on_barrier_break", "spawn_effect", "radius"
+	):
+		warnings.append(
+			(
+				"Buff combo row '%s' uses effect_tag 'shockwave' but runtime source 'trigger_rules[on_barrier_break].spawn_effect/radius' is missing or invalid"
+				% combo_id
+			)
+		)
+
+
+func _buff_combo_has_effect_tag(entry: Dictionary, effect_tag: String) -> bool:
+	var raw_tags = entry.get("effect_tags", null)
+	if typeof(raw_tags) != TYPE_ARRAY:
+		return false
+	var tags: Array = raw_tags
+	for raw_tag in tags:
+		if str(raw_tag).strip_edges() == effect_tag:
+			return true
+	return false
+
+
+func _buff_combo_required_buffs_include(entry: Dictionary, required_buff_id: String) -> bool:
+	var raw_required_buffs = entry.get("required_buffs", null)
+	if typeof(raw_required_buffs) != TYPE_ARRAY:
+		return false
+	var required_buffs: Array = raw_required_buffs
+	for raw_required_buff in required_buffs:
+		if str(raw_required_buff).strip_edges() == required_buff_id:
+			return true
+	return false
+
+
+func _skill_row_has_numeric_buff_effect(
+	skill_id: String, stat_name: String, required_mode: String, minimum_value: float
+) -> bool:
+	if not skill_by_id.has(skill_id):
+		return false
+	var skill_entry: Dictionary = skill_by_id.get(skill_id, {})
+	var raw_effects = skill_entry.get("buff_effects", null)
+	if typeof(raw_effects) != TYPE_ARRAY:
+		return false
+	var effects: Array = raw_effects
+	for raw_effect in effects:
+		if typeof(raw_effect) != TYPE_DICTIONARY:
+			continue
+		var effect: Dictionary = raw_effect
+		if str(effect.get("stat", "")).strip_edges() != stat_name:
+			continue
+		if str(effect.get("mode", "")).strip_edges() != required_mode:
+			return false
+		if not _is_numeric_variant(effect.get("value", null)):
+			return false
+		return float(effect.get("value", 0.0)) >= minimum_value
+	return false
+
+
+func _combo_effect_has_numeric_value(
+	effect_lookup: Dictionary, stat_name: String, required_mode: String, minimum_value: float
+) -> bool:
+	if not effect_lookup.has(stat_name):
+		return false
+	var effect: Dictionary = effect_lookup.get(stat_name, {})
+	if str(effect.get("mode", "")).strip_edges() != required_mode:
+		return false
+	if not _is_numeric_variant(effect.get("value", null)):
+		return false
+	return float(effect.get("value", 0.0)) > minimum_value
+
+
+func _combo_trigger_rule_has_runtime_payload(
+	trigger_rule_lookup: Dictionary, event_name: String, string_field_name: String, numeric_field_name: String
+) -> bool:
+	if not trigger_rule_lookup.has(event_name):
+		return false
+	var trigger_rule: Dictionary = trigger_rule_lookup.get(event_name, {})
+	var string_value = trigger_rule.get(string_field_name, null)
+	if typeof(string_value) != TYPE_STRING or str(string_value).strip_edges().is_empty():
+		return false
+	return _is_numeric_variant(trigger_rule.get(numeric_field_name, null))
 
 
 func _is_numeric_variant(value: Variant) -> bool:

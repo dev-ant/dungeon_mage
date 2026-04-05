@@ -8,6 +8,11 @@ source_of_truth: true
 parent: /Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/docs/progression/README.md
 depends_on:
   - /Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/docs/progression/rules/skill_system_design.md
+  - /Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/docs/progression/catalogs/skill_role_tag_catalog.md
+  - /Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/docs/progression/catalogs/skill_growth_track_catalog.md
+  - /Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/docs/progression/catalogs/buff_category_catalog.md
+  - /Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/docs/progression/catalogs/buff_stack_rule_catalog.md
+  - /Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/docs/progression/catalogs/buff_combo_tag_catalog.md
   - /Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/docs/progression/trackers/skill_implementation_tracker.md
   - /Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/docs/implementation/baselines/current_runtime_baseline.md
 update_when:
@@ -38,6 +43,9 @@ last_verified: 2026-04-03
   - 스킬 이름, 속성, 서클, 컨셉, 목표 경험은 [skill_system_design.md](/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/docs/progression/rules/skill_system_design.md)를 따른다.
 - 실제 런타임 사실:
   - 현재 실제로 동작하는 JSON 키 사용 방식과 runtime 해석은 코드와 [current_runtime_baseline.md](/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/docs/implementation/baselines/current_runtime_baseline.md)를 따른다.
+- 태그 / 성장축 의미:
+  - `role_tags`의 현재 운영 목록과 의미는 [skill_role_tag_catalog.md](/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/docs/progression/catalogs/skill_role_tag_catalog.md)를 따른다.
+  - `growth_tracks`의 현재 운영 목록과 의미는 [skill_growth_track_catalog.md](/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/docs/progression/catalogs/skill_growth_track_catalog.md)를 따른다.
 - 이 문서의 역할:
   - 이 문서는 `데이터 형식 문서`다.
   - 필드 구조, canonical `skill_id` 규칙, enum-like 허용값, JSON 작성 규칙만 정의한다.
@@ -56,12 +64,13 @@ last_verified: 2026-04-03
 - 계산식은 숫자 필드로 쪼개 저장해, 런타임에서 조합 계산할 수 있게 합니다.
 - 버프 조합, 서클 승급, 마스터리 보너스와 연결 가능한 구조여야 합니다.
 
-## 데이터 파일 권장 구조
+## 데이터 파일 구조
 
 - `res://data/skills/skills.json`
-- 최상위는 스킬 객체 배열 또는 `skills` 키를 가진 객체를 권장합니다.
+- 현재 운영 기준에서 최상위는 반드시 `{"skills": [...]}` 형태의 객체입니다.
+- 로드 시점 validator도 `Dictionary` 루트와 `skills` 배열 필드를 전제로 동작합니다.
 - 각 스킬은 고유 `skill_id`를 가져야 합니다.
-- 최신 기획 기준의 canonical 식별자를 별도로 유지해야 할 때는 `canonical_skill_id`를 함께 둡니다.
+- 현재 운영 기준에서 모든 row는 `canonical_skill_id`를 명시합니다.
 
 ## 스킬 ID 규칙
 
@@ -93,7 +102,8 @@ last_verified: 2026-04-03
 - 다만 기존 runtime ID와 최신 기획 식별자가 아직 다를 때는 아래처럼 관리합니다.
   - `skill_id`: 현재 데이터 row의 실제 키
   - `canonical_skill_id`: 최신 기획 기준의 장기 식별자
-- `canonical_skill_id`가 없으면 `skill_id`를 canonical 값으로 간주합니다.
+- 2026-04-03 현재 운영 기준에서는 `canonical_skill_id`를 생략하지 않습니다.
+- row key와 canonical 값이 같더라도 `canonical_skill_id`를 명시해 alias / migration / validation 기준을 하나로 유지합니다.
 
 ## 관리 enum
 
@@ -123,6 +133,12 @@ last_verified: 2026-04-03
 | `dark` | 흑마법 |
 | `arcane` | 아케인 |
 | `none` | 무속성 / 순수 시스템성 효과 |
+
+비고:
+
+- `element = none`은 `skills.json` row에서만 허용합니다.
+- 의도는 무속성 버프, 시스템성 패시브, 비전투 utility row 같은 `비속성 스킬 표현`입니다.
+- 현재 `spells.json`의 runtime `school`은 실제 시전 school 계약이므로 `none`을 허용하지 않습니다.
 
 ### `skill_type`
 
@@ -160,17 +176,29 @@ last_verified: 2026-04-03
 | 필드 | 타입 | 설명 |
 | --- | --- | --- |
 | skill_id | string | 내부 식별자 |
-| canonical_skill_id | string | 선택 필드. 최신 기획 기준의 장기 식별자 |
+| canonical_skill_id | string | 필수 필드. 최신 기획 기준의 장기 식별자 |
 | display_name | string | UI 표시 이름 |
 | circle | int | 요구 서클 |
 | school | string | `elemental`, `white`, `black`, `arcane` 등 |
 | element | string | `fire`, `water`, `ice`, `lightning`, `wind`, `earth`, `plant`, `dark`, `holy`, `arcane`, `none` |
 | skill_type | string | `active`, `passive`, `buff`, `toggle`, `deploy` |
-| role_tags | array[string] | 단일 대상, 광역, 생존, 폭딜, 설치 등 |
+| role_tags | array[string] | 현재 운영 태그 목록은 `skill_role_tag_catalog.md`를 따른다 |
 | description | string | 한 줄 설명 |
 | max_level | int | 기본 30 |
-| growth_tracks | array[string] | 레벨에 따라 증가하는 항목 |
+| growth_tracks | array[string] | 현재 운영 성장축 목록은 `skill_growth_track_catalog.md`를 따른다 |
 | unlock_state | string | `starter`, `story`, `boss`, `record`, `late_game` |
+
+## 현재 로드 시점 hardening 범위
+
+- 모든 skill row는 `canonical_skill_id`, `role_tags`, `growth_tracks`, `unlock_state`를 가져야 합니다.
+- `role_tags`, `growth_tracks`, `combo_tags`는 현재 `array[string]` 구조까지 로드 시점에 검증합니다.
+- `active`, `deploy`, `toggle` row는 `hit_shape`를 명시해야 합니다.
+- `buff` row는 `buff_category`, `stack_rule_id`, `combo_tags`를 명시해야 합니다.
+- `lightning_conductive_surge.extra_lightning_ping`, `ice_frostblood_ward.ice_reflect_wave`처럼 후속 payload를 발사하는 buff row는 같은 `buff_effects` 안에 `*_effect_id`, `*_damage_ratio`, `*_radius`, `*_school`, `*_color` companion entry를 `mode = set`으로 함께 명시해야 합니다.
+- `dark_throne_of_ash`는 solo ash residue gate를 담당하므로, `buff_effects` 안에 `ash_residue_burst`를 `mode = add`, 양수 numeric value로 유지해야 합니다.
+- `role_tags` 허용 후보는 [skill_role_tag_catalog.md](/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/docs/progression/catalogs/skill_role_tag_catalog.md), `growth_tracks` 허용 후보는 [skill_growth_track_catalog.md](/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/docs/progression/catalogs/skill_growth_track_catalog.md), `combo_tags` 허용 후보는 [buff_combo_tag_catalog.md](/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/docs/progression/catalogs/buff_combo_tag_catalog.md)를 기준으로 관리합니다.
+- open tag 성격의 `role_tags`, `growth_tracks`, `combo_tags`는 현재 `구조`만 hard validation하고, whitelist enum lock은 catalog 정리가 끝난 뒤 후속 증분으로 남깁니다.
+- 2026-04-03 후속 hardening부터 `role_tags`, `growth_tracks`, `combo_tags`는 catalog 바깥 값이 들어오면 load 시점 `warning`을 남깁니다. 아직 `error`로 승격하지는 않습니다.
 
 ## 전투형 스킬 필드
 
@@ -245,12 +273,27 @@ last_verified: 2026-04-03
 
 | 필드 | 타입 | 설명 |
 | --- | --- | --- |
-| buff_category | string | `defense`, `offense`, `tempo`, `ritual`, `utility` |
+| buff_category | string | 버프 운영 카테고리. 현재 운영 closed 목록은 `buff_category_catalog.md`를 따른다 |
 | stackable | bool | 동일 버프 중복 가능 여부 |
-| stack_rule_id | string | 중첩 효율 규칙 ID |
+| stack_rule_id | string | 중첩 효율 규칙 ID. 현재 운영 closed 목록은 `buff_stack_rule_catalog.md`를 따른다 |
 | buff_effects | array[object] | 버프 효과 목록 |
 | downside_effects | array[object] | 종료 후 반동 또는 유지 페널티 |
-| combo_tags | array[string] | 버프 조합 판정용 태그 |
+| combo_tags | array[string] | 버프 조합 판정용 태그. 현재 운영 목록은 `buff_combo_tag_catalog.md`를 따른다 |
+
+현재 `buff_category`는 [buff_category_catalog.md](/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/docs/progression/catalogs/buff_category_catalog.md)의 관리 ID만 사용합니다. 이 필드는 open tag가 아니라 closed enum처럼 관리하며, catalog 밖 값은 로드 시점 `error`입니다.
+
+현재 `stack_rule_id`는 [buff_stack_rule_catalog.md](/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/docs/progression/catalogs/buff_stack_rule_catalog.md)의 관리 ID만 사용합니다. 이 필드는 open tag가 아니라 closed enum처럼 관리하며, catalog 밖 값은 로드 시점 `error`입니다.
+
+### 버프 row 작성 체크리스트
+
+- `buff_category`는 버프의 대표 전투 역할 하나만 고릅니다. 다목적 버프여도 주된 체감 축을 기준으로 고정합니다.
+- buff row는 `buff_category`와 같은 값을 `role_tags`에도 포함해, 대표 역할이 검색/요약 축에서도 바로 드러나게 합니다.
+- `stack_rule_id`는 현재 closed catalog 중 하나를 그대로 사용합니다. 새 규칙 이름이 필요하면 문서와 runtime validator를 같은 턴에 같이 갱신합니다.
+- `combo_tags`는 named combo를 그대로 복붙하지 말고, 속성/기능 힌트를 `1~3`개 정도로 고릅니다.
+- `buff_category`, `stack_rule_id`는 catalog 밖 값이 들어오면 load 시점 `error`입니다.
+- `combo_tags`는 현재 `array[string]` 구조를 hard validation하고, catalog 밖 값은 `warning-only` drift check로 알립니다.
+- `dark_throne_of_ash`의 `ash_residue_burst`는 open flavor tag가 아니라 현재 runtime trigger flag입니다. 이 row에서 빠지거나 타입/모드가 바뀌면 solo residue contract가 깨지므로 load 시점 `error`로 막습니다.
+- 버프의 named combo 조건까지 바뀌면 [buff_combo_catalog.md](/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/docs/progression/catalogs/buff_combo_catalog.md)도 같은 턴에 같이 갱신합니다.
 
 `buff_effects` 예시:
 
@@ -258,6 +301,19 @@ last_verified: 2026-04-03
 [
   { "stat": "damage_taken_multiplier", "mode": "mul", "value": 0.82 },
   { "stat": "poise_bonus", "mode": "add", "value": 25 }
+]
+```
+
+후속 effect payload authored 예시:
+
+```json
+[
+  { "stat": "extra_lightning_ping", "mode": "add", "value": 1 },
+  { "stat": "lightning_ping_effect_id", "mode": "set", "value": "lightning_ping" },
+  { "stat": "lightning_ping_damage_ratio", "mode": "set", "value": 0.45 },
+  { "stat": "lightning_ping_radius", "mode": "set", "value": 52.0 },
+  { "stat": "lightning_ping_school", "mode": "set", "value": "lightning" },
+  { "stat": "lightning_ping_color", "mode": "set", "value": "#a8c8ff" }
 ]
 ```
 

@@ -1135,7 +1135,12 @@
       "stack_rule_id": "default_diminishing_buff",
       "buff_effects": [
         { "stat": "ice_status_duration_multiplier", "mode": "mul", "value": 1.2 },
-        { "stat": "ice_reflect_wave", "mode": "add", "value": 1 }
+        { "stat": "ice_reflect_wave", "mode": "add", "value": 1 },
+        { "stat": "ice_reflect_wave_effect_id", "mode": "set", "value": "ice_reflect_wave" },
+        { "stat": "ice_reflect_wave_damage_ratio", "mode": "set", "value": 0.35 },
+        { "stat": "ice_reflect_wave_radius", "mode": "set", "value": 60.0 },
+        { "stat": "ice_reflect_wave_school", "mode": "set", "value": "ice" },
+        { "stat": "ice_reflect_wave_color", "mode": "set", "value": "#b8e8ff" }
       ],
       "downside_effects": [
         { "stat": "move_speed_multiplier", "mode": "mul", "value": 0.85, "duration": 5.0 }
@@ -1170,7 +1175,12 @@
       "buff_effects": [
         { "stat": "lightning_final_damage_multiplier", "mode": "mul", "value": 1.18 },
         { "stat": "chain_bonus", "mode": "add", "value": 1 },
-        { "stat": "extra_lightning_ping", "mode": "add", "value": 1 }
+        { "stat": "extra_lightning_ping", "mode": "add", "value": 1 },
+        { "stat": "lightning_ping_effect_id", "mode": "set", "value": "lightning_ping" },
+        { "stat": "lightning_ping_damage_ratio", "mode": "set", "value": 0.45 },
+        { "stat": "lightning_ping_radius", "mode": "set", "value": 52.0 },
+        { "stat": "lightning_ping_school", "mode": "set", "value": "lightning" },
+        { "stat": "lightning_ping_color", "mode": "set", "value": "#a8c8ff" }
       ],
       "downside_effects": [
         { "stat": "mana_regen_multiplier", "mode": "mul", "value": 0.0, "duration": 6.0 }
@@ -1190,7 +1200,7 @@
       "school": "black",
       "element": "dark",
       "skill_type": "buff",
-      "role_tags": ["offense", "dark", "drain"],
+      "role_tags": ["ritual", "offense", "dark", "drain"],
       "description": "HP 소모를 대가로 흑마법을 증폭하는 리스크 버프",
       "max_level": 30,
       "growth_tracks": ["duration", "buff_power"],

@@ -38,6 +38,48 @@ func _capture_enemy_validation_errors_with_removed_fields(
 	return captured
 
 
+func _capture_skill_catalog_extract_result(raw_blob: Variant) -> Dictionary:
+	var previous_errors: Array = GameDatabase.get_skill_validation_errors()
+	GameDatabase.skill_validation_errors.clear()
+	var entries: Array = GameDatabase._extract_skill_catalog_entries(
+		raw_blob,
+		"res://tests/mock_skills.json"
+	)
+	var captured: Array = GameDatabase.get_skill_validation_errors()
+	GameDatabase.skill_validation_errors.clear()
+	for error in previous_errors:
+		GameDatabase.skill_validation_errors.append(str(error))
+	return {"entries": entries, "errors": captured}
+
+
+func _capture_buff_combo_extract_result(raw_blob: Variant) -> Dictionary:
+	var previous_errors: Array = GameDatabase.get_buff_combo_validation_errors()
+	GameDatabase.buff_combo_validation_errors.clear()
+	var entries: Array = GameDatabase._extract_buff_combo_entries(
+		raw_blob,
+		"res://tests/mock_buff_combos.json"
+	)
+	var captured: Array = GameDatabase.get_buff_combo_validation_errors()
+	GameDatabase.buff_combo_validation_errors.clear()
+	for error in previous_errors:
+		GameDatabase.buff_combo_validation_errors.append(str(error))
+	return {"entries": entries, "errors": captured}
+
+
+func _capture_buff_combo_validation_warnings(combo_id: String, overrides: Dictionary) -> Array:
+	var combo: Dictionary = GameDatabase.get_buff_combo(combo_id)
+	for key in overrides.keys():
+		combo[key] = overrides[key]
+	return GameDatabase.collect_buff_combo_entry_warnings(combo_id, combo)
+
+
+func _capture_skill_validation_warnings(skill_id: String, overrides: Dictionary) -> Array:
+	var skill: Dictionary = GameDatabase.get_skill_data(skill_id)
+	for key in overrides.keys():
+		skill[key] = overrides[key]
+	return GameDatabase.collect_skill_entry_warnings(skill_id, skill)
+
+
 func _assert_error_list_contains(errors: Array, expected_message: String) -> void:
 	var found := false
 	for error in errors:
@@ -45,6 +87,28 @@ func _assert_error_list_contains(errors: Array, expected_message: String) -> voi
 			found = true
 			break
 	assert_true(found, "Expected enemy validation errors to contain: %s" % expected_message)
+
+
+func _get_skill_effect_value(skill_id: String, stat_name: String, field_name: String = "buff_effects") -> Variant:
+	var skill: Dictionary = GameDatabase.get_skill_data(skill_id)
+	for raw_effect in skill.get(field_name, []):
+		if typeof(raw_effect) != TYPE_DICTIONARY:
+			continue
+		var effect: Dictionary = raw_effect
+		if str(effect.get("stat", "")).strip_edges() == stat_name:
+			return effect.get("value", null)
+	return null
+
+
+func _get_combo_effect_value(combo_id: String, stat_name: String, field_name: String = "applied_effects") -> Variant:
+	var combo: Dictionary = GameDatabase.get_buff_combo(combo_id)
+	for raw_effect in combo.get(field_name, []):
+		if typeof(raw_effect) != TYPE_DICTIONARY:
+			continue
+		var effect: Dictionary = raw_effect
+		if str(effect.get("stat", "")).strip_edges() == stat_name:
+			return effect.get("value", null)
+	return null
 
 
 func _promote_to_circle_6_for_tests() -> void:
@@ -127,8 +191,31 @@ func test_progression_data_validation_reports_no_errors_for_current_data() -> vo
 		GameDatabase.has_spell_validation_errors(),
 		"Current spells.json data must pass the minimum validation skeleton"
 	)
+	assert_false(
+		GameDatabase.has_buff_combo_validation_errors(),
+		"Current buff_combos.json data must pass the minimum validation skeleton"
+	)
+	assert_false(
+		GameDatabase.has_buff_combo_validation_warnings(),
+		"Current buff_combos.json data should not emit whitelist drift warnings"
+	)
+	assert_false(
+		GameDatabase.has_skill_validation_warnings(),
+		"Current skills.json data should not emit whitelist drift warnings"
+	)
+
+
+func test_prismatic_guard_combo_does_not_keep_unused_hitstun_field() -> void:
+	assert_eq(
+		_get_combo_effect_value("combo_prismatic_guard", "hitstun_resist_mode"),
+		null,
+		"Prismatic Guard combo should not keep an unused hitstun_resist_mode payload; Crystal Aegis already owns the runtime super armor source"
+	)
 	assert_eq(GameDatabase.get_skill_validation_errors().size(), 0)
 	assert_eq(GameDatabase.get_spell_validation_errors().size(), 0)
+	assert_eq(GameDatabase.get_buff_combo_validation_errors().size(), 0)
+	assert_eq(GameDatabase.get_buff_combo_validation_warnings().size(), 0)
+	assert_eq(GameDatabase.get_skill_validation_warnings().size(), 0)
 
 
 func test_runtime_castable_skill_catalog_filters_canonical_only_rows_and_keeps_runtime_spell_entries() -> void:
@@ -151,6 +238,655 @@ func test_validate_skill_entry_rejects_invalid_skill_type_and_canonical_id() -> 
 	assert_true(errors.size() >= 2)
 	_assert_error_list_contains(errors, "Skill data row 'fire_ember_dart' has invalid canonical_skill_id")
 	_assert_error_list_contains(errors, "Skill data row 'fire_ember_dart' has invalid skill_type 'broken_type'")
+
+
+func test_validate_skill_entry_rejects_missing_required_canonical_skill_id() -> void:
+	var mock_skill: Dictionary = GameDatabase.get_skill_data("holy_healing_pulse")
+	mock_skill.erase("canonical_skill_id")
+	var errors := GameDatabase.validate_skill_entry("holy_healing_pulse", mock_skill)
+	assert_eq(errors.size(), 1)
+	_assert_error_list_contains(
+		errors, "Skill data row 'holy_healing_pulse' has invalid canonical_skill_id"
+	)
+
+
+func test_validate_skill_entry_rejects_required_runtime_contract_fields_for_active_rows() -> void:
+	var mock_skill: Dictionary = GameDatabase.get_skill_data("fire_ember_dart")
+	mock_skill["unlock_state"] = "broken_unlock"
+	mock_skill["role_tags"] = "projectile"
+	mock_skill["growth_tracks"] = "damage"
+	mock_skill["hit_shape"] = "broken_shape"
+	var errors := GameDatabase.validate_skill_entry("fire_ember_dart", mock_skill)
+	assert_true(errors.size() >= 4)
+	_assert_error_list_contains(
+		errors, "Skill data row 'fire_ember_dart' has invalid unlock_state 'broken_unlock'"
+	)
+	_assert_error_list_contains(
+		errors, "Skill data row 'fire_ember_dart' has invalid role_tags; expected array[string]"
+	)
+	_assert_error_list_contains(
+		errors, "Skill data row 'fire_ember_dart' has invalid growth_tracks; expected array[string]"
+	)
+	_assert_error_list_contains(
+		errors, "Skill data row 'fire_ember_dart' has invalid hit_shape 'broken_shape'"
+	)
+
+
+func test_validate_skill_entry_rejects_required_buff_contract_fields() -> void:
+	var mock_skill: Dictionary = GameDatabase.get_skill_data("holy_mana_veil")
+	mock_skill["buff_category"] = "broken_category"
+	mock_skill["stack_rule_id"] = "broken_stack_rule"
+	mock_skill["combo_tags"] = "guard"
+	var errors := GameDatabase.validate_skill_entry("holy_mana_veil", mock_skill)
+	assert_true(errors.size() >= 3)
+	_assert_error_list_contains(
+		errors, "Skill data row 'holy_mana_veil' has invalid buff_category 'broken_category'"
+	)
+	_assert_error_list_contains(
+		errors, "Skill data row 'holy_mana_veil' has invalid stack_rule_id 'broken_stack_rule'"
+	)
+	_assert_error_list_contains(
+		errors, "Skill data row 'holy_mana_veil' has invalid combo_tags; expected array[string]"
+	)
+
+
+func test_validate_skill_entry_requires_buff_category_role_tag_alignment() -> void:
+	var mock_skill: Dictionary = GameDatabase.get_skill_data("holy_mana_veil")
+	mock_skill["role_tags"] = ["stability"]
+	var errors := GameDatabase.validate_skill_entry("holy_mana_veil", mock_skill)
+	assert_eq(errors.size(), 1)
+	_assert_error_list_contains(
+		errors, "Skill data row 'holy_mana_veil' must include role_tag 'defense' matching buff_category"
+	)
+
+
+func test_validate_skill_entry_rejects_invalid_secondary_buff_payload_fields() -> void:
+	var mock_skill: Dictionary = GameDatabase.get_skill_data("lightning_conductive_surge").duplicate(true)
+	mock_skill["buff_effects"] = [
+		{"stat": "lightning_final_damage_multiplier", "mode": "mul", "value": 1.18},
+		{"stat": "chain_bonus", "mode": "add", "value": 1},
+		{"stat": "extra_lightning_ping", "mode": "add", "value": 1},
+		{"stat": "lightning_ping_damage_ratio", "mode": "set", "value": "heavy"},
+		{"stat": "lightning_ping_radius", "mode": "add", "value": 52.0},
+		{"stat": "lightning_ping_school", "mode": "set", "value": "storm"},
+		{"stat": "lightning_ping_color", "mode": "set", "value": ""}
+	]
+	var errors := GameDatabase.validate_skill_entry("lightning_conductive_surge", mock_skill)
+	assert_true(errors.size() >= 5)
+	_assert_error_list_contains(
+		errors,
+		"Skill data row 'lightning_conductive_surge' is missing buff_effects stat 'lightning_ping_effect_id' required by 'extra_lightning_ping'"
+	)
+	_assert_error_list_contains(
+		errors,
+		"Skill data row 'lightning_conductive_surge' has invalid buff_effects stat 'lightning_ping_damage_ratio'"
+	)
+	_assert_error_list_contains(
+		errors,
+		"Skill data row 'lightning_conductive_surge' buff_effects stat 'lightning_ping_radius' must use mode 'set'"
+	)
+	_assert_error_list_contains(
+		errors,
+		"Skill data row 'lightning_conductive_surge' has invalid buff_effects stat 'lightning_ping_school'"
+	)
+	_assert_error_list_contains(
+		errors,
+		"Skill data row 'lightning_conductive_surge' has invalid buff_effects stat 'lightning_ping_color'"
+	)
+
+
+func test_validate_skill_entry_requires_dark_throne_of_ash_residue_trigger_flag() -> void:
+	var mock_skill: Dictionary = GameDatabase.get_skill_data("dark_throne_of_ash").duplicate(true)
+	mock_skill["buff_effects"] = [
+		{"stat": "fire_final_damage_multiplier", "mode": "mul", "value": 1.22},
+		{"stat": "dark_final_damage_multiplier", "mode": "mul", "value": 1.22},
+		{"stat": "ash_residue_burst", "mode": "mul", "value": "soon"}
+	]
+	var errors := GameDatabase.validate_skill_entry("dark_throne_of_ash", mock_skill)
+	assert_true(errors.size() >= 2)
+	_assert_error_list_contains(
+		errors, "Skill data row 'dark_throne_of_ash' has invalid buff_effects stat 'ash_residue_burst'"
+	)
+	_assert_error_list_contains(
+		errors,
+		"Skill data row 'dark_throne_of_ash' buff_effects stat 'ash_residue_burst' must use mode 'add'"
+	)
+
+
+func test_valid_buff_categories_lock_current_closed_runtime_contract() -> void:
+	var expected_categories: Array[String] = [
+		"defense", "offense", "tempo", "ritual", "utility"
+	]
+	assert_eq(GameDatabase.get_valid_buff_categories(), expected_categories)
+	var used_categories: Array[String] = []
+	for skill in GameDatabase.get_all_skills():
+		if str(skill.get("skill_type", "")) != "buff":
+			continue
+		var buff_category := str(skill.get("buff_category", ""))
+		if buff_category.is_empty() or used_categories.has(buff_category):
+			continue
+		used_categories.append(buff_category)
+	used_categories.sort()
+	expected_categories.sort()
+	assert_eq(used_categories, expected_categories, "Current buff rows should cover the full closed buff_category contract")
+
+
+func test_current_buff_rows_include_matching_buff_category_role_tag() -> void:
+	for skill in GameDatabase.get_all_skills():
+		if str(skill.get("skill_type", "")) != "buff":
+			continue
+		var role_tags: Array = skill.get("role_tags", [])
+		var buff_category := str(skill.get("buff_category", ""))
+		assert_true(
+			role_tags.has(buff_category),
+			"Buff row '%s' should include role_tag '%s' matching buff_category"
+			% [str(skill.get("skill_id", "")), buff_category]
+		)
+
+
+func test_valid_stack_rule_ids_lock_current_closed_runtime_contract() -> void:
+	assert_eq(
+		GameDatabase.get_valid_stack_rule_ids(),
+		["default_diminishing_buff", "heavy_diminishing_buff", "ritual_single_focus"]
+	)
+	var used_stack_rule_ids: Array[String] = []
+	for skill in GameDatabase.get_all_skills():
+		if str(skill.get("skill_type", "")) != "buff":
+			continue
+		var stack_rule_id := str(skill.get("stack_rule_id", ""))
+		if stack_rule_id.is_empty() or used_stack_rule_ids.has(stack_rule_id):
+			continue
+		used_stack_rule_ids.append(stack_rule_id)
+	assert_eq(
+		used_stack_rule_ids,
+		GameDatabase.get_valid_stack_rule_ids(),
+		"Current buff rows should cover the full closed stack_rule_id contract"
+	)
+
+
+func test_dark_throne_of_ash_skill_row_keeps_solo_ash_residue_trigger_flag() -> void:
+	assert_eq(
+		int(_get_skill_effect_value("dark_throne_of_ash", "ash_residue_burst")),
+		1,
+		"dark_throne_of_ash should keep the solo ash residue trigger flag in buff_effects"
+	)
+
+
+func test_valid_buff_combo_stack_keys_lock_current_closed_runtime_contract() -> void:
+	assert_eq(GameDatabase.get_valid_buff_combo_stack_keys(), ["ash"])
+	var used_stack_keys: Array[String] = []
+	for combo in GameDatabase.get_all_buff_combos():
+		for rule in combo.get("trigger_rules", []):
+			if typeof(rule) != TYPE_DICTIONARY:
+				continue
+			for field_name in ["stack_name", "scales_with_stack"]:
+				var stack_key := str(rule.get(field_name, "")).strip_edges()
+				if stack_key.is_empty() or used_stack_keys.has(stack_key):
+					continue
+				used_stack_keys.append(stack_key)
+	assert_eq(
+		used_stack_keys,
+		GameDatabase.get_valid_buff_combo_stack_keys(),
+		"Current buff combos should cover the full closed stack key contract"
+	)
+
+
+func test_valid_buff_combo_apply_status_tags_lock_current_warning_catalog() -> void:
+	assert_eq(GameDatabase.get_valid_buff_combo_apply_status_tags(), ["snare"])
+	var used_status_tags: Array[String] = []
+	for combo in GameDatabase.get_all_buff_combos():
+		for rule in combo.get("trigger_rules", []):
+			if typeof(rule) != TYPE_DICTIONARY:
+				continue
+			var status_tag := str(rule.get("apply_status", "")).strip_edges()
+			if status_tag.is_empty() or used_status_tags.has(status_tag):
+				continue
+			used_status_tags.append(status_tag)
+	assert_eq(
+		used_status_tags,
+		GameDatabase.get_valid_buff_combo_apply_status_tags(),
+		"Current buff combos should cover the current apply_status warning catalog"
+	)
+
+
+func test_validate_none_element_is_skill_only_and_runtime_spell_school_stays_closed() -> void:
+	var mock_skill: Dictionary = GameDatabase.get_skill_data("holy_mana_veil")
+	mock_skill["element"] = "none"
+	var skill_errors := GameDatabase.validate_skill_entry("holy_mana_veil", mock_skill)
+	assert_eq(skill_errors.size(), 0, "skill rows should allow element = none")
+	var mock_spell: Dictionary = GameDatabase.get_spell("holy_radiant_burst")
+	mock_spell["school"] = "none"
+	var spell_errors := GameDatabase.validate_spell_entry("holy_radiant_burst", mock_spell)
+	assert_eq(spell_errors.size(), 1, "runtime spell rows should keep a closed elemental school enum")
+	_assert_error_list_contains(
+		spell_errors, "Spell data row 'holy_radiant_burst' has invalid school 'none'"
+	)
+
+
+func test_collect_skill_entry_warnings_flags_unknown_role_tag_without_failing_validation() -> void:
+	var warnings := _capture_skill_validation_warnings(
+		"fire_ember_dart",
+		{"role_tags": ["projectile", "unknown_tag"]}
+	)
+	assert_eq(warnings.size(), 1)
+	_assert_error_list_contains(
+		warnings,
+		"Skill data row 'fire_ember_dart' uses unknown role_tag 'unknown_tag'; update the matching catalog if intentional"
+	)
+	var mock_skill: Dictionary = GameDatabase.get_skill_data("fire_ember_dart")
+	mock_skill["role_tags"] = ["projectile", "unknown_tag"]
+	var errors := GameDatabase.validate_skill_entry("fire_ember_dart", mock_skill)
+	assert_eq(errors.size(), 0, "unknown role tags should warn without failing load-time validation")
+
+
+func test_collect_skill_entry_warnings_flags_unknown_growth_track_without_failing_validation() -> void:
+	var warnings := _capture_skill_validation_warnings(
+		"fire_ember_dart",
+		{"growth_tracks": ["damage", "unknown_track"]}
+	)
+	assert_eq(warnings.size(), 1)
+	_assert_error_list_contains(
+		warnings,
+		"Skill data row 'fire_ember_dart' uses unknown growth_track 'unknown_track'; update the matching catalog if intentional"
+	)
+	var mock_skill: Dictionary = GameDatabase.get_skill_data("fire_ember_dart")
+	mock_skill["growth_tracks"] = ["damage", "unknown_track"]
+	var errors := GameDatabase.validate_skill_entry("fire_ember_dart", mock_skill)
+	assert_eq(errors.size(), 0, "unknown growth tracks should warn without failing load-time validation")
+
+
+func test_collect_skill_entry_warnings_flags_unknown_combo_tag_without_failing_validation() -> void:
+	var warnings := _capture_skill_validation_warnings(
+		"holy_mana_veil",
+		{"combo_tags": ["guard", "unknown_combo_tag"]}
+	)
+	assert_eq(warnings.size(), 1)
+	_assert_error_list_contains(
+		warnings,
+		"Skill data row 'holy_mana_veil' uses unknown combo_tag 'unknown_combo_tag'; update the matching catalog if intentional"
+	)
+	var mock_skill: Dictionary = GameDatabase.get_skill_data("holy_mana_veil")
+	mock_skill["combo_tags"] = ["guard", "unknown_combo_tag"]
+	var errors := GameDatabase.validate_skill_entry("holy_mana_veil", mock_skill)
+	assert_eq(errors.size(), 0, "unknown combo tags should warn without failing load-time validation")
+
+
+func test_skill_catalog_loader_requires_dictionary_with_skills_array() -> void:
+	var captured := _capture_skill_catalog_extract_result([])
+	var entries: Array = captured.get("entries", [])
+	var errors: Array = captured.get("errors", [])
+	assert_eq(entries.size(), 0)
+	_assert_error_list_contains(
+		errors,
+		"Skill data file 'res://tests/mock_skills.json' must be a dictionary with array field 'skills'"
+	)
+	assert_push_error(
+		"Skill data file 'res://tests/mock_skills.json' must be a dictionary with array field 'skills'",
+		"Invalid top-level skill catalog structure must emit one push_error"
+	)
+
+
+func test_buff_combo_catalog_loader_requires_dictionary_with_combos_array() -> void:
+	var captured := _capture_buff_combo_extract_result([])
+	var entries: Array = captured.get("entries", [])
+	var errors: Array = captured.get("errors", [])
+	assert_eq(entries.size(), 0)
+	_assert_error_list_contains(
+		errors,
+		"Buff combo data file 'res://tests/mock_buff_combos.json' must be a dictionary with array field 'combos'"
+	)
+	assert_push_error(
+		"Buff combo data file 'res://tests/mock_buff_combos.json' must be a dictionary with array field 'combos'",
+		"Invalid top-level buff combo catalog structure must emit one push_error"
+	)
+
+
+func test_validate_buff_combo_entry_rejects_missing_required_fields() -> void:
+	var combo := GameDatabase.get_buff_combo("combo_prismatic_guard")
+	combo.erase("display_name")
+	combo["combo_type"] = "broken_type"
+	combo["required_buffs"] = "holy_mana_veil"
+	combo["effect_tags"] = "shield"
+	combo.erase("priority")
+	var errors := GameDatabase.validate_buff_combo_entry("combo_prismatic_guard", combo)
+	assert_true(errors.size() >= 5)
+	_assert_error_list_contains(errors, "Buff combo row 'combo_prismatic_guard' has invalid display_name")
+	_assert_error_list_contains(errors, "Buff combo row 'combo_prismatic_guard' has invalid combo_type 'broken_type'")
+	_assert_error_list_contains(errors, "Buff combo row 'combo_prismatic_guard' has invalid required_buffs; expected array[string]")
+	_assert_error_list_contains(errors, "Buff combo row 'combo_prismatic_guard' has invalid effect_tags; expected array[string]")
+	_assert_error_list_contains(errors, "Buff combo row 'combo_prismatic_guard' is missing numeric priority")
+
+
+func test_validate_buff_combo_entry_rejects_invalid_effect_and_trigger_rule_objects() -> void:
+	var combo := GameDatabase.get_buff_combo("combo_prismatic_guard")
+	combo["applied_effects"] = [{"stat": "", "mode": "broken_mode"}]
+	combo["trigger_rules"] = [{"event": "broken_event", "cooldown": "fast"}]
+	combo["penalties"] = [{"stat": "", "mode": "broken_mode", "value": "oops", "duration": "long"}]
+	var errors := GameDatabase.validate_buff_combo_entry("combo_prismatic_guard", combo)
+	assert_true(errors.size() >= 7)
+	_assert_error_list_contains(errors, "Buff combo row 'combo_prismatic_guard' has invalid applied_effects[0].stat")
+	_assert_error_list_contains(errors, "Buff combo row 'combo_prismatic_guard' has invalid applied_effects[0].mode 'broken_mode'")
+	_assert_error_list_contains(errors, "Buff combo row 'combo_prismatic_guard' is missing applied_effects[0].value")
+	_assert_error_list_contains(errors, "Buff combo row 'combo_prismatic_guard' has invalid trigger_rules[0].event 'broken_event'")
+	_assert_error_list_contains(errors, "Buff combo row 'combo_prismatic_guard' is missing numeric trigger_rules[0].cooldown")
+	_assert_error_list_contains(errors, "Buff combo row 'combo_prismatic_guard' has invalid penalties[0].mode 'broken_mode'")
+	_assert_error_list_contains(errors, "Buff combo row 'combo_prismatic_guard' has invalid penalties[0].value")
+
+
+func test_validate_buff_combo_entry_rejects_invalid_trigger_rule_school_and_stack_refs() -> void:
+	var combo := GameDatabase.get_buff_combo("combo_ashen_rite")
+	combo["trigger_rules"] = [
+		{"event": "on_spell_hit", "cooldown": 0.0, "stack_name": "ember", "max_stacks": 20, "damage_school": "none"},
+		{"event": "on_combo_end", "cooldown": 0.0, "scales_with_stack": "ash"}
+	]
+	var errors := GameDatabase.validate_buff_combo_entry("combo_ashen_rite", combo)
+	assert_true(errors.size() >= 3)
+	_assert_error_list_contains(
+		errors, "Buff combo row 'combo_ashen_rite' has invalid trigger_rules[0].damage_school 'none'"
+	)
+	_assert_error_list_contains(
+		errors, "Buff combo row 'combo_ashen_rite' has invalid trigger_rules[0].stack_name 'ember'"
+	)
+	_assert_error_list_contains(
+		errors,
+		"Buff combo row 'combo_ashen_rite' trigger_rules[1].scales_with_stack 'ash' must reference a declared stack_name in the same combo"
+	)
+
+
+func test_validate_buff_combo_entry_rejects_invalid_ashen_rite_end_payload_fields() -> void:
+	var combo := GameDatabase.get_buff_combo("combo_ashen_rite")
+	combo["trigger_rules"] = [
+		{"event": "on_spell_hit", "cooldown": 0.0, "stack_name": "ash", "max_stacks": 20},
+		{
+			"event": "on_combo_end",
+			"cooldown": 0.0,
+			"spawn_effect": "ash_detonation",
+			"scales_with_stack": "ash",
+			"damage_school": "fire",
+			"color": "",
+			"damage": "heavy",
+			"damage_per_stack": "fast",
+			"radius": 68.0,
+			"radius_per_stack": "wide"
+		}
+	]
+	var errors := GameDatabase.validate_buff_combo_entry("combo_ashen_rite", combo)
+	assert_true(errors.size() >= 4)
+	_assert_error_list_contains(
+		errors, "Buff combo row 'combo_ashen_rite' has invalid trigger_rules[1].color"
+	)
+	_assert_error_list_contains(
+		errors, "Buff combo row 'combo_ashen_rite' has invalid trigger_rules[1].damage"
+	)
+	_assert_error_list_contains(
+		errors, "Buff combo row 'combo_ashen_rite' has invalid trigger_rules[1].damage_per_stack"
+	)
+	_assert_error_list_contains(
+		errors, "Buff combo row 'combo_ashen_rite' has invalid trigger_rules[1].radius_per_stack"
+	)
+
+
+func test_validate_buff_combo_entry_requires_ashen_rite_runtime_payload_bundle() -> void:
+	var combo := GameDatabase.get_buff_combo("combo_ashen_rite")
+	combo["applied_effects"] = [
+		{"stat": "fire_final_damage_multiplier", "mode": "mul", "value": 1.22},
+		{"stat": "dark_final_damage_multiplier", "mode": "mul", "value": 1.22},
+		{"stat": "ash_residue_effect_id", "mode": "add", "value": "ash_residue_burst"},
+		{"stat": "ash_residue_school", "mode": "set", "value": "ember"}
+	]
+	combo["trigger_rules"] = [
+		{"event": "on_spell_hit", "cooldown": 0.0, "stack_name": "ash", "max_stacks": 20},
+		{"event": "on_combo_end", "cooldown": 0.0, "spawn_effect": "", "damage_school": "fire"}
+	]
+	var errors := GameDatabase.validate_buff_combo_entry("combo_ashen_rite", combo)
+	assert_true(errors.size() >= 7)
+	_assert_error_list_contains(
+		errors, "Buff combo row 'combo_ashen_rite' applied_effects stat 'ash_residue_effect_id' must use mode 'set'"
+	)
+	_assert_error_list_contains(
+		errors, "Buff combo row 'combo_ashen_rite' is missing applied_effects stat 'ash_residue_interval'"
+	)
+	_assert_error_list_contains(
+		errors, "Buff combo row 'combo_ashen_rite' is missing applied_effects stat 'ash_residue_damage'"
+	)
+	_assert_error_list_contains(
+		errors, "Buff combo row 'combo_ashen_rite' is missing applied_effects stat 'ash_residue_radius'"
+	)
+	_assert_error_list_contains(
+		errors, "Buff combo row 'combo_ashen_rite' has invalid applied_effects stat 'ash_residue_school'"
+	)
+	_assert_error_list_contains(
+		errors, "Buff combo row 'combo_ashen_rite' has invalid trigger_rules[on_combo_end].spawn_effect"
+	)
+	_assert_error_list_contains(
+		errors, "Buff combo row 'combo_ashen_rite' has invalid trigger_rules[on_combo_end].damage"
+	)
+
+
+func test_validate_buff_combo_entry_requires_funeral_bloom_runtime_payload_bundle() -> void:
+	var combo := GameDatabase.get_buff_combo("combo_funeral_bloom")
+	combo["trigger_rules"] = [{"event": "on_deploy_kill", "cooldown": 0.0}]
+	var errors := GameDatabase.validate_buff_combo_entry("combo_funeral_bloom", combo)
+	assert_true(errors.size() >= 5)
+	_assert_error_list_contains(
+		errors, "Buff combo row 'combo_funeral_bloom' has invalid trigger_rules[on_deploy_kill].spawn_effect"
+	)
+	_assert_error_list_contains(
+		errors, "Buff combo row 'combo_funeral_bloom' has invalid trigger_rules[on_deploy_kill].radius"
+	)
+	_assert_error_list_contains(
+		errors, "Buff combo row 'combo_funeral_bloom' has invalid trigger_rules[on_deploy_kill].damage_school"
+	)
+	_assert_error_list_contains(
+		errors, "Buff combo row 'combo_funeral_bloom' has invalid trigger_rules[on_deploy_kill].apply_status"
+	)
+	_assert_error_list_contains(
+		errors, "Buff combo row 'combo_funeral_bloom' has invalid trigger_rules[on_deploy_kill].color"
+	)
+
+
+func test_validate_buff_combo_entry_requires_prismatic_guard_break_payload_bundle() -> void:
+	var combo := GameDatabase.get_buff_combo("combo_prismatic_guard")
+	combo["trigger_rules"] = [{"event": "on_barrier_break", "cooldown": 0.0, "spawn_effect": ""}]
+	var errors := GameDatabase.validate_buff_combo_entry("combo_prismatic_guard", combo)
+	assert_true(errors.size() >= 2)
+	_assert_error_list_contains(
+		errors, "Buff combo row 'combo_prismatic_guard' has invalid trigger_rules[on_barrier_break].spawn_effect"
+	)
+	_assert_error_list_contains(
+		errors, "Buff combo row 'combo_prismatic_guard' has invalid trigger_rules[on_barrier_break].radius"
+	)
+
+
+func test_validate_buff_combo_entry_requires_prismatic_guard_barrier_ratio_contract() -> void:
+	var combo := GameDatabase.get_buff_combo("combo_prismatic_guard").duplicate(true)
+	combo["applied_effects"] = [
+		{"stat": "max_hp_barrier_ratio", "mode": "set", "value": 0.0}
+	]
+	var errors := GameDatabase.validate_buff_combo_entry("combo_prismatic_guard", combo)
+	assert_true(errors.size() >= 2)
+	_assert_error_list_contains(
+		errors, "Buff combo row 'combo_prismatic_guard' has invalid applied_effects stat 'max_hp_barrier_ratio'"
+	)
+	_assert_error_list_contains(
+		errors, "Buff combo row 'combo_prismatic_guard' applied_effects stat 'max_hp_barrier_ratio' must use mode 'add'"
+	)
+
+
+func test_validate_buff_combo_entry_requires_overclock_circuit_runtime_effect_bundle() -> void:
+	var combo := GameDatabase.get_buff_combo("combo_overclock_circuit")
+	combo["applied_effects"] = [
+		{"stat": "lightning_aftercast_multiplier", "mode": "add", "value": "fast"},
+		{"stat": "lightning_chain_bonus", "mode": "mul", "value": 0},
+		{"stat": "dash_cast_speed_multiplier", "mode": "set", "value": "surge"}
+	]
+	var errors := GameDatabase.validate_buff_combo_entry("combo_overclock_circuit", combo)
+	assert_true(errors.size() >= 6)
+	_assert_error_list_contains(
+		errors,
+		"Buff combo row 'combo_overclock_circuit' has invalid applied_effects stat 'lightning_aftercast_multiplier'"
+	)
+	_assert_error_list_contains(
+		errors,
+		"Buff combo row 'combo_overclock_circuit' applied_effects stat 'lightning_aftercast_multiplier' must use mode 'mul'"
+	)
+	_assert_error_list_contains(
+		errors,
+		"Buff combo row 'combo_overclock_circuit' has invalid applied_effects stat 'lightning_chain_bonus'"
+	)
+	_assert_error_list_contains(
+		errors,
+		"Buff combo row 'combo_overclock_circuit' applied_effects stat 'lightning_chain_bonus' must use mode 'add'"
+	)
+	_assert_error_list_contains(
+		errors,
+		"Buff combo row 'combo_overclock_circuit' has invalid applied_effects stat 'dash_cast_speed_multiplier'"
+	)
+	_assert_error_list_contains(
+		errors,
+		"Buff combo row 'combo_overclock_circuit' applied_effects stat 'dash_cast_speed_multiplier' must use mode 'mul'"
+	)
+
+
+func test_validate_buff_combo_entry_requires_time_collapse_discount_charge_contract() -> void:
+	var combo := GameDatabase.get_buff_combo("combo_time_collapse")
+	combo["applied_effects"] = [
+		{"stat": "final_damage_multiplier", "mode": "mul", "value": 1.18},
+		{"stat": "cast_speed_multiplier", "mode": "mul", "value": 1.15},
+		{"stat": "discounted_cast_charges", "mode": "add", "value": 0}
+	]
+	var errors := GameDatabase.validate_buff_combo_entry("combo_time_collapse", combo)
+	assert_true(errors.size() >= 2)
+	_assert_error_list_contains(
+		errors,
+		"Buff combo row 'combo_time_collapse' applied_effects stat 'discounted_cast_charges' must use mode 'set'"
+	)
+	_assert_error_list_contains(
+		errors,
+		"Buff combo row 'combo_time_collapse' has invalid applied_effects stat 'discounted_cast_charges'"
+	)
+
+
+func test_validate_buff_combo_links_rejects_unknown_or_non_buff_required_rows() -> void:
+	var combo := GameDatabase.get_buff_combo("combo_prismatic_guard")
+	combo["required_buffs"] = ["missing_buff", "fire_mastery"]
+	var errors := GameDatabase.validate_buff_combo_links("combo_prismatic_guard", combo)
+	assert_eq(errors.size(), 2)
+	_assert_error_list_contains(
+		errors, "Buff combo row 'combo_prismatic_guard' references unknown required buff 'missing_buff'"
+	)
+	_assert_error_list_contains(
+		errors, "Buff combo row 'combo_prismatic_guard' required buff 'fire_mastery' must point to buff skill row"
+	)
+
+
+func test_collect_buff_combo_entry_warnings_flags_unknown_effect_tag_without_failing_validation() -> void:
+	var warnings := _capture_buff_combo_validation_warnings(
+		"combo_prismatic_guard",
+		{"effect_tags": ["shield", "unknown_effect_tag"]}
+	)
+	assert_eq(warnings.size(), 1)
+	_assert_error_list_contains(
+		warnings,
+		"Buff combo row 'combo_prismatic_guard' uses unknown effect_tag 'unknown_effect_tag'; update the matching catalog if intentional"
+	)
+	var combo := GameDatabase.get_buff_combo("combo_prismatic_guard")
+	combo["effect_tags"] = ["shield", "unknown_effect_tag"]
+	var errors := GameDatabase.validate_buff_combo_entry("combo_prismatic_guard", combo)
+	assert_eq(errors.size(), 0, "unknown combo effect tags should warn without failing load-time validation")
+
+
+func test_collect_buff_combo_entry_warnings_flags_poise_ignore_without_crystal_aegis_requirement() -> void:
+	var warnings := _capture_buff_combo_validation_warnings(
+		"combo_prismatic_guard",
+		{"required_buffs": ["holy_mana_veil"], "effect_tags": ["poise_ignore", "shield", "shockwave"]}
+	)
+	assert_eq(warnings.size(), 1)
+	_assert_error_list_contains(
+		warnings,
+		"Buff combo row 'combo_prismatic_guard' uses effect_tag 'poise_ignore' without required buff 'holy_crystal_aegis'; keep the runtime source aligned before promotion"
+	)
+
+
+func test_collect_buff_combo_entry_warnings_flags_poise_ignore_without_runtime_source() -> void:
+	var original_skill: Dictionary = GameDatabase.skill_by_id.get("holy_crystal_aegis", {}).duplicate(true)
+	var mutated_skill := original_skill.duplicate(true)
+	mutated_skill["buff_effects"] = [
+		{"stat": "damage_taken_multiplier", "mode": "mul", "value": 0.7},
+		{"stat": "super_armor_charges", "mode": "set", "value": 0},
+		{"stat": "status_resistance", "mode": "add", "value": 0.25}
+	]
+	GameDatabase.skill_by_id["holy_crystal_aegis"] = mutated_skill
+	var warnings := GameDatabase.collect_buff_combo_entry_warnings(
+		"combo_prismatic_guard", GameDatabase.get_buff_combo("combo_prismatic_guard")
+	)
+	GameDatabase.skill_by_id["holy_crystal_aegis"] = original_skill
+	assert_eq(warnings.size(), 1)
+	_assert_error_list_contains(
+		warnings,
+		"Buff combo row 'combo_prismatic_guard' uses effect_tag 'poise_ignore' but runtime source 'holy_crystal_aegis.buff_effects.super_armor_charges' is missing or invalid"
+	)
+
+
+func test_collect_buff_combo_entry_warnings_flags_shield_without_barrier_ratio_source() -> void:
+	var warnings := _capture_buff_combo_validation_warnings(
+		"combo_prismatic_guard",
+		{"effect_tags": ["shield"], "applied_effects": []}
+	)
+	assert_eq(warnings.size(), 1)
+	_assert_error_list_contains(
+		warnings,
+		"Buff combo row 'combo_prismatic_guard' uses effect_tag 'shield' but runtime source 'applied_effects.max_hp_barrier_ratio' is missing or invalid"
+	)
+
+
+func test_collect_buff_combo_entry_warnings_flags_shockwave_without_trigger_payload_source() -> void:
+	var warnings := _capture_buff_combo_validation_warnings(
+		"combo_prismatic_guard",
+		{"effect_tags": ["shockwave"], "trigger_rules": []}
+	)
+	assert_eq(warnings.size(), 1)
+	_assert_error_list_contains(
+		warnings,
+		"Buff combo row 'combo_prismatic_guard' uses effect_tag 'shockwave' but runtime source 'trigger_rules[on_barrier_break].spawn_effect/radius' is missing or invalid"
+	)
+
+
+func test_collect_buff_combo_entry_warnings_flags_unknown_apply_status_without_failing_validation() -> void:
+	var warnings := _capture_buff_combo_validation_warnings(
+		"combo_funeral_bloom",
+		{
+			"trigger_rules": [
+				{
+					"event": "on_deploy_kill",
+					"cooldown": 1.5,
+					"spawn_effect": "corruption_burst",
+					"radius": 96,
+					"damage_school": "dark",
+					"apply_status": "tangle"
+				}
+			]
+		}
+	)
+	assert_eq(warnings.size(), 1)
+	_assert_error_list_contains(
+		warnings,
+		"Buff combo row 'combo_funeral_bloom' uses unknown trigger_rules[0].apply_status 'tangle'; update the matching catalog if intentional"
+	)
+	var combo := GameDatabase.get_buff_combo("combo_funeral_bloom")
+	combo["trigger_rules"] = [
+		{
+			"event": "on_deploy_kill",
+			"cooldown": 1.5,
+			"spawn_effect": "corruption_burst",
+			"radius": 96,
+			"damage_school": "dark",
+			"apply_status": "tangle",
+			"color": "#6a1d8a"
+		}
+	]
+	var errors := GameDatabase.validate_buff_combo_entry("combo_funeral_bloom", combo)
+	assert_eq(errors.size(), 0, "unknown apply_status should warn without failing load-time validation")
 
 
 func test_validate_skill_spell_link_rejects_active_skill_without_runtime_spell() -> void:
@@ -430,6 +1166,18 @@ func test_buff_combo_resolves_from_active_buffs() -> void:
 	assert_gt(GameState.combo_barrier, 0.0)
 
 
+func test_prismatic_guard_barrier_amount_comes_from_combo_data() -> void:
+	var combo_ratio := float(_get_combo_effect_value("combo_prismatic_guard", "max_hp_barrier_ratio"))
+	assert_true(GameState.try_activate_buff("holy_mana_veil"))
+	assert_true(GameState.try_activate_buff("holy_crystal_aegis"))
+	assert_almost_eq(
+		GameState.combo_barrier,
+		float(GameState.max_health) * combo_ratio * GameState.get_equipment_barrier_power_multiplier(),
+		0.0001,
+		"Prismatic Guard barrier amount should come from combo max_hp_barrier_ratio and equipment barrier multiplier"
+	)
+
+
 func test_prismatic_guard_barrier_absorbs_damage() -> void:
 	assert_true(GameState.try_activate_buff("holy_mana_veil"))
 	assert_true(GameState.try_activate_buff("holy_crystal_aegis"))
@@ -440,23 +1188,71 @@ func test_prismatic_guard_barrier_absorbs_damage() -> void:
 	assert_lt(GameState.combo_barrier, starting_barrier)
 
 
+func test_prismatic_guard_barrier_break_emits_combo_effect_from_combo_data() -> void:
+	assert_true(GameState.try_activate_buff("holy_mana_veil"))
+	assert_true(GameState.try_activate_buff("holy_crystal_aegis"))
+	var combo := GameDatabase.get_buff_combo("combo_prismatic_guard")
+	var trigger_rule := {}
+	for raw_rule in combo.get("trigger_rules", []):
+		if typeof(raw_rule) != TYPE_DICTIONARY:
+			continue
+		if str(raw_rule.get("event", "")) == "on_barrier_break":
+			trigger_rule = raw_rule
+			break
+	GameState.combo_barrier = 1.0
+	GameState.last_combo_effect = {}
+	GameState.damage(10)
+	assert_eq(
+		str(GameState.last_combo_effect.get("effect_id", "")),
+		str(trigger_rule.get("spawn_effect", "")),
+		"Prismatic Guard barrier break effect_id should come from combo on_barrier_break rule"
+	)
+	assert_eq(
+		float(GameState.last_combo_effect.get("radius", 0.0)),
+		float(trigger_rule.get("radius", 0.0)),
+		"Prismatic Guard barrier break radius should come from combo on_barrier_break rule"
+	)
+
+
 func test_overclock_circuit_boosts_lightning_runtime() -> void:
+	var base_runtime: Dictionary = GameState.get_spell_runtime("volt_spear")
 	assert_true(GameState.try_activate_buff("wind_tempest_drive"))
 	assert_true(GameState.try_activate_buff("lightning_conductive_surge"))
 	var combo_names := GameState.get_active_combo_names()
 	assert_true(combo_names.has("Overclock Circuit"))
+	var combo_aftercast := float(_get_combo_effect_value("combo_overclock_circuit", "lightning_aftercast_multiplier"))
+	var combo_chain_bonus := int(_get_combo_effect_value("combo_overclock_circuit", "lightning_chain_bonus"))
+	var combo_dash_speed := float(_get_combo_effect_value("combo_overclock_circuit", "dash_cast_speed_multiplier"))
+	var wind_aftercast := float(_get_skill_effect_value("wind_tempest_drive", "aftercast_multiplier"))
+	var conductive_chain_bonus := int(_get_skill_effect_value("lightning_conductive_surge", "chain_bonus"))
 	var runtime: Dictionary = GameState.get_spell_runtime("volt_spear")
-	assert_lt(float(runtime["cooldown"]), 0.55)
-	assert_gt(int(runtime["pierce"]), 2)
-	assert_gt(float(runtime["speed"]), 1020.0)
+	assert_eq(
+		float(runtime["cooldown"]),
+		float(base_runtime.get("cooldown", 0.0)) * wind_aftercast * combo_aftercast,
+		"Overclock Circuit cooldown should multiply the base lightning runtime by wind + combo aftercast authored values"
+	)
+	assert_eq(
+		int(runtime["pierce"]),
+		int(base_runtime.get("pierce", 0)) + conductive_chain_bonus + combo_chain_bonus,
+		"Overclock Circuit pierce should add the buff chain bonus and combo chain bonus from authored data"
+	)
+	assert_eq(
+		float(runtime["speed"]),
+		float(base_runtime.get("speed", 0.0)) * combo_dash_speed,
+		"Overclock Circuit speed should multiply the base lightning runtime by the combo dash cast speed value"
+	)
 
 
-func test_time_collapse_grants_three_discounted_casts() -> void:
+func test_time_collapse_grants_discounted_casts_from_combo_data() -> void:
 	assert_true(GameState.try_activate_buff("arcane_astral_compression"))
 	assert_true(GameState.try_activate_buff("arcane_world_hourglass"))
 	var combo_names := GameState.get_active_combo_names()
 	assert_true(combo_names.has("Time Collapse"))
-	assert_eq(GameState.time_collapse_charges, 3)
+	assert_eq(
+		GameState.time_collapse_charges,
+		int(_get_combo_effect_value("combo_time_collapse", "discounted_cast_charges")),
+		"Time Collapse opening charges should come from combo applied_effects"
+	)
 	var runtime: Dictionary = GameState.get_spell_runtime("fire_bolt")
 	assert_lt(float(runtime["cooldown"]), 0.22)
 	assert_gt(float(runtime["damage"]), 18.0)
@@ -478,18 +1274,76 @@ func test_ashen_rite_builds_stacks_and_emits_detonation() -> void:
 	assert_true(GameState.try_activate_buff("dark_grave_pact"))
 	assert_true(GameState.try_activate_buff("arcane_world_hourglass"))
 	assert_true(GameState.try_activate_buff("dark_throne_of_ash"))
+	var combo := GameDatabase.get_buff_combo("combo_ashen_rite")
+	var on_hit_rule := {}
+	var on_end_rule := {}
+	var residue_effect := {}
+	for raw_rule in combo.get("trigger_rules", []):
+		if typeof(raw_rule) != TYPE_DICTIONARY:
+			continue
+		if str(raw_rule.get("event", "")) == "on_spell_hit":
+			on_hit_rule = raw_rule
+		elif str(raw_rule.get("event", "")) == "on_combo_end":
+			on_end_rule = raw_rule
+	for raw_effect in combo.get("applied_effects", []):
+		if typeof(raw_effect) != TYPE_DICTIONARY:
+			continue
+		if str(raw_effect.get("stat", "")) == "ash_residue_interval":
+			residue_effect = raw_effect
+			break
 	var combo_names := GameState.get_active_combo_names()
 	assert_true(combo_names.has("Ashen Rite"))
+	assert_eq(
+		GameState.ash_residue_timer,
+		float(residue_effect.get("value", 0.0)),
+		"Ashen Rite residue timer should initialize from combo applied_effects"
+	)
 	GameState.register_skill_damage("fire_bolt", 20.0)
 	GameState.register_skill_damage("volt_spear", 20.0)
 	assert_true(GameState.ashen_rite_active)
 	assert_eq(GameState.ash_stacks, 2)
+	for _i in range(32):
+		GameState.register_skill_damage("fire_bolt", 20.0)
+	assert_eq(
+		GameState.ash_stacks,
+		int(on_hit_rule.get("max_stacks", 0)),
+		"Ashen Rite stack cap should come from combo on_spell_hit rule"
+	)
 	for buff in GameState.active_buffs:
 		buff["remaining"] = 0.0
 	GameState._tick_buff_runtime(0.2)
 	assert_false(GameState.ashen_rite_active)
-	assert_eq(str(GameState.last_combo_effect.get("effect_id", "")), "ash_detonation")
-	assert_gt(float(GameState.last_combo_effect.get("damage", 0.0)), 24.0)
+	var expected_stacks := int(GameState.last_combo_effect.get("stacks", 0))
+	assert_eq(
+		str(GameState.last_combo_effect.get("effect_id", "")),
+		str(on_end_rule.get("spawn_effect", "")),
+		"Ashen Rite detonation effect_id should come from combo on_combo_end rule"
+	)
+	assert_eq(
+		str(GameState.last_combo_effect.get("damage_school", "")),
+		str(on_end_rule.get("damage_school", "")),
+		"Ashen Rite detonation school should come from combo on_combo_end rule"
+	)
+	assert_eq(
+		str(GameState.last_combo_effect.get("school", "")),
+		str(on_end_rule.get("damage_school", "")),
+		"Ashen Rite detonation school alias should stay in sync with damage_school"
+	)
+	assert_eq(
+		str(GameState.last_combo_effect.get("color", "")),
+		str(on_end_rule.get("color", "")),
+		"Ashen Rite detonation color should come from combo on_combo_end rule"
+	)
+	assert_eq(
+		float(GameState.last_combo_effect.get("damage", 0.0)),
+		float(on_end_rule.get("damage", 0.0)) + expected_stacks * float(on_end_rule.get("damage_per_stack", 0.0)),
+		"Ashen Rite detonation damage should follow combo on_combo_end authored formula"
+	)
+	assert_eq(
+		float(GameState.last_combo_effect.get("radius", 0.0)),
+		float(on_end_rule.get("radius", 0.0)) + expected_stacks * float(on_end_rule.get("radius_per_stack", 0.0)),
+		"Ashen Rite detonation radius should follow combo on_combo_end authored formula"
+	)
 
 
 func test_active_buff_summary_shows_stack_count_for_double_cast() -> void:
@@ -639,16 +1493,28 @@ func test_funeral_bloom_notify_deploy_kill_emits_corruption_burst() -> void:
 	assert_true(GameState.try_activate_buff("dark_grave_pact"))
 	assert_true(GameState.try_activate_buff("plant_verdant_overflow"))
 	assert_true(GameState.funeral_bloom_active)
+	var combo := GameDatabase.get_buff_combo("combo_funeral_bloom")
+	var trigger_rule := {}
+	for raw_rule in combo.get("trigger_rules", []):
+		if typeof(raw_rule) != TYPE_DICTIONARY:
+			continue
+		if str(raw_rule.get("event", "")) == "on_deploy_kill":
+			trigger_rule = raw_rule
+			break
 	GameState.notify_deploy_kill()
-	assert_eq(str(GameState.last_combo_effect.get("effect_id", "")), "corruption_burst")
-	assert_true(float(GameState.last_combo_effect.get("radius", 0.0)) >= 80.0)
-	assert_eq(str(GameState.last_combo_effect.get("apply_status", "")), "snare")
+	assert_eq(str(GameState.last_combo_effect.get("effect_id", "")), str(trigger_rule.get("spawn_effect", "")))
+	assert_eq(float(GameState.last_combo_effect.get("radius", 0.0)), float(trigger_rule.get("radius", 0.0)))
+	assert_eq(str(GameState.last_combo_effect.get("apply_status", "")), str(trigger_rule.get("apply_status", "")))
+	assert_eq(str(GameState.last_combo_effect.get("damage_school", "")), str(trigger_rule.get("damage_school", "")))
+	assert_eq(str(GameState.last_combo_effect.get("school", "")), str(trigger_rule.get("damage_school", "")))
+	assert_eq(str(GameState.last_combo_effect.get("color", "")), str(trigger_rule.get("color", "")))
 
 
 func test_funeral_bloom_icd_blocks_rapid_repeat_triggers() -> void:
 	GameState.set_admin_ignore_buff_slot_limit(true)
 	assert_true(GameState.try_activate_buff("dark_grave_pact"))
 	assert_true(GameState.try_activate_buff("plant_verdant_overflow"))
+	var combo := GameDatabase.get_buff_combo("combo_funeral_bloom")
 	GameState.notify_deploy_kill()
 	var first_effect := GameState.last_combo_effect.duplicate(true)
 	GameState.notify_deploy_kill()
@@ -657,7 +1523,11 @@ func test_funeral_bloom_icd_blocks_rapid_repeat_triggers() -> void:
 		first_effect.get("effect_id", ""),
 		"ICD must block second trigger"
 	)
-	assert_gt(GameState.funeral_bloom_icd_timer, 0.0, "ICD timer must be running")
+	assert_eq(
+		GameState.funeral_bloom_icd_timer,
+		float(combo.get("internal_cooldown", 0.0)),
+		"ICD timer must come from combo internal_cooldown"
+	)
 
 
 func test_funeral_bloom_combo_summary_shows_bloom_state() -> void:
@@ -673,22 +1543,58 @@ func test_ashen_rite_end_drains_mana_and_applies_penalties() -> void:
 	assert_true(GameState.try_activate_buff("dark_grave_pact"))
 	assert_true(GameState.try_activate_buff("arcane_world_hourglass"))
 	assert_true(GameState.try_activate_buff("dark_throne_of_ash"))
+	var combo := GameDatabase.get_buff_combo("combo_ashen_rite")
+	var expected_mana := GameState.max_mana
+	var expected_penalties: Dictionary = {}
+	for raw_penalty in combo.get("penalties", []):
+		if typeof(raw_penalty) != TYPE_DICTIONARY:
+			continue
+		var penalty: Dictionary = raw_penalty
+		var stat_name := str(penalty.get("stat", ""))
+		if stat_name == "mana_percent":
+			expected_mana = clampf(
+				GameState.max_mana * float(penalty.get("value", 1.0)),
+				0.0,
+				GameState.max_mana
+			)
+			continue
+		if float(penalty.get("duration", 0.0)) > 0.0:
+			expected_penalties[stat_name] = penalty
 	assert_true(GameState.ashen_rite_active)
 	GameState.mana = 100.0
 	for buff in GameState.active_buffs:
 		buff["remaining"] = 0.0
 	GameState._tick_buff_runtime(0.2)
 	assert_false(GameState.ashen_rite_active)
-	assert_eq(GameState.mana, 0.0)
-	var has_defense_penalty := false
-	var has_recast_lock := false
+	assert_eq(GameState.mana, expected_mana)
+	var actual_penalties: Dictionary = {}
 	for p in GameState.active_penalties:
-		if str(p.get("stat", "")) == "defense_multiplier":
-			has_defense_penalty = true
-		if str(p.get("stat", "")) == "ritual_recast_lock":
-			has_recast_lock = true
-	assert_true(has_defense_penalty)
-	assert_true(has_recast_lock)
+		actual_penalties[str(p.get("stat", ""))] = p
+	for stat_name in expected_penalties.keys():
+		assert_true(
+			actual_penalties.has(stat_name),
+			"Ashen Rite should apply '%s' from combo_ashen_rite.penalties" % stat_name
+		)
+		var expected_penalty: Dictionary = expected_penalties[stat_name]
+		var actual_penalty: Dictionary = actual_penalties[stat_name]
+		assert_eq(str(actual_penalty.get("mode", "")), str(expected_penalty.get("mode", "")))
+		assert_eq(float(actual_penalty.get("value", 0.0)), float(expected_penalty.get("value", 0.0)))
+		assert_eq(
+			float(actual_penalty.get("remaining", 0.0)),
+			float(expected_penalty.get("duration", 0.0))
+		)
+	var guard_break_penalty: Dictionary = expected_penalties.get("defense_multiplier", {})
+	var recast_lock_penalty: Dictionary = expected_penalties.get("ritual_recast_lock", {})
+	var expected_guard_break_duration := float(guard_break_penalty.get("duration", 0.0))
+	var expected_recast_lock_duration := float(recast_lock_penalty.get("duration", 0.0))
+	assert_string_contains(
+		GameState.ui_message,
+		"Defense broken for %.0fs." % expected_guard_break_duration
+	)
+	assert_string_contains(
+		GameState.ui_message,
+		"Recasting locked for %.0fs." % expected_recast_lock_duration
+	)
 
 
 func test_ashen_rite_end_penalty_increases_damage_taken() -> void:
@@ -1029,13 +1935,32 @@ func test_extra_lightning_ping_emits_combo_effect_on_lightning_cast() -> void:
 	assert_true(GameState.try_activate_buff("lightning_conductive_surge"))
 	GameState.last_combo_effect = {}
 	var payload: Dictionary = {"school": "lightning", "damage": 30, "cooldown": 1.0}
-	GameState.apply_spell_modifiers(payload.duplicate())
+	var modified_payload := GameState.apply_spell_modifiers(payload.duplicate())
+	var expected_school := str(
+		_get_skill_effect_value("lightning_conductive_surge", "lightning_ping_school")
+	)
+	var expected_ratio := float(
+		_get_skill_effect_value("lightning_conductive_surge", "lightning_ping_damage_ratio")
+	)
 	assert_eq(
 		str(GameState.last_combo_effect.get("effect_id", "")),
-		"lightning_ping",
+		str(_get_skill_effect_value("lightning_conductive_surge", "lightning_ping_effect_id")),
 		"extra_lightning_ping must emit lightning_ping combo effect"
 	)
-	assert_eq(str(GameState.last_combo_effect.get("school", "")), "lightning")
+	assert_eq(str(GameState.last_combo_effect.get("school", "")), expected_school)
+	assert_eq(str(GameState.last_combo_effect.get("damage_school", "")), expected_school)
+	assert_eq(
+		GameState.last_combo_effect.get("damage"),
+		int(round(float(modified_payload.get("damage", 0.0)) * expected_ratio))
+	)
+	assert_eq(
+		float(GameState.last_combo_effect.get("radius", 0.0)),
+		float(_get_skill_effect_value("lightning_conductive_surge", "lightning_ping_radius"))
+	)
+	assert_eq(
+		str(GameState.last_combo_effect.get("color", "")),
+		str(_get_skill_effect_value("lightning_conductive_surge", "lightning_ping_color"))
+	)
 	GameState.reset_progress_for_tests()
 
 
@@ -1111,13 +2036,30 @@ func test_ice_reflect_wave_emits_combo_effect_on_ice_cast() -> void:
 	assert_true(GameState.try_activate_buff("ice_frostblood_ward"))
 	GameState.last_combo_effect = {}
 	var payload: Dictionary = {"school": "ice", "damage": 25, "cooldown": 1.0}
-	GameState.apply_spell_modifiers(payload.duplicate())
+	var modified_payload := GameState.apply_spell_modifiers(payload.duplicate())
+	var expected_school := str(_get_skill_effect_value("ice_frostblood_ward", "ice_reflect_wave_school"))
+	var expected_ratio := float(
+		_get_skill_effect_value("ice_frostblood_ward", "ice_reflect_wave_damage_ratio")
+	)
 	assert_eq(
 		str(GameState.last_combo_effect.get("effect_id", "")),
-		"ice_reflect_wave",
+		str(_get_skill_effect_value("ice_frostblood_ward", "ice_reflect_wave_effect_id")),
 		"ice_reflect_wave must emit combo effect on ice spell cast"
 	)
-	assert_eq(str(GameState.last_combo_effect.get("school", "")), "ice")
+	assert_eq(str(GameState.last_combo_effect.get("school", "")), expected_school)
+	assert_eq(str(GameState.last_combo_effect.get("damage_school", "")), expected_school)
+	assert_eq(
+		GameState.last_combo_effect.get("damage"),
+		int(round(float(modified_payload.get("damage", 0.0)) * expected_ratio))
+	)
+	assert_eq(
+		float(GameState.last_combo_effect.get("radius", 0.0)),
+		float(_get_skill_effect_value("ice_frostblood_ward", "ice_reflect_wave_radius"))
+	)
+	assert_eq(
+		str(GameState.last_combo_effect.get("color", "")),
+		str(_get_skill_effect_value("ice_frostblood_ward", "ice_reflect_wave_color"))
+	)
 	GameState.reset_progress_for_tests()
 
 
@@ -1142,6 +2084,12 @@ func test_ash_residue_burst_fires_when_dark_throne_active_without_ashen_rite() -
 	GameState.set_admin_ignore_buff_slot_limit(true)
 	GameState.set_admin_ignore_cooldowns(true)
 	assert_true(GameState.try_activate_buff("dark_throne_of_ash"))
+	var combo := GameDatabase.get_buff_combo("combo_ashen_rite")
+	var residue_effects: Dictionary = {}
+	for raw_effect in combo.get("applied_effects", []):
+		if typeof(raw_effect) != TYPE_DICTIONARY:
+			continue
+		residue_effects[str(raw_effect.get("stat", ""))] = raw_effect
 	assert_false(
 		GameState.ashen_rite_active,
 		"Precondition: Ashen Rite must NOT be active without the full trio"
@@ -1151,8 +2099,33 @@ func test_ash_residue_burst_fires_when_dark_throne_active_without_ashen_rite() -
 	GameState._tick_buff_runtime(0.1)
 	assert_eq(
 		str(GameState.last_combo_effect.get("effect_id", "")),
-		"ash_residue_burst",
+		str(Dictionary(residue_effects.get("ash_residue_effect_id", {})).get("value", "")),
 		"ash_residue_burst must fire periodically when dark_throne_of_ash is active solo"
+	)
+	assert_eq(
+		float(GameState.last_combo_effect.get("damage", 0.0)),
+		float(Dictionary(residue_effects.get("ash_residue_damage", {})).get("value", 0.0))
+	)
+	assert_eq(
+		float(GameState.last_combo_effect.get("radius", 0.0)),
+		float(Dictionary(residue_effects.get("ash_residue_radius", {})).get("value", 0.0))
+	)
+	assert_eq(
+		str(GameState.last_combo_effect.get("school", "")),
+		str(Dictionary(residue_effects.get("ash_residue_school", {})).get("value", ""))
+	)
+	assert_eq(
+		str(GameState.last_combo_effect.get("damage_school", "")),
+		str(Dictionary(residue_effects.get("ash_residue_school", {})).get("value", ""))
+	)
+	assert_eq(
+		str(GameState.last_combo_effect.get("color", "")),
+		str(Dictionary(residue_effects.get("ash_residue_color", {})).get("value", ""))
+	)
+	assert_eq(
+		GameState.ash_residue_timer,
+		float(Dictionary(residue_effects.get("ash_residue_interval", {})).get("value", 0.0)),
+		"ash residue repeat interval should reuse the combo applied_effect value"
 	)
 	GameState.reset_progress_for_tests()
 

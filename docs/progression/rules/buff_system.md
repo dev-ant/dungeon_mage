@@ -142,6 +142,8 @@ last_verified: 2026-04-02
 
 - 실제 조합 목록, 우선순위, 내부 쿨타임, 발동 효과는 [buff_combo_catalog.md](/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/docs/progression/catalogs/buff_combo_catalog.md)에서 관리합니다.
 - 이 문서는 조합 설계 원칙과 적용 순서만 관리합니다.
+- 버프 자체의 `buff_category` 관리 ID와 의미는 [buff_category_catalog.md](/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/docs/progression/catalogs/buff_category_catalog.md)에서 관리합니다.
+- 버프 자체의 `stack_rule_id` 관리 ID와 의미는 [buff_stack_rule_catalog.md](/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/docs/progression/catalogs/buff_stack_rule_catalog.md)에서 관리합니다.
 
 ## 전투 감각 목표
 
@@ -166,7 +168,9 @@ last_verified: 2026-04-02
 
 - 개별 버프 스킬의 최신 이름/속성/서클 기준은 [skill_system_design.md](/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/docs/progression/rules/skill_system_design.md)에서 관리합니다.
 - 버프 전용 목록은 [buff_skill_catalog.md](/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/docs/progression/catalogs/buff_skill_catalog.md)에서 관리합니다.
+- 버프 카테고리 ID는 [buff_category_catalog.md](/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/docs/progression/catalogs/buff_category_catalog.md)에서 관리합니다.
 - 버프 조합 특수효과는 [buff_combo_catalog.md](/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/docs/progression/catalogs/buff_combo_catalog.md)에서 관리합니다.
+- 버프 중첩 규칙 ID는 [buff_stack_rule_catalog.md](/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/docs/progression/catalogs/buff_stack_rule_catalog.md)에서 관리합니다.
 - 구현/asset/effect 적용 상태는 [skill_implementation_tracker.md](/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/docs/progression/trackers/skill_implementation_tracker.md)에서 관리합니다.
 - 스킬 경험치 규칙은 [skill_level_rules.md](/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/docs/progression/rules/skill_level_rules.md)에서, 서클 승급 규칙은 [circle_progression.md](/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/docs/progression/rules/circle_progression.md)에서 관리합니다.
 

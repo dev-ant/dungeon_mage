@@ -10,7 +10,6 @@
       "active_window": 0.0,
       "effect_tags": ["poise_ignore", "shield", "shockwave"],
       "applied_effects": [
-        { "stat": "hitstun_resist_mode", "mode": "set", "value": "ignore_light_hits" },
         { "stat": "max_hp_barrier_ratio", "mode": "add", "value": 0.18 }
       ],
       "trigger_rules": [
@@ -56,7 +55,8 @@
           "spawn_effect": "corruption_burst",
           "radius": 96,
           "damage_school": "dark",
-          "apply_status": "snare"
+          "apply_status": "snare",
+          "color": "#6a1d8a"
         }
       ],
       "penalties": [],
@@ -95,11 +95,28 @@
       "applied_effects": [
         { "stat": "fire_final_damage_multiplier", "mode": "mul", "value": 1.22 },
         { "stat": "dark_final_damage_multiplier", "mode": "mul", "value": 1.22 },
-        { "stat": "ash_residue_interval", "mode": "set", "value": 1.25 }
+        { "stat": "ash_residue_interval", "mode": "set", "value": 1.25 },
+        { "stat": "ash_residue_effect_id", "mode": "set", "value": "ash_residue_burst" },
+        { "stat": "ash_residue_damage", "mode": "set", "value": 16.0 },
+        { "stat": "ash_residue_damage_per_stack", "mode": "set", "value": 2.0 },
+        { "stat": "ash_residue_radius", "mode": "set", "value": 54.0 },
+        { "stat": "ash_residue_school", "mode": "set", "value": "fire" },
+        { "stat": "ash_residue_color", "mode": "set", "value": "#ff9a54" }
       ],
       "trigger_rules": [
         { "event": "on_spell_hit", "cooldown": 0.0, "stack_name": "ash", "max_stacks": 20 },
-        { "event": "on_combo_end", "cooldown": 0.0, "spawn_effect": "ash_detonation", "scales_with_stack": "ash" }
+        {
+          "event": "on_combo_end",
+          "cooldown": 0.0,
+          "spawn_effect": "ash_detonation",
+          "scales_with_stack": "ash",
+          "damage_school": "fire",
+          "color": "#ff7446",
+          "damage": 24.0,
+          "damage_per_stack": 7.0,
+          "radius": 68.0,
+          "radius_per_stack": 3.0
+        }
       ],
       "penalties": [
         { "stat": "mana_percent", "mode": "set", "value": 0.0 },

@@ -125,8 +125,31 @@ last_verified: 2026-04-03
   - admin -> hotbar assignment -> save/load -> runtime cast 흐름은 이제 runtime-castable ID 기준으로 같은 catalog/mapping 계약을 공유한다.
   - 이후 새 스킬을 admin에서 배치 가능하게 만들려면 하드코딩 목록이 아니라 `GameDatabase` 중앙 mapping과 runtime-castable 판정을 먼저 만족시켜야 한다.
 - 2026-04-03 구조 개선 후속 증분으로 progression data validation source of truth는 아래처럼 정리됐다.
-  - `/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/scripts/autoload/game_database.gd`가 로드 시점에 `validate_skill_entry()`, `validate_spell_entry()`, `validate_skill_spell_link()`, `validate_spell_skill_link()`를 실행한다.
-  - 이 최소 validation은 `skills.json`의 식별자/타입 필드, `skill_type` 최소 계약, `spells.json`의 필수 runtime 필드, proxy-active 연결 누락, spell school ↔ skill element drift를 조기 검출한다.
+  - `/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/scripts/autoload/game_database.gd`가 로드 시점에 `validate_skill_entry()`, `validate_spell_entry()`, `validate_skill_spell_link()`, `validate_spell_skill_link()`, `validate_buff_combo_entry()`, `validate_buff_combo_links()`를 실행한다.
+  - 현재 hardening 범위에서 `skills.json`은 최상위 `{"skills": [...]}` 구조를 고정하고, 각 row의 `canonical_skill_id`, `role_tags`, `growth_tracks`, `unlock_state`, active-family `hit_shape`, buff 전용 `buff_category` / `stack_rule_id` / `combo_tags`를 조기 검출한다.
+  - `buff_category`는 open tag가 아니라 closed 관리 ID라서, [buff_category_catalog.md](/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/docs/progression/catalogs/buff_category_catalog.md) 밖 값이 들어오면 바로 `error`로 막는다.
+  - buff row는 `buff_category`와 같은 값을 `role_tags`에도 포함해야 한다. 이 교차 필드 계약이 깨지면 로드 시점 `error`다.
+  - `stack_rule_id`는 open tag가 아니라 closed 관리 ID라서, [buff_stack_rule_catalog.md](/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/docs/progression/catalogs/buff_stack_rule_catalog.md) 밖 값이 들어오면 바로 `error`로 막는다.
+  - `role_tags`, `growth_tracks`, `combo_tags`는 current catalog 기준과 어긋나면 `warning`을 남기고, 구조 위반만 `error`로 막는다.
+  - `lightning_conductive_surge.extra_lightning_ping`, `ice_frostblood_ward.ice_reflect_wave`처럼 후속 payload를 발사하는 buff row는 같은 `buff_effects` 안에 `*_effect_id / *_damage_ratio / *_radius / *_school / *_color` companion row를 함께 둔다. 이 config row는 `mode = set`으로 고정하고, load-time validation이 누락/타입/school drift를 조기 검출한다.
+  - `dark_throne_of_ash`의 solo ash residue gate source of truth는 같은 row의 `buff_effects.ash_residue_burst`다. 이 stat은 현재 runtime trigger flag라서 `mode = add`와 양수 numeric value를 유지해야 하며, validator가 깨진 row를 조기 검출한다.
+  - `skills.json`의 `element = none`은 스킬 row에서만 허용하고, `spells.json.school`은 계속 runtime cast school enum만 허용한다.
+  - `spells.json`은 필수 runtime 필드, proxy-active 연결 누락, spell school ↔ skill element drift를 계속 조기 검출한다.
+  - `buff_combos.json`은 최상위 `{"combos": [...]}` 구조, 최소 필수 필드, `combo_type` enum, `required_buffs -> actual buff row` 링크를 조기 검출한다.
+  - `buff_combos.json`의 `applied_effects[].mode` / `penalties[].mode`는 현재 `set` / `add` / `mul`, `trigger_rules[].event`는 현재 runtime이 읽는 4개 event만 허용한다.
+  - 같은 hardening 축에서 `trigger_rules[].damage_school`은 runtime spell school enum으로 잠그고, `trigger_rules[].stack_name / scales_with_stack`는 현재 `ash` closed key와 same-combo reference 규칙으로 잠근다.
+  - `trigger_rules[].apply_status`는 아직 generic consumer가 없어서 current catalog 기준 warning-only drift check로만 관리한다.
+  - `buff_combos.json`의 `effect_tags`는 current catalog 기준과 어긋나면 `warning`을 남기고, 구조 위반만 `error`로 막는다.
+  - 2026-04-05 준비 증분으로 `Prismatic Guard`의 `effect_tags.poise_ignore / shield / shockwave`를 runtime 승격 후보 태그 세트로 분류했다. validator는 각각 `holy_crystal_aegis.buff_effects.super_armor_charges`, `combo_prismatic_guard.applied_effects.max_hp_barrier_ratio`, `combo_prismatic_guard.trigger_rules[on_barrier_break].spawn_effect / radius` backing source를 `warning-only`로 감시한다.
+  - 같은 날짜 다음 증분으로 `Prismatic Guard` barrier source도 `combo_prismatic_guard.applied_effects.max_hp_barrier_ratio`를 직접 읽는다. 이 stat은 현재 `mode = add`와 양수 numeric value를 유지하는 required runtime contract이고, barrier break effect도 계속 `trigger_rules.on_barrier_break.spawn_effect / radius`를 직접 읽는다.
+  - 같은 날짜 다음 정리로 `combo_prismatic_guard`의 예전 `hitstun_resist_mode` row는 제거했다. 현재 운영 기준에서 combo 자체가 읽는 안정성 field는 barrier ratio뿐이며, 피격 경직 무시는 계속 `holy_crystal_aegis.buff_effects.super_armor_charges`가 담당한다.
+  - 같은 날짜 다음 증분으로 `Overclock Circuit`도 `combo_overclock_circuit.applied_effects.lightning_aftercast_multiplier / lightning_chain_bonus / dash_cast_speed_multiplier`를 직접 소비하는 required runtime contract로 승격됐다. 현재 운영 기준은 각각 `mul`, `add`, `mul` mode와 numeric value다.
+  - 같은 날짜 다음 증분으로 `Time Collapse` opening charge도 더 이상 코드 상수 `3`이 아니라 `combo_time_collapse.applied_effects.discounted_cast_charges`를 직접 읽는다. 이 stat은 현재 runtime required contract라서 `mode = set`과 양수 numeric value를 유지해야 한다.
+  - 같은 날짜 후속 증분으로 `GameState.notify_deploy_kill()`의 Funeral Bloom payload와 ICD도 더 이상 하드코딩하지 않고 `combo_funeral_bloom` row의 `internal_cooldown`과 `on_deploy_kill` rule(`spawn_effect`, `radius`, `damage_school`, `apply_status`, `color`)을 직접 읽는다.
+  - 같은 날짜 다음 증분으로 `Ashen Rite`도 `combo_ashen_rite` row에서 `on_spell_hit.max_stacks`, `applied_effects.ash_residue_interval / ash_residue_effect_id / ash_residue_damage / ash_residue_damage_per_stack / ash_residue_radius / ash_residue_school / ash_residue_color`, `on_combo_end.spawn_effect / damage_school / color / damage / damage_per_stack / radius / radius_per_stack`, `penalties`를 직접 읽는다.
+  - 같은 날짜 다음 증분으로 Funeral Bloom `on_deploy_kill` payload field와 Ashen Rite residue/end payload field는 이제 combo 전용 required runtime contract로 승격됐다. validator가 누락/잘못된 타입을 먼저 막기 때문에, runtime은 더 이상 이전 gameplay fallback literal에 의존하지 않는다.
+  - 같은 날짜 다음 증분으로 `GameState.apply_spell_modifiers()`의 `lightning_ping`, `ice_reflect_wave` 후속 payload도 literal dict를 하드코딩하지 않고, 각각 `lightning_conductive_surge`, `ice_frostblood_ward` row의 companion `buff_effects` authored 값을 직접 읽는다.
+  - 같은 날짜 다음 증분으로 solo `ash_residue_burst` 발사 조건도 generic active effect 스캔이 아니라 `dark_throne_of_ash` row의 `ash_residue_burst` trigger flag를 직접 읽게 정리했다.
   - 현재 정상 데이터는 이 validation을 통과해야 하고, 이후 새 skill / spell / proxy 연결 추가 시 validation 갱신도 같은 구현 단위에 포함된다.
 - 2026-04-03 구조 개선 후속 증분으로 runtime school source of truth는 아래처럼 정리됐다.
   - `/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/scripts/autoload/game_state.gd`의 `resolve_runtime_school()`가 school 판정의 단일 helper다.

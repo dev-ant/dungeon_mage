@@ -13,14 +13,14 @@ depends_on:
 update_when:
   - rule_changed
   - status_changed
-last_updated: 2026-04-02
-last_verified: 2026-04-02
+last_updated: 2026-04-03
+last_verified: 2026-04-03
 ---
 
 # 버프 스킬 목록
 
 상태: 사용 중  
-최종 갱신: 2026-04-02  
+최종 갱신: 2026-04-03  
 섹션: 성장 시스템
 
 ## 범위
@@ -204,5 +204,15 @@ last_verified: 2026-04-02
 ## 관리 메모
 
 - 버프의 동시 유지 수와 중첩 규칙은 [buff_system.md](/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/docs/progression/rules/buff_system.md)를 우선합니다.
+- `buff_category` 관리 ID와 의미는 [buff_category_catalog.md](/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/docs/progression/catalogs/buff_category_catalog.md)를 우선합니다.
+- `stack_rule_id` 관리 ID와 의미는 [buff_stack_rule_catalog.md](/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/docs/progression/catalogs/buff_stack_rule_catalog.md)를 우선합니다.
 - 개별 버프 스킬이 전체 마법 목록에도 등장할 경우, 자세한 버프 전투 성격은 이 문서를 우선 기준으로 삼습니다.
 - 버프 조합 특수효과와 우선순위는 [buff_combo_catalog.md](/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/docs/progression/catalogs/buff_combo_catalog.md)를 우선합니다.
+
+## 신규 버프 row 체크리스트
+
+- 먼저 이 문서에서 버프의 전투 역할과 추천 조합 방향이 맞는지 확인합니다.
+- `buff_category`는 [buff_category_catalog.md](/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/docs/progression/catalogs/buff_category_catalog.md)에서 대표 역할 하나를 고릅니다.
+- `stack_rule_id`는 [buff_stack_rule_catalog.md](/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/docs/progression/catalogs/buff_stack_rule_catalog.md)에서 중첩 강도를 고릅니다.
+- `combo_tags`는 [buff_combo_tag_catalog.md](/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/docs/progression/catalogs/buff_combo_tag_catalog.md)에서 `1~3`개 정도를 고릅니다.
+- named combo 발동 조건이나 우선순위가 실제로 달라졌다면 [buff_combo_catalog.md](/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/docs/progression/catalogs/buff_combo_catalog.md)도 같은 턴에 같이 맞춥니다.

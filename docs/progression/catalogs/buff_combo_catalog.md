@@ -61,7 +61,7 @@ last_verified: 2026-04-02
 - `Crystal Aegis`
 - 유형: 유지형 방어 조합
 - 효과:
-- 피격 경직 대부분 무시
+- `Crystal Aegis`가 주는 super armor 유지 중 최대 체력 비례 보호막을 추가로 둘러 안정성을 크게 높임
 - 최대 체력 비례 보호막 생성
 - 보호막 붕괴 시 주변에 짧은 충격파 발생
 - 설계 의도:
@@ -148,3 +148,4 @@ last_verified: 2026-04-02
 - 조합 발동 조건과 효과 조정은 이 문서에서 합니다.
 - 조합 우선순위와 적용 순서는 [buff_system.md](/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/docs/progression/rules/buff_system.md)와 함께 봅니다.
 - 실제 데이터 필드와 `combo_id`, `required_buffs` 규칙은 [buff_combo_data_schema.md](/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/docs/progression/schemas/buff_combo_data_schema.md)와 [skill_data_schema.md](/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/docs/progression/schemas/skill_data_schema.md)를 따릅니다.
+- `effect_tags`의 현재 운영 목록과 의미는 [buff_combo_effect_tag_catalog.md](/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/docs/progression/catalogs/buff_combo_effect_tag_catalog.md)를 같이 봅니다.

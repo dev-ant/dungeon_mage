@@ -12,14 +12,14 @@ depends_on:
 update_when:
   - structure_changed
   - rule_changed
-last_updated: 2026-04-02
-last_verified: 2026-04-02
+last_updated: 2026-04-03
+last_verified: 2026-04-03
 ---
 
 # 성장 시스템 인덱스
 
 상태: 사용 중  
-최종 갱신: 2026-04-02
+최종 갱신: 2026-04-03
 
 ## 범위
 
@@ -48,6 +48,22 @@ last_verified: 2026-04-02
 - [mastery_skills.md](/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/docs/progression/catalogs/mastery_skills.md)
 - [buff_skill_catalog.md](/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/docs/progression/catalogs/buff_skill_catalog.md)
 - [buff_combo_catalog.md](/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/docs/progression/catalogs/buff_combo_catalog.md)
+- [buff_combo_effect_tag_catalog.md](/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/docs/progression/catalogs/buff_combo_effect_tag_catalog.md)
+  - `buff_combos.json` `effect_tags`의 현재 운영 태그 목록과 의미
+- [buff_combo_apply_status_catalog.md](/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/docs/progression/catalogs/buff_combo_apply_status_catalog.md)
+  - `buff_combos.json` `trigger_rules[].apply_status`의 현재 운영 태그와 warning-only 관리 기준
+- [buff_combo_stack_key_catalog.md](/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/docs/progression/catalogs/buff_combo_stack_key_catalog.md)
+  - `buff_combos.json` `trigger_rules[].stack_name / scales_with_stack`의 현재 운영 관리 키
+- [buff_category_catalog.md](/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/docs/progression/catalogs/buff_category_catalog.md)
+  - `skills.json` buff row `buff_category`의 현재 운영 관리 ID와 의미
+- [buff_stack_rule_catalog.md](/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/docs/progression/catalogs/buff_stack_rule_catalog.md)
+  - `skills.json` buff row `stack_rule_id`의 현재 운영 관리 ID와 의미
+- [buff_combo_tag_catalog.md](/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/docs/progression/catalogs/buff_combo_tag_catalog.md)
+  - `skills.json` buff row `combo_tags`의 현재 운영 태그 목록과 의미
+- [skill_role_tag_catalog.md](/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/docs/progression/catalogs/skill_role_tag_catalog.md)
+  - `skills.json` `role_tags`의 현재 운영 태그 목록과 의미
+- [skill_growth_track_catalog.md](/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/docs/progression/catalogs/skill_growth_track_catalog.md)
+  - `skills.json` `growth_tracks`의 현재 운영 성장축 목록과 의미
 
 ### `schemas`
 
@@ -228,6 +244,10 @@ last_verified: 2026-04-02
    - 이름이 바뀌어도 canonical `skill_id`는 쉽게 바꾸지 않는다.
 3. 데이터 스키마 검증
    - 허용 가능한 `school`, `element`, `skill_type`, `hit_shape`를 [skill_data_schema.md](/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/docs/progression/schemas/skill_data_schema.md)에서 확인한다.
+   - `role_tags` 후보는 [skill_role_tag_catalog.md](/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/docs/progression/catalogs/skill_role_tag_catalog.md)에서, `growth_tracks` 후보는 [skill_growth_track_catalog.md](/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/docs/progression/catalogs/skill_growth_track_catalog.md)에서 확인한다.
+   - 버프 스킬의 `buff_category` 후보는 [buff_category_catalog.md](/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/docs/progression/catalogs/buff_category_catalog.md)에서 확인한다.
+   - 버프 스킬의 `stack_rule_id` 후보는 [buff_stack_rule_catalog.md](/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/docs/progression/catalogs/buff_stack_rule_catalog.md)에서 확인한다.
+   - 버프 스킬의 `combo_tags` 후보는 [buff_combo_tag_catalog.md](/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/docs/progression/catalogs/buff_combo_tag_catalog.md)에서 확인한다.
    - 새 enum 값이 필요하면 스키마와 runtime 해석 코드를 같이 갱신한다.
 4. 구현 추적표 등록
    - [skill_implementation_tracker.md](/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/docs/progression/trackers/skill_implementation_tracker.md)에 새 row를 추가한다.
@@ -237,6 +257,11 @@ last_verified: 2026-04-02
    - 패시브면 `mastery_skills.md`
    - 성장 규칙 예외가 있으면 `skill_level_rules.md`
    - 이런 식으로 해당 전문 문서도 같이 갱신한다.
+   - 버프라면 아래 3가지를 같이 점검한다:
+   - `buff_category`: 버프의 대표 전투 역할을 하나만 고른다
+   - `stack_rule_id`: 중첩 강도/의식 규칙을 current closed ID 중 하나로 고른다
+   - `combo_tags`: 조합 이름이 아니라 조합 힌트 태그를 `1~3`개 정도 붙인다
+   - 버프 조합 발동 조건이나 named combo 의미가 바뀌면 `buff_combo_catalog.md`도 같은 턴에 맞춘다.
 6. runtime 연결 여부 기록
    - 이미 구현된 runtime proxy가 있으면 tracker의 `현재 runtime 참조`와 `비고`에 연결한다.
    - 아직 없으면 `planned`로 두고 proxy를 만들 때 갱신한다.
