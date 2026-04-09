@@ -1,0 +1,11 @@
+repos:
+  - repo: https://github.com/Scony/godot-gdscript-toolkit
+    rev: 4.5.0
+    hooks:
+      - id: gdformat
+        args: [--check]
+        files: ^(scripts|tests)/.*\.gd$
+        exclude: ^(addons/|scripts/player/spell_manager\.gd$|tests/test_spell_manager\.gd$)
+      - id: gdlint
+        files: ^(scripts|tests)/.*\.gd$
+        exclude: ^(addons/|scripts/player/spell_manager\.gd$|tests/test_spell_manager\.gd$)

@@ -1,0 +1,31 @@
+{
+  "original_strip": "/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/tmp/flux_klein_tests/original_idle_frame0_for_inspect.png",
+  "frame_width": 128,
+  "frame_height": 128,
+  "frame_count": 1,
+  "manifest": null,
+  "saved_to": "/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/tmp/flux_klein_tests/male_hero_idle_keyframe_v24_ingame_sprite_128_runtime.png",
+  "frames": [
+    {
+      "index": 0,
+      "target_bbox": [
+        41,
+        43,
+        73,
+        80
+      ],
+      "generated_bbox": [
+        166,
+        63,
+        359,
+        473
+      ],
+      "normalized_bbox": [
+        48,
+        43,
+        65,
+        80
+      ]
+    }
+  ]
+}

@@ -1,7 +1,35 @@
+---
+title: 전투 시스템 설계 — Dungeon Mage
+doc_type: archive
+status: archived
+section: implementation
+owner: shared
+source_of_truth: false
+parent: /Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/docs/implementation/README.md
+depends_on:
+  - /Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/docs/implementation/baselines/current_runtime_baseline.md
+  - /Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/docs/implementation/plans/combat_first_build_plan.md
+update_when:
+  - status_changed
+  - structure_changed
+last_updated: 2026-04-02
+last_verified: 2026-04-02
+---
+
 # 전투 시스템 설계 — Dungeon Mage
 
 **작성일:** 2026-03-27
 **범위:** 스토리 제외, 전투 시스템 + 관리자 샌드박스 맵 완성
+**상태:** 초기 설계 스냅샷. 현재 구현 기준은 [current_runtime_baseline.md](/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/docs/implementation/baselines/current_runtime_baseline.md) 를 우선한다.
+
+## 현재 기준으로 폐기된 가정
+
+- `SpellResource` 중심 스킬 구조
+- `player_state_chart.tres` 같은 플레이어 상태 차트 리소스 필수 전제
+- `scenes/player/Player.tscn` 별도 조립 전제
+- `asset_sample/` 직접 런타임 참조
+
+현재 구현은 `Dictionary` 기반 스킬 런타임, 런타임 조립 상태 차트, [`Main.tscn`](/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/scenes/main/Main.tscn) 중심 조립 구조, `assets/` 런타임 참조를 사용한다.
 
 ---
 
@@ -21,11 +49,11 @@
 **바텀업 (A):** 코어 시스템을 아래에서 위로 쌓는다.
 
 ```
-① CharacterController   이동 + 입력 + State Charts
-② SpellSystem           SpellResource + 5가지 타입 + 마나/쿨타임
-③ EnemyBase             HP/히트박스 + AI State Charts
+① CharacterController   이동 + 입력 + 런타임 State Charts
+② SpellRuntime          Dictionary 기반 스킬 계산 + 마나/쿨타임
+③ EnemyBase             HP/히트박스 + AI State Charts + helper 분리
 ④ CombatHUD             HP/MP 바 + 스킬 슬롯 + 데미지 숫자
-⑤ AdminScene            샌드박스 맵 + ESC 관리자 메뉴
+⑤ MainScene             Main.tscn 조립 + ESC 관리자 메뉴
 ```
 
 ---
@@ -35,7 +63,7 @@
 ### 수정
 - `scripts/player/player.gd` — 더블점프, 로프, InputMap 등록 추가
 - `scripts/enemies/enemy_base.gd` — 피격/사망 State Charts 확장
-- `scripts/ui/combat_hud.gd` — HP/MP 바 + 스킬 슬롯 + 쿨타임 오버레이
+- `scripts/ui/game_ui.gd` — HP/MP 바 + 스킬 슬롯 + 쿨타임 오버레이
 - `data/spells.json` — 15개 주문 전체 데이터
 
 ### 신규 생성
@@ -43,24 +71,26 @@
 scripts/
   player/
     spell_manager.gd          ← 스킬 슬롯 관리, 시전, 쿨타임
-    spells/
-      spell_resource.gd       ← SpellResource 클래스 (computed stats)
   enemies/
-    enemy_patrol.gd           ← 순찰+근접 AI
-    enemy_ranged.gd           ← 원거리 투사체 AI
+    enemy_visual_library.gd   ← 적 비주얼/애니메이션 helper
+    enemy_attack_profiles.gd  ← 적 AI/공격 프로필 helper
+  autoload/
+    combat_runtime_state.gd   ← 전투 런타임 상태 helper
+    progression_save_state.gd ← 진행/저장 상태 helper
   ui/
     damage_label.gd           ← 데미지 숫자 팝업
   admin/
     admin_menu.gd             ← ESC 관리자 메뉴 (4탭)
 scenes/
-  admin/
-    admin_map.tscn            ← 샌드박스 맵
+  main/
+    Main.tscn                 ← 현재 메인 조립 씬
   ui/
     damage_label.tscn         ← 데미지 숫자 씬
 tests/
-  test_spell_system.gd
+  test_game_state.gd
   test_enemy_base.gd
-  test_character.gd
+  test_player_controller.gd
+  test_main_integration.gd
 ```
 
 ---
@@ -115,13 +145,13 @@ func _on_landed():
 - ↑ 입력 시 `OnRope` 상태 진입 → `move_and_collide` 비활성화, 수직 이동만
 - 로프에서 ← → 입력 시 로프 이탈
 
-**플레이스홀더 에셋:** `asset_sample/Character/Soldier/Soldier with shadows/` 스프라이트 사용. `asset-import` 스킬로 분석 후 적용.
+**플레이스홀더 에셋:** 원본 분석은 `asset_sample/` 에서 하고, 실제 런타임 참조는 `assets/player/` 로 복사한 뒤 사용한다.
 
 ---
 
 ## 섹션 2 — 스펠 시스템
 
-### SpellResource 클래스
+### 폐기된 SpellResource 구상
 
 ```gdscript
 class_name SpellResource
@@ -149,9 +179,11 @@ func current_cooldown() -> float:
     return base_cooldown * pow(scaling.get("cooldown_per_level", 1.0), current_level() - 1)
 ```
 
+위 설계는 현재 구현 기준으로 사용하지 않는다. 실제 런타임은 `data/spells.json` + `GameState.get_spell_runtime(skill_id)` + `spell_manager.gd` 조합으로 계산된다.
+
 ### SpellManager
 
-- `spell_slots: Array[SpellResource]` — 6개 슬롯 (Z/X/C/A/S/D)
+- `spell_slots` 는 데이터 기반 hotbar/runtime 조합으로 관리한다.
 - `can_cast(spell)` — 마나 충분 + 쿨타임 없음 + Cast/Hit/Dead 상태 아님
 - 마나 부족 시: MP 바 빨간색 0.3초 깜빡임
 - 쿨타임 중: 슬롯 어두운 오버레이 + 남은 초 표시
@@ -186,7 +218,7 @@ State Charts: `Idle → Patrol → Chase → Attack → Hit → Dead`
 - **Hit:** 피격 시 0.2초 경직, 빨간 깜빡임 (`modulate` 트윈)
 - **Dead:** 사망 애니메이션 후 `queue_free()`
 
-**플레이스홀더:** `asset_sample/Monster/` 내 에셋 사용
+**플레이스홀더:** `asset_sample/Monster/` 에서 분석 후 `assets/monsters/` 로 복사해 런타임에서 사용
 
 ### RangedEnemy (원거리)
 
@@ -232,8 +264,45 @@ func take_damage(amount: float, source_pos: Vector2) -> void:
 ### 샌드박스 맵 (`admin_map.tscn`)
 
 - 평지 아레나 + 발판 몇 개 + 로프 오브젝트
-- TileMap으로 간단 구성 (던전 타일셋)
-- 배경 플레이스홀더: `asset_sample/Background/` 던전 배경
+- TileMap 기반으로 구성하되, 이번 기준선에서는 `GandalfHardcore FREE Platformer Assets` 의 흙 배경 + 지형 타일 조합을 우선 사용한다.
+- 배경 플레이스홀더 수준으로 두지 않고, 아래 6개 PNG를 `admin_map.tscn` 의 기준 배경/지형 소스로 고정한다.
+  - 배경 루프용: `BG Dirt1.png`, `BG Dirt2.png`
+  - 주 지형용: `Floor Tiles1.png`, `Floor Tiles2.png`
+  - 보조 지형/발판/경사면용: `Other Tiles1.png`, `Other Tiles2.png`
+- 원본 분석은 `asset_sample/Background/GandalfHardcore FREE Platformer Assets/` 에서 하되, 실제 런타임 연결은 반드시 `assets/background/gandalf_hardcore/` 아래로 복사한 리소스만 사용한다.
+
+### 샌드박스 맵 비주얼 기준선
+
+- `BG Dirt1.png` 와 `BG Dirt2.png` 는 `TileMap` 지형 소스가 아니라, 카메라 뒤에서 반복되는 `Sprite2D` 또는 `TextureRect` 배경 레이어로 사용한다.
+- 두 배경은 한 장만 고정하지 않고 `좌우 반복 + 교차 배치`를 기본으로 삼아, 넓은 평지 구간에서도 검은 빈칸이 보이지 않게 한다.
+- `Floor Tiles1.png`, `Floor Tiles2.png` 는 충돌이 있는 메인 지면 블록 세트로 사용한다.
+- `Other Tiles1.png`, `Other Tiles2.png` 는 경사면, 얇은 발판, 보조 블록, 가장자리 변형을 담당한다.
+- 배경과 충돌 지형을 한 레이어에 섞지 않는다.
+  - 배경: 충돌 없음
+  - 지면/발판: 충돌 있음
+  - 장식: 충돌 없음 또는 선택적 충돌
+
+### 샌드박스 맵 레이어 구조
+
+- `ParallaxBackground` 또는 배경 전용 `Node2D`
+  - `BG Dirt1`, `BG Dirt2` 반복 배치
+- `TileMapLayer_Ground`
+  - `Floor Tiles1`, `Floor Tiles2` 기반 메인 평지
+- `TileMapLayer_Support`
+  - `Other Tiles1`, `Other Tiles2` 기반 경사면, 공중 발판, 가장자리 마감
+- `Collision` 은 플레이 테스트 우선 기준으로 단순화한다.
+  - 큰 사각형 지면
+  - 짧은 공중 발판
+  - 경사면 진입 구간
+
+### 샌드박스 맵 적용 규칙
+
+- `Floor Tiles1` 과 `Floor Tiles2` 는 계절/색상 변형처럼 섞어 쓰지 않고, 같은 화면 안에서는 한 팔레트를 주력으로 쓰고 다른 한 세트는 구역 구분이나 변형 포인트에만 제한적으로 사용한다.
+- `Other Tiles1` 과 `Other Tiles2` 의 경사면은 플레이어 이동 테스트 구간에 우선 배치한다.
+- 공중 발판은 얇은 플랫폼 실루엣이 잘 읽히는 `Other Tiles` 계열을 우선 사용한다.
+- 맵의 핵심은 `예쁜 배경`보다 `전투 가독성` 이다.
+  - 바닥 외곽선, 낙하 가능 지점, 발판 끝점이 플레이 중 즉시 보여야 한다.
+  - 스킬 이펙트와 몬스터 실루엣이 묻히지 않도록 지나치게 복잡한 배경 중첩은 피한다.
 
 ### ESC 메뉴 (4탭, CanvasLayer)
 

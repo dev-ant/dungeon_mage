@@ -1,0 +1,13 @@
+Use image 1 as the exact composition, silhouette, frame timing, empty padding, center alignment, motion direction, body ratio, head size, limb length, face placement, hand placement, foot placement, and idle animation reference.
+
+This is the player character idle strip for Dungeon Mage. Keep the current runtime proportions exactly and preserve the same readable side-scrolling gameplay silhouette. Redesign only the character styling details: hair color and shape refinement, facial styling, school uniform, robe, shoes, wand, and the subtle bag read.
+
+Do not rotate or mirror the character across frames. Lock the character to the exact same facing direction as the original male_hero idle input in every frame. Do not switch to front view or 3/4 view, and do not tilt gaze up or down across frames. Keep eye direction consistent with the same side-scroller read in every frame.
+
+Restyle the character as a handsome blond teenage academy mage who entered the labyrinth for his graduation exam. He should read as a trained elite student, kind and intelligent, with slightly sharp eyes, a refined straight nose, and a clean, noble fantasy-student presence. His hair should be blond, short like a typical young male haircut, neat but slightly spiky, and should stay close to the current hair mass and head silhouette.
+
+The costume should be cloth-and-robe driven and readable at small gameplay scale: a white high-neck inner layer with restrained gold accents, a blue outerwear layer with white support accents, and a gray robe as the dominant silhouette with a small gold school emblem. For idle specifically, the robe front must stay more than ninety percent closed in every frame except for a narrow opening around the neck and high-collar area. Keep the chest, sternum, and abdomen covered by the robe with no frame-to-frame opening variation. Blue trousers can remain mostly hidden under the robe. Shoes should be leather and harmonize with the robe palette. No gloves. A brown leather crossbody bag may be visible only subtly because it sits mostly behind the body.
+
+The weapon should remain a short antique wooden wand, about 35 cm in feel, with a gold mana stone at the tip and a small amount of elegant gold trim where the stone connects to the wood. Keep the wand readable as a short wand rather than a long staff.
+
+Style: pixel-friendly 2D fantasy action RPG character, same visual family as Dungeon Mage monsters but cleaner, more disciplined, and more heroic. Lighting and mood: bright readable character treatment over subdued dungeon gameplay backgrounds. Background handling: transparent background, isolated sprite strip. Important: preserve the current pose and composition exactly and do not redesign the anatomy or animation.

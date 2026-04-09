@@ -1,0 +1,223 @@
+{
+  "input": "/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/assets/player/male_hero/male_hero-idle.png",
+  "output": "/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/tmp/flux_klein_tests/male_hero-idle_center_locked.png",
+  "frame_count": 10,
+  "target_anchor": [
+    50.952,
+    54.89
+  ],
+  "top_fraction": 0.68,
+  "margin": 10,
+  "frames": [
+    {
+      "index": 0,
+      "anchor": [
+        84.818,
+        55.951
+      ],
+      "target_anchor": [
+        50.952,
+        54.89
+      ],
+      "shift": [
+        -31,
+        -2
+      ],
+      "bbox": [
+        10,
+        9,
+        89,
+        118
+      ]
+    },
+    {
+      "index": 1,
+      "anchor": [
+        84.818,
+        55.951
+      ],
+      "target_anchor": [
+        50.952,
+        54.89
+      ],
+      "shift": [
+        -31,
+        -2
+      ],
+      "bbox": [
+        10,
+        9,
+        89,
+        118
+      ]
+    },
+    {
+      "index": 2,
+      "anchor": [
+        34.032,
+        53.794
+      ],
+      "target_anchor": [
+        50.952,
+        54.89
+      ],
+      "shift": [
+        17,
+        -2
+      ],
+      "bbox": [
+        25,
+        7,
+        82,
+        118
+      ]
+    },
+    {
+      "index": 3,
+      "anchor": [
+        57.532,
+        54.425
+      ],
+      "target_anchor": [
+        50.952,
+        54.89
+      ],
+      "shift": [
+        -7,
+        0
+      ],
+      "bbox": [
+        10,
+        8,
+        83,
+        120
+      ]
+    },
+    {
+      "index": 4,
+      "anchor": [
+        86.59,
+        54.505
+      ],
+      "target_anchor": [
+        50.952,
+        54.89
+      ],
+      "shift": [
+        -34,
+        0
+      ],
+      "bbox": [
+        10,
+        8,
+        86,
+        120
+      ]
+    },
+    {
+      "index": 5,
+      "anchor": [
+        86.59,
+        54.505
+      ],
+      "target_anchor": [
+        50.952,
+        54.89
+      ],
+      "shift": [
+        -34,
+        0
+      ],
+      "bbox": [
+        10,
+        8,
+        86,
+        120
+      ]
+    },
+    {
+      "index": 6,
+      "anchor": [
+        20.771,
+        52.182
+      ],
+      "target_anchor": [
+        50.952,
+        54.89
+      ],
+      "shift": [
+        30,
+        -2
+      ],
+      "bbox": [
+        38,
+        10,
+        75,
+        118
+      ]
+    },
+    {
+      "index": 7,
+      "anchor": [
+        44.371,
+        55.276
+      ],
+      "target_anchor": [
+        50.952,
+        54.89
+      ],
+      "shift": [
+        7,
+        0
+      ],
+      "bbox": [
+        15,
+        8,
+        88,
+        120
+      ]
+    },
+    {
+      "index": 8,
+      "anchor": [
+        44.371,
+        55.276
+      ],
+      "target_anchor": [
+        50.952,
+        54.89
+      ],
+      "shift": [
+        7,
+        0
+      ],
+      "bbox": [
+        15,
+        8,
+        88,
+        120
+      ]
+    },
+    {
+      "index": 9,
+      "anchor": [
+        44.371,
+        55.276
+      ],
+      "target_anchor": [
+        50.952,
+        54.89
+      ],
+      "shift": [
+        7,
+        0
+      ],
+      "bbox": [
+        15,
+        8,
+        88,
+        120
+      ]
+    }
+  ]
+}

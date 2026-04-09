@@ -1,13 +1,501 @@
 {
+  "earth_tremor": {
+    "id": "earth_tremor",
+    "source_skill_id": "earth_terra_break",
+    "name": "트레머",
+    "school": "earth",
+    "color": "#a0764a",
+    "damage": 20,
+    "speed": 0,
+    "range": 88,
+    "cooldown": 0.9,
+    "knockback": 380,
+    "size": 80,
+    "duration": 0.18,
+    "mastery_threshold": 4,
+    "mastery_bonus": {
+      "damage": 8,
+      "range": 16,
+      "knockback": 60
+    },
+    "multi_hit_count": 6,
+    "hit_interval": 0.06
+  },
+  "plant_vine_snare": {
+    "id": "plant_vine_snare",
+    "name": "루트 바인드",
+    "school": "plant",
+    "color": "#6bbf5b",
+    "damage": 6,
+    "speed": 0,
+    "range": 96,
+    "cooldown": 4.5,
+    "knockback": 0,
+    "size": 96,
+    "duration": 5.0,
+    "tick_interval": 1.0,
+    "utility_effects": [
+      {
+        "type": "root",
+        "value": 1.0,
+        "duration": 0.8
+      }
+    ],
+    "mastery_threshold": 4,
+    "mastery_bonus": {
+      "damage": 2,
+      "duration": 0.4,
+      "range": 8
+    }
+  },
+  "holy_radiant_burst": {
+    "id": "holy_radiant_burst",
+    "source_skill_id": "holy_healing_pulse",
+    "name": "레디언트 버스트",
+    "school": "holy",
+    "color": "#fff4a0",
+    "damage": 19,
+    "speed": 680,
+    "range": 320,
+    "cooldown": 0.0,
+    "knockback": 200,
+    "size": 18,
+    "self_heal": 18,
+    "mastery_threshold": 4,
+    "mastery_bonus": {
+      "damage": 7,
+      "speed": 80,
+      "size": 4
+    },
+    "multi_hit_count": 2,
+    "hit_interval": 0.07
+  },
+  "holy_cure_ray": {
+    "id": "holy_cure_ray",
+    "source_skill_id": "holy_cure_ray",
+    "name": "큐어 레이",
+    "school": "holy",
+    "color": "#fff2b0",
+    "damage": 20,
+    "speed": 920,
+    "range": 420,
+    "cooldown": 0.0,
+    "knockback": 180,
+    "size": 16,
+    "pierce": 1,
+    "self_heal": 12,
+    "mastery_threshold": 4,
+    "mastery_bonus": {
+      "damage": 6,
+      "speed": 70,
+      "self_heal": 4
+    },
+    "multi_hit_count": 2,
+    "hit_interval": 0.08
+  },
+  "holy_judgment_halo": {
+    "id": "holy_judgment_halo",
+    "source_skill_id": "holy_judgment_halo",
+    "name": "저지먼트 헤일로",
+    "school": "holy",
+    "color": "#fff8d2",
+    "damage": 78,
+    "speed": 0,
+    "range": 160,
+    "cooldown": 8.5,
+    "knockback": 360,
+    "size": 150,
+    "duration": 0.44,
+    "mastery_threshold": 4,
+    "mastery_bonus": {
+      "damage": 20,
+      "size": 18,
+      "duration": 0.08
+    },
+    "multi_hit_count": 6,
+    "hit_interval": 0.06
+  },
+  "holy_halo_touch": {
+    "id": "holy_halo_touch",
+    "source_skill_id": "holy_halo_touch",
+    "name": "헤일로 터치",
+    "school": "holy",
+    "color": "#fff0bf",
+    "damage": 10,
+    "speed": 760,
+    "range": 320,
+    "cooldown": 0.0,
+    "knockback": 120,
+    "size": 14,
+    "self_heal": 14,
+    "mastery_threshold": 4,
+    "mastery_bonus": {
+      "damage": 4,
+      "speed": 40,
+      "self_heal": 4
+    },
+    "multi_hit_count": 2,
+    "hit_interval": 0.08
+  },
+  "water_aqua_bullet": {
+    "id": "water_aqua_bullet",
+    "name": "워터 불릿",
+    "school": "water",
+    "color": "#4ec9f7",
+    "damage": 16,
+    "speed": 820,
+    "range": 360,
+    "cooldown": 0.0,
+    "knockback": 220,
+    "size": 14,
+    "mastery_threshold": 4,
+    "mastery_bonus": {
+      "damage": 6,
+      "speed": 60,
+      "knockback": 40
+    },
+    "multi_hit_count": 2,
+    "hit_interval": 0.06
+  },
+  "water_aqua_spear": {
+    "id": "water_aqua_spear",
+    "source_skill_id": "water_aqua_spear",
+    "name": "아쿠아 스피어",
+    "school": "water",
+    "color": "#84e6ff",
+    "damage": 24,
+    "speed": 980,
+    "range": 460,
+    "cooldown": 0.0,
+    "knockback": 260,
+    "size": 12,
+    "pierce": 2,
+    "mastery_threshold": 4,
+    "mastery_bonus": {
+      "damage": 8,
+      "pierce": 1,
+      "speed": 80
+    },
+    "multi_hit_count": 2,
+    "hit_interval": 0.06
+  },
+  "water_tidal_ring": {
+    "id": "water_tidal_ring",
+    "source_skill_id": "water_tidal_ring",
+    "name": "타이달 링",
+    "school": "water",
+    "color": "#7fd9ff",
+    "damage": 44,
+    "speed": 0,
+    "range": 120,
+    "cooldown": 0.0,
+    "knockback": 360,
+    "size": 120,
+    "duration": 0.28,
+    "mastery_threshold": 4,
+    "mastery_bonus": {
+      "damage": 12,
+      "size": 16,
+      "duration": 0.08
+    },
+    "multi_hit_count": 2,
+    "hit_interval": 0.08
+  },
+  "water_aqua_geyser": {
+    "id": "water_aqua_geyser",
+    "source_skill_id": "water_aqua_geyser",
+    "name": "아쿠아 가이저",
+    "school": "water",
+    "color": "#8aeaff",
+    "damage": 40,
+    "speed": 0,
+    "range": 104,
+    "cooldown": 6.0,
+    "knockback": 420,
+    "size": 104,
+    "duration": 0.36,
+    "mastery_threshold": 4,
+    "mastery_bonus": {
+      "damage": 10,
+      "size": 10,
+      "knockback": 60
+    },
+    "multi_hit_count": 2,
+    "hit_interval": 0.06
+  },
+  "water_wave": {
+    "id": "water_wave",
+    "source_skill_id": "water_wave",
+    "name": "워터 웨이브",
+    "school": "water",
+    "color": "#8de8ff",
+    "damage": 30,
+    "speed": 620,
+    "range": 360,
+    "cooldown": 0.0,
+    "knockback": 280,
+    "size": 34,
+    "pierce": 3,
+    "duration": 1.2,
+    "utility_effects": [
+      {
+        "type": "slow",
+        "value": 0.22,
+        "duration": 1.1
+      }
+    ],
+    "mastery_threshold": 4,
+    "mastery_bonus": {
+      "damage": 10,
+      "size": 8,
+      "speed": 60
+    },
+    "multi_hit_count": 3,
+    "hit_interval": 0.08
+  },
+  "water_tsunami": {
+    "id": "water_tsunami",
+    "source_skill_id": "water_tsunami",
+    "name": "쓰나미",
+    "school": "water",
+    "color": "#a2f2ff",
+    "damage": 40,
+    "speed": 540,
+    "range": 520,
+    "cooldown": 4.8,
+    "knockback": 340,
+    "size": 56,
+    "pierce": 5,
+    "duration": 1.4,
+    "utility_effects": [
+      {
+        "type": "slow",
+        "value": 0.3,
+        "duration": 1.4
+      }
+    ],
+    "mastery_threshold": 4,
+    "mastery_bonus": {
+      "damage": 12,
+      "size": 12,
+      "speed": 80
+    },
+    "multi_hit_count": 6,
+    "hit_interval": 0.08
+  },
+  "water_ocean_collapse": {
+    "id": "water_ocean_collapse",
+    "source_skill_id": "water_ocean_collapse",
+    "name": "오션 콜랩스",
+    "school": "water",
+    "color": "#b7f8ff",
+    "damage": 52,
+    "speed": 500,
+    "range": 560,
+    "cooldown": 9.6,
+    "knockback": 380,
+    "size": 68,
+    "pierce": 7,
+    "duration": 1.55,
+    "utility_effects": [
+      {
+        "type": "slow",
+        "value": 0.34,
+        "duration": 1.6
+      }
+    ],
+    "mastery_threshold": 4,
+    "mastery_bonus": {
+      "damage": 16,
+      "size": 14,
+      "speed": 90
+    },
+    "multi_hit_count": 7,
+    "hit_interval": 0.07
+  },
+  "wind_arrow": {
+    "id": "wind_arrow",
+    "source_skill_id": "wind_arrow",
+    "name": "윈드 애로우",
+    "school": "wind",
+    "color": "#d2ffd8",
+    "damage": 14,
+    "speed": 1080,
+    "range": 420,
+    "cooldown": 0.0,
+    "knockback": 240,
+    "size": 10,
+    "mastery_threshold": 4,
+    "mastery_bonus": {
+      "damage": 5,
+      "speed": 80,
+      "knockback": 50
+    },
+    "multi_hit_count": 2,
+    "hit_interval": 0.05
+  },
+  "wind_gust_bolt": {
+    "id": "wind_gust_bolt",
+    "source_skill_id": "wind_gust_bolt",
+    "name": "거스트 볼트",
+    "school": "wind",
+    "color": "#c7ffcf",
+    "damage": 18,
+    "speed": 980,
+    "range": 420,
+    "cooldown": 0.0,
+    "knockback": 360,
+    "size": 12,
+    "mastery_threshold": 4,
+    "mastery_bonus": {
+      "damage": 6,
+      "speed": 60,
+      "knockback": 70
+    },
+    "multi_hit_count": 2,
+    "hit_interval": 0.05
+  },
+  "wind_gale_cutter": {
+    "id": "wind_gale_cutter",
+    "name": "윈드 커터",
+    "school": "wind",
+    "color": "#b8f5c2",
+    "damage": 14,
+    "speed": 1100,
+    "range": 480,
+    "cooldown": 0.0,
+    "knockback": 280,
+    "size": 10,
+    "pierce": 3,
+    "mastery_threshold": 4,
+    "mastery_bonus": {
+      "damage": 5,
+      "pierce": 1,
+      "speed": 100
+    },
+    "multi_hit_count": 3,
+    "hit_interval": 0.05
+  },
+  "wind_storm": {
+    "id": "wind_storm",
+    "source_skill_id": "wind_storm",
+    "name": "윈드 스톰",
+    "school": "wind",
+    "color": "#d6ffd5",
+    "damage": 40,
+    "speed": 0,
+    "range": 148,
+    "cooldown": 3.4,
+    "knockback": 240,
+    "size": 148,
+    "duration": 0.36,
+    "utility_effects": [
+      {
+        "type": "slow",
+        "chance": 1.0,
+        "value": 0.28,
+        "duration": 1.2
+      }
+    ],
+    "mastery_threshold": 4,
+    "mastery_bonus": {
+      "damage": 10,
+      "size": 16,
+      "duration": 0.08
+    },
+    "multi_hit_count": 5,
+    "hit_interval": 0.1
+  },
+  "wind_heavenly_storm": {
+    "id": "wind_heavenly_storm",
+    "source_skill_id": "wind_heavenly_storm",
+    "name": "헤븐리 스톰",
+    "school": "wind",
+    "color": "#e6ffe0",
+    "damage": 60,
+    "speed": 0,
+    "range": 188,
+    "cooldown": 9.2,
+    "knockback": 300,
+    "size": 188,
+    "duration": 0.42,
+    "utility_effects": [
+      {
+        "type": "slow",
+        "chance": 1.0,
+        "value": 0.36,
+        "duration": 1.6
+      }
+    ],
+    "mastery_threshold": 4,
+    "mastery_bonus": {
+      "damage": 16,
+      "size": 18,
+      "duration": 0.1
+    },
+    "multi_hit_count": 8,
+    "hit_interval": 0.07
+  },
+  "wind_tempest_drive": {
+    "id": "wind_tempest_drive",
+    "name": "템페스트 드라이브",
+    "school": "wind",
+    "color": "#eaffdf",
+    "damage": 32,
+    "speed": 0,
+    "range": 118,
+    "cooldown": 1.8,
+    "knockback": 220,
+    "size": 118,
+    "duration": 0.16,
+    "utility_effects": [
+      {
+        "type": "slow",
+        "chance": 1.0,
+        "value": 0.18,
+        "duration": 0.7
+      }
+    ],
+    "mastery_threshold": 4,
+    "mastery_bonus": {
+      "damage": 8,
+      "size": 10,
+      "duration": 0.04
+    },
+    "multi_hit_count": 3,
+    "hit_interval": 0.06
+  },
+  "earth_stone_shot": {
+    "id": "earth_stone_shot",
+    "source_skill_id": "earth_stone_shot",
+    "name": "스톤 샷",
+    "school": "earth",
+    "color": "#c7aa7b",
+    "damage": 22,
+    "speed": 700,
+    "range": 380,
+    "cooldown": 0.0,
+    "knockback": 320,
+    "size": 18,
+    "mastery_threshold": 4,
+    "mastery_bonus": {
+      "damage": 8,
+      "speed": 50,
+      "size": 4
+    },
+    "multi_hit_count": 2,
+    "hit_interval": 0.08
+  },
   "fire_bolt": {
     "id": "fire_bolt",
-    "name": "Fire Bolt",
+    "source_skill_id": "fire_ember_dart",
+    "name": "파이어 볼트",
     "school": "fire",
     "color": "#ff8f45",
     "damage": 18,
     "speed": 760,
     "range": 340,
-    "cooldown": 0.22,
+    "cooldown": 0.0,
     "knockback": 260,
     "size": 16,
     "mastery_threshold": 5,
@@ -15,11 +503,148 @@
       "damage": 8,
       "speed": 70,
       "size": 4
-    }
+    },
+    "multi_hit_count": 2,
+    "hit_interval": 0.06
+  },
+  "fire_flame_bullet": {
+    "id": "fire_flame_bullet",
+    "source_skill_id": "fire_flame_bullet",
+    "name": "플레임 불릿",
+    "school": "fire",
+    "color": "#ffab62",
+    "damage": 15,
+    "speed": 920,
+    "range": 360,
+    "cooldown": 0.0,
+    "knockback": 220,
+    "size": 14,
+    "mastery_threshold": 4,
+    "mastery_bonus": {
+      "damage": 5,
+      "speed": 70,
+      "size": 2
+    },
+    "multi_hit_count": 3,
+    "hit_interval": 0.05
+  },
+  "fire_flame_arc": {
+    "id": "fire_flame_arc",
+    "source_skill_id": "fire_flame_arc",
+    "name": "플레임 아크",
+    "school": "fire",
+    "color": "#ffb56a",
+    "damage": 46,
+    "speed": 0,
+    "range": 180,
+    "cooldown": 0.0,
+    "knockback": 220,
+    "size": 180,
+    "duration": 0.28,
+    "mastery_threshold": 4,
+    "mastery_bonus": {
+      "damage": 12,
+      "size": 18,
+      "duration": 0.08
+    },
+    "multi_hit_count": 3,
+    "hit_interval": 0.06
+  },
+  "fire_inferno_breath": {
+    "id": "fire_inferno_breath",
+    "source_skill_id": "fire_inferno_breath",
+    "name": "인페르노 브레스",
+    "school": "fire",
+    "color": "#ffb468",
+    "damage": 50,
+    "speed": 0,
+    "range": 240,
+    "cooldown": 5.2,
+    "knockback": 180,
+    "size": 128,
+    "duration": 0.42,
+    "utility_effects": [
+      {
+        "type": "burn",
+        "chance": 0.2,
+        "chance_per_level": 0.004,
+        "value": 1.0,
+        "duration": 1.2
+      }
+    ],
+    "mastery_threshold": 4,
+    "mastery_bonus": {
+      "damage": 12,
+      "size": 18,
+      "duration": 0.08
+    },
+    "multi_hit_count": 5,
+    "hit_interval": 0.08
+  },
+  "ice_frost_needle": {
+    "id": "ice_frost_needle",
+    "source_skill_id": "ice_frost_needle",
+    "name": "프로스트 니들",
+    "school": "ice",
+    "color": "#b9f4ff",
+    "damage": 18,
+    "speed": 980,
+    "range": 460,
+    "cooldown": 0.0,
+    "knockback": 180,
+    "size": 12,
+    "pierce": 1,
+    "duration": 1.6,
+    "utility_effects": [
+      {
+        "type": "slow",
+        "value": 0.25,
+        "duration": 1.6
+      }
+    ],
+    "mastery_threshold": 4,
+    "mastery_bonus": {
+      "damage": 6,
+      "speed": 80,
+      "pierce": 1
+    },
+    "multi_hit_count": 2,
+    "hit_interval": 0.05
+  },
+  "ice_spear": {
+    "id": "ice_spear",
+    "source_skill_id": "ice_spear",
+    "name": "아이스 스피어",
+    "school": "ice",
+    "color": "#d9fbff",
+    "damage": 24,
+    "speed": 900,
+    "range": 440,
+    "cooldown": 0.0,
+    "knockback": 220,
+    "size": 12,
+    "pierce": 1,
+    "utility_effects": [
+      {
+        "type": "freeze",
+        "chance": 0.28,
+        "value": 1.0,
+        "duration": 0.75
+      }
+    ],
+    "mastery_threshold": 4,
+    "mastery_bonus": {
+      "damage": 8,
+      "speed": 70,
+      "pierce": 1
+    },
+    "multi_hit_count": 2,
+    "hit_interval": 0.08
   },
   "frost_nova": {
     "id": "frost_nova",
-    "name": "Frost Nova",
+    "source_skill_id": "ice_frost_needle",
+    "name": "프로스트 노바",
     "school": "ice",
     "color": "#8cecff",
     "damage": 14,
@@ -29,6 +654,13 @@
     "knockback": 120,
     "size": 72,
     "duration": 0.2,
+    "utility_effects": [
+      {
+        "type": "freeze",
+        "value": 1.0,
+        "duration": 0.6
+      }
+    ],
     "mastery_threshold": 4,
     "mastery_bonus": {
       "damage": 6,
@@ -36,15 +668,136 @@
       "duration": 0.08
     }
   },
+  "ice_absolute_freeze": {
+    "id": "ice_absolute_freeze",
+    "source_skill_id": "ice_absolute_freeze",
+    "name": "앱솔루트 프리즈",
+    "school": "ice",
+    "color": "#d8fbff",
+    "damage": 42,
+    "speed": 0,
+    "range": 156,
+    "cooldown": 7.8,
+    "knockback": 220,
+    "size": 156,
+    "duration": 0.34,
+    "utility_effects": [
+      {
+        "type": "freeze",
+        "chance": 1.0,
+        "value": 1.0,
+        "duration": 1.0
+      }
+    ],
+    "mastery_threshold": 4,
+    "mastery_bonus": {
+      "damage": 10,
+      "range": 28,
+      "duration": 0.12
+    },
+    "multi_hit_count": 4,
+    "hit_interval": 0.08
+  },
+  "ice_absolute_zero": {
+    "id": "ice_absolute_zero",
+    "source_skill_id": "ice_absolute_zero",
+    "name": "앱솔루트 제로",
+    "school": "ice",
+    "color": "#f0feff",
+    "damage": 70,
+    "speed": 0,
+    "range": 216,
+    "cooldown": 11.1,
+    "knockback": 260,
+    "size": 216,
+    "duration": 0.56,
+    "utility_effects": [
+      {
+        "type": "freeze",
+        "chance": 1.0,
+        "value": 1.0,
+        "duration": 1.4
+      }
+    ],
+    "mastery_threshold": 4,
+    "mastery_bonus": {
+      "damage": 20,
+      "range": 34,
+      "duration": 0.14
+    },
+    "multi_hit_count": 8,
+    "hit_interval": 0.06
+  },
+  "fire_inferno_buster": {
+    "id": "fire_inferno_buster",
+    "source_skill_id": "fire_inferno_buster",
+    "name": "인페르노 버스터",
+    "school": "fire",
+    "color": "#ffbf78",
+    "damage": 48,
+    "speed": 0,
+    "range": 168,
+    "cooldown": 6.8,
+    "knockback": 260,
+    "size": 168,
+    "duration": 0.32,
+    "utility_effects": [
+      {
+        "type": "burn",
+        "chance": 1.0,
+        "value": 1.0,
+        "duration": 1.2
+      }
+    ],
+    "mastery_threshold": 4,
+    "mastery_bonus": {
+      "damage": 12,
+      "size": 24,
+      "duration": 0.1
+    },
+    "multi_hit_count": 4,
+    "hit_interval": 0.08
+  },
+  "fire_meteor_strike": {
+    "id": "fire_meteor_strike",
+    "source_skill_id": "fire_meteor_strike",
+    "name": "메테오 스트라이크",
+    "school": "fire",
+    "color": "#ffd29a",
+    "damage": 54,
+    "speed": 0,
+    "range": 184,
+    "cooldown": 8.6,
+    "knockback": 300,
+    "size": 184,
+    "duration": 0.46,
+    "utility_effects": [
+      {
+        "type": "burn",
+        "chance": 1.0,
+        "value": 1.0,
+        "duration": 1.4
+      }
+    ],
+    "mastery_threshold": 4,
+    "mastery_bonus": {
+      "damage": 14,
+      "size": 28,
+      "duration": 0.12
+    },
+    "multi_hit_count": 6,
+    "hit_interval": 0.06
+  },
   "volt_spear": {
     "id": "volt_spear",
-    "name": "Volt Spear",
+    "source_skill_id": "lightning_thunder_lance",
+    "name": "볼트 스피어",
     "school": "lightning",
     "color": "#f7ef6a",
     "damage": 22,
     "speed": 1020,
     "range": 440,
-    "cooldown": 0.55,
+    "cooldown": 0.0,
     "knockback": 320,
     "size": 12,
     "pierce": 2,
@@ -53,6 +806,257 @@
       "damage": 10,
       "pierce": 1,
       "speed": 120
+    },
+    "multi_hit_count": 3,
+    "hit_interval": 0.05
+  },
+  "lightning_thunder_arrow": {
+    "id": "lightning_thunder_arrow",
+    "source_skill_id": "lightning_thunder_arrow",
+    "name": "썬더 애로우",
+    "school": "lightning",
+    "color": "#fff2a8",
+    "damage": 22,
+    "speed": 1120,
+    "range": 470,
+    "cooldown": 0.0,
+    "knockback": 300,
+    "size": 10,
+    "pierce": 2,
+    "utility_effects": [
+      {
+        "type": "shock",
+        "chance": 1.0,
+        "value": 1.0,
+        "duration": 1.1
+      }
+    ],
+    "mastery_threshold": 4,
+    "mastery_bonus": {
+      "damage": 8,
+      "pierce": 1,
+      "speed": 120
+    },
+    "multi_hit_count": 3,
+    "hit_interval": 0.06
+  },
+  "lightning_bolt": {
+    "id": "lightning_bolt",
+    "source_skill_id": "lightning_bolt",
+    "name": "라이트닝 볼트",
+    "school": "lightning",
+    "color": "#fff5a6",
+    "damage": 26,
+    "speed": 1040,
+    "range": 430,
+    "cooldown": 0.0,
+    "knockback": 280,
+    "size": 14,
+    "pierce": 3,
+    "duration": 1.0,
+    "utility_effects": [
+      {
+        "type": "shock",
+        "chance": 1.0,
+        "value": 1.0,
+        "duration": 1.25
+      }
+    ],
+    "mastery_threshold": 4,
+    "mastery_bonus": {
+      "damage": 8,
+      "pierce": 1,
+      "speed": 100
+    },
+    "multi_hit_count": 4,
+    "hit_interval": 0.08
+  },
+  "earth_rock_spear": {
+    "id": "earth_rock_spear",
+    "source_skill_id": "earth_rock_spear",
+    "name": "락 스피어",
+    "school": "earth",
+    "color": "#b99465",
+    "damage": 26,
+    "speed": 760,
+    "range": 400,
+    "cooldown": 0.0,
+    "knockback": 340,
+    "size": 14,
+    "mastery_threshold": 4,
+    "mastery_bonus": {
+      "damage": 10,
+      "speed": 60,
+      "size": 4
+    },
+    "multi_hit_count": 2,
+    "hit_interval": 0.07
+  },
+  "earth_gaia_break": {
+    "id": "earth_gaia_break",
+    "source_skill_id": "earth_gaia_break",
+    "name": "가이아 브레이크",
+    "school": "earth",
+    "color": "#d0b080",
+    "damage": 52,
+    "speed": 0,
+    "range": 176,
+    "cooldown": 5.6,
+    "knockback": 420,
+    "size": 176,
+    "duration": 0.4,
+    "mastery_threshold": 4,
+    "mastery_bonus": {
+      "damage": 14,
+      "size": 18,
+      "duration": 0.08
+    },
+    "multi_hit_count": 6,
+    "hit_interval": 0.07
+  },
+  "earth_continental_crush": {
+    "id": "earth_continental_crush",
+    "source_skill_id": "earth_continental_crush",
+    "name": "컨티넨탈 크러시",
+    "school": "earth",
+    "color": "#dfc295",
+    "damage": 64,
+    "speed": 0,
+    "range": 198,
+    "cooldown": 9.8,
+    "knockback": 460,
+    "size": 198,
+    "duration": 0.48,
+    "mastery_threshold": 4,
+    "mastery_bonus": {
+      "damage": 18,
+      "size": 20,
+      "duration": 0.1
+    },
+    "multi_hit_count": 6,
+    "hit_interval": 0.06
+  },
+  "earth_world_end_break": {
+    "id": "earth_world_end_break",
+    "source_skill_id": "earth_world_end_break",
+    "name": "월드 엔드 브레이크",
+    "school": "earth",
+    "color": "#ead3ab",
+    "damage": 72,
+    "speed": 0,
+    "range": 214,
+    "cooldown": 11.0,
+    "knockback": 500,
+    "size": 214,
+    "duration": 0.54,
+    "mastery_threshold": 4,
+    "mastery_bonus": {
+      "damage": 20,
+      "size": 22,
+      "duration": 0.12
+    },
+    "multi_hit_count": 8,
+    "hit_interval": 0.06
+  },
+  "fire_apocalypse_flame": {
+    "id": "fire_apocalypse_flame",
+    "source_skill_id": "fire_apocalypse_flame",
+    "name": "아포칼립스 플레임",
+    "school": "fire",
+    "color": "#ffe1b2",
+    "damage": 68,
+    "speed": 0,
+    "range": 204,
+    "cooldown": 10.4,
+    "knockback": 340,
+    "size": 204,
+    "duration": 0.52,
+    "utility_effects": [
+      {
+        "type": "burn",
+        "chance": 1.0,
+        "value": 1.0,
+        "duration": 1.6
+      }
+    ],
+    "mastery_threshold": 4,
+    "mastery_bonus": {
+      "damage": 18,
+      "size": 30,
+      "duration": 0.12
+    },
+    "multi_hit_count": 7,
+    "hit_interval": 0.06
+  },
+  "fire_solar_cataclysm": {
+    "id": "fire_solar_cataclysm",
+    "source_skill_id": "fire_solar_cataclysm",
+    "name": "솔라 카타클리즘",
+    "school": "fire",
+    "color": "#fff0c6",
+    "damage": 74,
+    "speed": 0,
+    "range": 218,
+    "cooldown": 11.2,
+    "knockback": 380,
+    "size": 218,
+    "duration": 0.56,
+    "utility_effects": [
+      {
+        "type": "burn",
+        "chance": 1.0,
+        "value": 1.0,
+        "duration": 1.8
+      }
+    ],
+    "mastery_threshold": 4,
+    "mastery_bonus": {
+      "damage": 20,
+      "size": 32,
+      "duration": 0.14
+    },
+    "multi_hit_count": 8,
+    "hit_interval": 0.06
+  },
+  "dark_void_bolt": {
+    "id": "dark_void_bolt",
+    "source_skill_id": "dark_abyss_gate",
+    "name": "보이드 볼트",
+    "school": "dark",
+    "color": "#7c3aed",
+    "damage": 24,
+    "speed": 880,
+    "range": 400,
+    "cooldown": 0.45,
+    "knockback": 300,
+    "size": 14,
+    "pierce": 1,
+    "mastery_threshold": 4,
+    "mastery_bonus": {
+      "damage": 10,
+      "speed": 80,
+      "pierce": 1
+    },
+    "multi_hit_count": 6,
+    "hit_interval": 0.06
+  },
+  "arcane_force_pulse": {
+    "id": "arcane_force_pulse",
+    "name": "포스 펄스",
+    "source_skill_id": "arcane_force_pulse",
+    "school": "arcane",
+    "color": "#c084fc",
+    "damage": 17,
+    "speed": 940,
+    "range": 460,
+    "cooldown": 0.0,
+    "knockback": 240,
+    "size": 12,
+    "mastery_threshold": 4,
+    "mastery_bonus": {
+      "damage": 7,
+      "speed": 100,
+      "size": 3
     }
   }
 }

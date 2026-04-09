@@ -2,243 +2,532 @@
   "skills": [
     {
       "skill_id": "arcane_magic_mastery",
-      "display_name": "Magic Mastery",
+      "canonical_skill_id": "arcane_magic_mastery",
+      "display_name": "아케인 마스터리",
       "circle": 1,
       "school": "arcane",
       "element": "arcane",
       "skill_type": "passive",
-      "role_tags": ["mastery", "global"],
-      "description": "모든 마법의 이해도를 높인다.",
+      "role_tags": [
+        "mastery",
+        "arcane",
+        "global"
+      ],
+      "description": "아케인 축을 대표하면서 모든 마법의 효율과 이해도를 높이는 1서클 공용 마스터리",
       "max_level": 30,
       "unlock_state": "starter",
-      "growth_tracks": ["final_multiplier", "threshold_bonuses"],
+      "growth_tracks": [
+        "final_multiplier",
+        "threshold_bonuses"
+      ],
       "passive_family": "mastery",
       "applies_to_school": "all",
       "applies_to_element": "all",
       "final_multiplier_per_level": 0.003,
       "threshold_bonuses": [
-        { "level": 5, "effect": "mana_cost_reduction", "value": 0.02 },
-        { "level": 10, "effect": "cooldown_reduction", "value": 0.03 },
-        { "level": 15, "effect": "mana_cost_reduction", "value": 0.04 },
-        { "level": 20, "effect": "cooldown_reduction", "value": 0.05 },
-        { "level": 25, "effect": "mana_cost_reduction", "value": 0.06 },
-        { "level": 30, "effect": "cooldown_reduction", "value": 0.07 }
+        {
+          "level": 5,
+          "effect": "mana_cost_reduction",
+          "value": 0.02
+        },
+        {
+          "level": 10,
+          "effect": "cooldown_reduction",
+          "value": 0.03
+        },
+        {
+          "level": 15,
+          "effect": "mana_cost_reduction",
+          "value": 0.04
+        },
+        {
+          "level": 20,
+          "effect": "cooldown_reduction",
+          "value": 0.05
+        },
+        {
+          "level": 25,
+          "effect": "mana_cost_reduction",
+          "value": 0.06
+        },
+        {
+          "level": 30,
+          "effect": "cooldown_reduction",
+          "value": 0.07
+        }
       ]
     },
     {
       "skill_id": "fire_mastery",
-      "display_name": "Fire Mastery",
+      "canonical_skill_id": "fire_mastery",
+      "display_name": "파이어 마스터리",
       "circle": 1,
       "school": "elemental",
       "element": "fire",
       "skill_type": "passive",
-      "role_tags": ["mastery", "fire"],
-      "description": "화염 계열 마법을 심화한다.",
+      "role_tags": [
+        "mastery",
+        "fire"
+      ],
+      "description": "화염 계열 스킬의 최종 피해를 강화하고 구간별로 마나와 쿨타임 부담을 낮추는 1서클 화염 마스터리",
       "max_level": 30,
       "unlock_state": "starter",
-      "growth_tracks": ["final_multiplier", "threshold_bonuses"],
+      "growth_tracks": [
+        "final_multiplier",
+        "threshold_bonuses"
+      ],
       "passive_family": "mastery",
       "applies_to_school": "elemental",
       "applies_to_element": "fire",
-      "final_multiplier_per_level": 0.004,
+      "final_multiplier_per_level": 0.05,
       "threshold_bonuses": [
-        { "level": 5, "effect": "mana_cost_reduction", "value": 0.02 },
-        { "level": 10, "effect": "cooldown_reduction", "value": 0.03 },
-        { "level": 15, "effect": "mana_cost_reduction", "value": 0.04 },
-        { "level": 20, "effect": "cooldown_reduction", "value": 0.05 },
-        { "level": 25, "effect": "mana_cost_reduction", "value": 0.06 },
-        { "level": 30, "effect": "cooldown_reduction", "value": 0.07 }
+        {
+          "level": 5,
+          "effect": "mana_cost_reduction",
+          "value": 0.02
+        },
+        {
+          "level": 10,
+          "effect": "cooldown_reduction",
+          "value": 0.03
+        },
+        {
+          "level": 15,
+          "effect": "mana_cost_reduction",
+          "value": 0.04
+        },
+        {
+          "level": 20,
+          "effect": "cooldown_reduction",
+          "value": 0.05
+        },
+        {
+          "level": 25,
+          "effect": "mana_cost_reduction",
+          "value": 0.06
+        },
+        {
+          "level": 30,
+          "effect": "cooldown_reduction",
+          "value": 0.07
+        }
       ]
     },
     {
       "skill_id": "water_mastery",
-      "display_name": "Water Mastery",
+      "canonical_skill_id": "water_mastery",
+      "display_name": "워터 마스터리",
       "circle": 1,
       "school": "elemental",
       "element": "water",
       "skill_type": "passive",
-      "role_tags": ["mastery", "water"],
-      "description": "수속성 계열 마법을 심화한다.",
+      "role_tags": [
+        "mastery",
+        "water"
+      ],
+      "description": "물 계열 스킬의 최종 피해를 강화하고 구간별로 마나와 쿨타임 부담을 낮추는 1서클 물 마스터리",
       "max_level": 30,
       "unlock_state": "starter",
-      "growth_tracks": ["final_multiplier", "threshold_bonuses"],
+      "growth_tracks": [
+        "final_multiplier",
+        "threshold_bonuses"
+      ],
       "passive_family": "mastery",
       "applies_to_school": "elemental",
       "applies_to_element": "water",
       "final_multiplier_per_level": 0.004,
       "threshold_bonuses": [
-        { "level": 5, "effect": "mana_cost_reduction", "value": 0.02 },
-        { "level": 10, "effect": "cooldown_reduction", "value": 0.03 },
-        { "level": 15, "effect": "mana_cost_reduction", "value": 0.04 },
-        { "level": 20, "effect": "cooldown_reduction", "value": 0.05 },
-        { "level": 25, "effect": "mana_cost_reduction", "value": 0.06 },
-        { "level": 30, "effect": "cooldown_reduction", "value": 0.07 }
+        {
+          "level": 5,
+          "effect": "mana_cost_reduction",
+          "value": 0.02
+        },
+        {
+          "level": 10,
+          "effect": "cooldown_reduction",
+          "value": 0.03
+        },
+        {
+          "level": 15,
+          "effect": "mana_cost_reduction",
+          "value": 0.04
+        },
+        {
+          "level": 20,
+          "effect": "cooldown_reduction",
+          "value": 0.05
+        },
+        {
+          "level": 25,
+          "effect": "mana_cost_reduction",
+          "value": 0.06
+        },
+        {
+          "level": 30,
+          "effect": "cooldown_reduction",
+          "value": 0.07
+        }
       ]
     },
     {
       "skill_id": "ice_mastery",
-      "display_name": "Ice Mastery",
+      "canonical_skill_id": "ice_mastery",
+      "display_name": "아이스 마스터리",
       "circle": 1,
       "school": "elemental",
       "element": "ice",
       "skill_type": "passive",
-      "role_tags": ["mastery", "ice"],
-      "description": "빙결 계열 마법을 심화한다.",
+      "role_tags": [
+        "mastery",
+        "ice"
+      ],
+      "description": "얼음 계열 스킬의 최종 피해를 강화하고 구간별로 마나와 쿨타임 부담을 낮추는 1서클 냉기 마스터리",
       "max_level": 30,
       "unlock_state": "starter",
-      "growth_tracks": ["final_multiplier", "threshold_bonuses"],
+      "growth_tracks": [
+        "final_multiplier",
+        "threshold_bonuses"
+      ],
       "passive_family": "mastery",
       "applies_to_school": "elemental",
       "applies_to_element": "ice",
       "final_multiplier_per_level": 0.004,
       "threshold_bonuses": [
-        { "level": 5, "effect": "mana_cost_reduction", "value": 0.02 },
-        { "level": 10, "effect": "cooldown_reduction", "value": 0.03 },
-        { "level": 15, "effect": "mana_cost_reduction", "value": 0.04 },
-        { "level": 20, "effect": "cooldown_reduction", "value": 0.05 },
-        { "level": 25, "effect": "mana_cost_reduction", "value": 0.06 },
-        { "level": 30, "effect": "cooldown_reduction", "value": 0.07 }
+        {
+          "level": 5,
+          "effect": "mana_cost_reduction",
+          "value": 0.02
+        },
+        {
+          "level": 10,
+          "effect": "cooldown_reduction",
+          "value": 0.03
+        },
+        {
+          "level": 15,
+          "effect": "mana_cost_reduction",
+          "value": 0.04
+        },
+        {
+          "level": 20,
+          "effect": "cooldown_reduction",
+          "value": 0.05
+        },
+        {
+          "level": 25,
+          "effect": "mana_cost_reduction",
+          "value": 0.06
+        },
+        {
+          "level": 30,
+          "effect": "cooldown_reduction",
+          "value": 0.07
+        }
       ]
     },
     {
       "skill_id": "lightning_mastery",
-      "display_name": "Lightning Mastery",
+      "canonical_skill_id": "lightning_mastery",
+      "display_name": "라이트닝 마스터리",
       "circle": 1,
       "school": "elemental",
       "element": "lightning",
       "skill_type": "passive",
-      "role_tags": ["mastery", "lightning"],
-      "description": "번개 계열 마법을 심화한다.",
+      "role_tags": [
+        "mastery",
+        "lightning"
+      ],
+      "description": "전기 계열 스킬의 최종 피해를 강화하고 구간별로 마나와 쿨타임 부담을 낮추는 1서클 전기 마스터리",
       "max_level": 30,
       "unlock_state": "starter",
-      "growth_tracks": ["final_multiplier", "threshold_bonuses"],
+      "growth_tracks": [
+        "final_multiplier",
+        "threshold_bonuses"
+      ],
       "passive_family": "mastery",
       "applies_to_school": "elemental",
       "applies_to_element": "lightning",
       "final_multiplier_per_level": 0.004,
       "threshold_bonuses": [
-        { "level": 5, "effect": "mana_cost_reduction", "value": 0.02 },
-        { "level": 10, "effect": "cooldown_reduction", "value": 0.03 },
-        { "level": 15, "effect": "mana_cost_reduction", "value": 0.04 },
-        { "level": 20, "effect": "cooldown_reduction", "value": 0.05 },
-        { "level": 25, "effect": "mana_cost_reduction", "value": 0.06 },
-        { "level": 30, "effect": "cooldown_reduction", "value": 0.07 }
+        {
+          "level": 5,
+          "effect": "mana_cost_reduction",
+          "value": 0.02
+        },
+        {
+          "level": 10,
+          "effect": "cooldown_reduction",
+          "value": 0.03
+        },
+        {
+          "level": 15,
+          "effect": "mana_cost_reduction",
+          "value": 0.04
+        },
+        {
+          "level": 20,
+          "effect": "cooldown_reduction",
+          "value": 0.05
+        },
+        {
+          "level": 25,
+          "effect": "mana_cost_reduction",
+          "value": 0.06
+        },
+        {
+          "level": 30,
+          "effect": "cooldown_reduction",
+          "value": 0.07
+        }
       ]
     },
     {
       "skill_id": "wind_mastery",
-      "display_name": "Wind Mastery",
+      "canonical_skill_id": "wind_mastery",
+      "display_name": "윈드 마스터리",
       "circle": 1,
       "school": "elemental",
       "element": "wind",
       "skill_type": "passive",
-      "role_tags": ["mastery", "wind"],
-      "description": "바람 계열 마법을 심화한다.",
+      "role_tags": [
+        "mastery",
+        "wind"
+      ],
+      "description": "바람 계열 스킬의 최종 피해를 강화하고 구간별로 마나와 쿨타임 부담을 낮추는 1서클 바람 마스터리",
       "max_level": 30,
       "unlock_state": "starter",
-      "growth_tracks": ["final_multiplier", "threshold_bonuses"],
+      "growth_tracks": [
+        "final_multiplier",
+        "threshold_bonuses"
+      ],
       "passive_family": "mastery",
       "applies_to_school": "elemental",
       "applies_to_element": "wind",
       "final_multiplier_per_level": 0.004,
       "threshold_bonuses": [
-        { "level": 5, "effect": "mana_cost_reduction", "value": 0.02 },
-        { "level": 10, "effect": "cooldown_reduction", "value": 0.03 },
-        { "level": 15, "effect": "mana_cost_reduction", "value": 0.04 },
-        { "level": 20, "effect": "cooldown_reduction", "value": 0.05 },
-        { "level": 25, "effect": "mana_cost_reduction", "value": 0.06 },
-        { "level": 30, "effect": "cooldown_reduction", "value": 0.07 }
+        {
+          "level": 5,
+          "effect": "mana_cost_reduction",
+          "value": 0.02
+        },
+        {
+          "level": 10,
+          "effect": "cooldown_reduction",
+          "value": 0.03
+        },
+        {
+          "level": 15,
+          "effect": "mana_cost_reduction",
+          "value": 0.04
+        },
+        {
+          "level": 20,
+          "effect": "cooldown_reduction",
+          "value": 0.05
+        },
+        {
+          "level": 25,
+          "effect": "mana_cost_reduction",
+          "value": 0.06
+        },
+        {
+          "level": 30,
+          "effect": "cooldown_reduction",
+          "value": 0.07
+        }
       ]
     },
     {
       "skill_id": "earth_mastery",
-      "display_name": "Earth Mastery",
+      "canonical_skill_id": "earth_mastery",
+      "display_name": "어스 마스터리",
       "circle": 1,
       "school": "elemental",
       "element": "earth",
       "skill_type": "passive",
-      "role_tags": ["mastery", "earth"],
-      "description": "대지 계열 마법을 심화한다.",
+      "role_tags": [
+        "mastery",
+        "earth"
+      ],
+      "description": "대지 계열 스킬의 최종 피해를 강화하고 구간별로 마나와 쿨타임 부담을 낮추는 1서클 대지 마스터리",
       "max_level": 30,
       "unlock_state": "starter",
-      "growth_tracks": ["final_multiplier", "threshold_bonuses"],
+      "growth_tracks": [
+        "final_multiplier",
+        "threshold_bonuses"
+      ],
       "passive_family": "mastery",
       "applies_to_school": "elemental",
       "applies_to_element": "earth",
       "final_multiplier_per_level": 0.004,
       "threshold_bonuses": [
-        { "level": 5, "effect": "mana_cost_reduction", "value": 0.02 },
-        { "level": 10, "effect": "cooldown_reduction", "value": 0.03 },
-        { "level": 15, "effect": "mana_cost_reduction", "value": 0.04 },
-        { "level": 20, "effect": "cooldown_reduction", "value": 0.05 },
-        { "level": 25, "effect": "mana_cost_reduction", "value": 0.06 },
-        { "level": 30, "effect": "cooldown_reduction", "value": 0.07 }
+        {
+          "level": 5,
+          "effect": "mana_cost_reduction",
+          "value": 0.02
+        },
+        {
+          "level": 10,
+          "effect": "cooldown_reduction",
+          "value": 0.03
+        },
+        {
+          "level": 15,
+          "effect": "mana_cost_reduction",
+          "value": 0.04
+        },
+        {
+          "level": 20,
+          "effect": "cooldown_reduction",
+          "value": 0.05
+        },
+        {
+          "level": 25,
+          "effect": "mana_cost_reduction",
+          "value": 0.06
+        },
+        {
+          "level": 30,
+          "effect": "cooldown_reduction",
+          "value": 0.07
+        }
       ]
     },
     {
       "skill_id": "plant_mastery",
-      "display_name": "Plant Mastery",
+      "canonical_skill_id": "plant_mastery",
+      "display_name": "플랜트 마스터리",
       "circle": 1,
       "school": "elemental",
       "element": "plant",
       "skill_type": "passive",
-      "role_tags": ["mastery", "plant"],
-      "description": "식물 계열 마법을 심화한다.",
+      "role_tags": [
+        "mastery",
+        "plant"
+      ],
+      "description": "자연 계열 스킬의 최종 피해를 강화하고 구간별로 마나와 쿨타임 부담을 낮추는 1서클 자연 마스터리",
       "max_level": 30,
       "unlock_state": "starter",
-      "growth_tracks": ["final_multiplier", "threshold_bonuses"],
+      "growth_tracks": [
+        "final_multiplier",
+        "threshold_bonuses"
+      ],
       "passive_family": "mastery",
       "applies_to_school": "elemental",
       "applies_to_element": "plant",
       "final_multiplier_per_level": 0.004,
       "threshold_bonuses": [
-        { "level": 5, "effect": "mana_cost_reduction", "value": 0.02 },
-        { "level": 10, "effect": "cooldown_reduction", "value": 0.03 },
-        { "level": 15, "effect": "mana_cost_reduction", "value": 0.04 },
-        { "level": 20, "effect": "cooldown_reduction", "value": 0.05 },
-        { "level": 25, "effect": "mana_cost_reduction", "value": 0.06 },
-        { "level": 30, "effect": "cooldown_reduction", "value": 0.07 }
+        {
+          "level": 5,
+          "effect": "mana_cost_reduction",
+          "value": 0.02
+        },
+        {
+          "level": 10,
+          "effect": "cooldown_reduction",
+          "value": 0.03
+        },
+        {
+          "level": 15,
+          "effect": "mana_cost_reduction",
+          "value": 0.04
+        },
+        {
+          "level": 20,
+          "effect": "cooldown_reduction",
+          "value": 0.05
+        },
+        {
+          "level": 25,
+          "effect": "mana_cost_reduction",
+          "value": 0.06
+        },
+        {
+          "level": 30,
+          "effect": "cooldown_reduction",
+          "value": 0.07
+        }
       ]
     },
     {
       "skill_id": "dark_magic_mastery",
-      "display_name": "Dark Magic Mastery",
+      "canonical_skill_id": "dark_magic_mastery",
+      "display_name": "다크 매직 마스터리",
       "circle": 3,
       "school": "black",
       "element": "dark",
       "skill_type": "passive",
-      "role_tags": ["mastery", "dark"],
-      "description": "흑마법 계열 마법을 심화한다.",
+      "role_tags": [
+        "mastery",
+        "dark"
+      ],
+      "description": "흑마법 계열 스킬의 최종 피해를 강화하고 구간별로 마나와 쿨타임 부담을 낮추는 3서클 흑마법 마스터리",
       "max_level": 30,
       "unlock_state": "starter",
-      "growth_tracks": ["final_multiplier", "threshold_bonuses"],
+      "growth_tracks": [
+        "final_multiplier",
+        "threshold_bonuses"
+      ],
       "passive_family": "mastery",
       "applies_to_school": "black",
       "applies_to_element": "dark",
       "final_multiplier_per_level": 0.004,
       "threshold_bonuses": [
-        { "level": 5, "effect": "mana_cost_reduction", "value": 0.02 },
-        { "level": 10, "effect": "cooldown_reduction", "value": 0.03 },
-        { "level": 15, "effect": "mana_cost_reduction", "value": 0.04 },
-        { "level": 20, "effect": "cooldown_reduction", "value": 0.05 },
-        { "level": 25, "effect": "mana_cost_reduction", "value": 0.06 },
-        { "level": 30, "effect": "cooldown_reduction", "value": 0.07 }
+        {
+          "level": 5,
+          "effect": "mana_cost_reduction",
+          "value": 0.02
+        },
+        {
+          "level": 10,
+          "effect": "cooldown_reduction",
+          "value": 0.03
+        },
+        {
+          "level": 15,
+          "effect": "mana_cost_reduction",
+          "value": 0.04
+        },
+        {
+          "level": 20,
+          "effect": "cooldown_reduction",
+          "value": 0.05
+        },
+        {
+          "level": 25,
+          "effect": "mana_cost_reduction",
+          "value": 0.06
+        },
+        {
+          "level": 30,
+          "effect": "cooldown_reduction",
+          "value": 0.07
+        }
       ]
     },
     {
       "skill_id": "fire_ember_dart",
-      "display_name": "Ember Dart",
+      "canonical_skill_id": "fire_bolt",
+      "display_name": "파이어 볼트",
       "circle": 1,
       "school": "elemental",
       "element": "fire",
       "skill_type": "active",
-      "role_tags": ["projectile", "starter", "single_target"],
-      "description": "빠른 기본 화염 투사체",
+      "role_tags": [
+        "projectile",
+        "starter",
+        "single_target"
+      ],
+      "description": "빠른 발사로 기본 DPS를 유지하는 화염 기본기",
       "max_level": 30,
-      "growth_tracks": ["damage", "range", "milestone"],
+      "growth_tracks": [
+        "damage",
+        "range",
+        "milestone"
+      ],
       "unlock_state": "starter",
       "mana_cost_base": 8,
-      "cooldown_base": 0.45,
+      "cooldown_base": 0.0,
       "cast_time": 0.0,
       "hit_shape": "projectile",
       "range_base": 420,
@@ -247,31 +536,59 @@
       "pierce_count_base": 0,
       "projectile_count_base": 1,
       "tick_interval": 0.0,
-      "damage_formula": { "formula_type": "hit", "coefficient_base": 1.05, "coefficient_per_level": 0.025, "flat_base": 12, "flat_per_level": 2 },
+      "damage_formula": {
+        "formula_type": "hit",
+        "coefficient_base": 1.05,
+        "coefficient_per_level": 0.025,
+        "flat_base": 12,
+        "flat_per_level": 2
+      },
       "mana_reduction_per_level": 0.006,
       "cooldown_reduction_per_level": 0.0045,
       "duration_scale_per_level": 0.0,
       "range_scale_per_level": 0.008,
       "milestone_bonuses": [
-        { "level": 8, "stat": "explosion_radius", "value": 12 },
-        { "level": 16, "stat": "explosion_radius", "value": 12 },
-        { "level": 24, "stat": "explosion_radius", "value": 12 }
+        {
+          "level": 8,
+          "stat": "explosion_radius",
+          "value": 12
+        },
+        {
+          "level": 16,
+          "stat": "explosion_radius",
+          "value": 12
+        },
+        {
+          "level": 24,
+          "stat": "explosion_radius",
+          "value": 12
+        }
       ]
     },
     {
       "skill_id": "water_aqua_bullet",
-      "display_name": "Aqua Bullet",
+      "canonical_skill_id": "water_bullet",
+      "display_name": "워터 불릿",
       "circle": 1,
       "school": "elemental",
       "element": "water",
       "skill_type": "active",
-      "role_tags": ["projectile", "starter", "pierce"],
-      "description": "직선형 물 탄환",
+      "role_tags": [
+        "projectile",
+        "starter",
+        "single_target",
+        "soft_cc"
+      ],
+      "description": "낮은 피해와 미세 둔화를 주는 물 기본기",
       "max_level": 30,
-      "growth_tracks": ["damage", "pierce", "milestone"],
+      "growth_tracks": [
+        "damage",
+        "pierce",
+        "milestone"
+      ],
       "unlock_state": "starter",
       "mana_cost_base": 8,
-      "cooldown_base": 0.48,
+      "cooldown_base": 0.0,
       "cast_time": 0.0,
       "hit_shape": "projectile",
       "range_base": 410,
@@ -280,31 +597,410 @@
       "pierce_count_base": 0,
       "projectile_count_base": 1,
       "tick_interval": 0.0,
-      "damage_formula": { "formula_type": "hit", "coefficient_base": 1.02, "coefficient_per_level": 0.024, "flat_base": 11, "flat_per_level": 2 },
+      "damage_formula": {
+        "formula_type": "hit",
+        "coefficient_base": 1.02,
+        "coefficient_per_level": 0.024,
+        "flat_base": 11,
+        "flat_per_level": 2
+      },
       "mana_reduction_per_level": 0.006,
       "cooldown_reduction_per_level": 0.0045,
       "duration_scale_per_level": 0.0,
       "range_scale_per_level": 0.0,
       "milestone_bonuses": [
-        { "level": 10, "stat": "pierce_count", "value": 1 },
-        { "level": 20, "stat": "pierce_count", "value": 1 },
-        { "level": 30, "stat": "pierce_count", "value": 1 }
+        {
+          "level": 10,
+          "stat": "pierce_count",
+          "value": 1
+        },
+        {
+          "level": 20,
+          "stat": "pierce_count",
+          "value": 1
+        },
+        {
+          "level": 30,
+          "stat": "pierce_count",
+          "value": 1
+        }
       ]
     },
     {
+      "skill_id": "wind_arrow",
+      "canonical_skill_id": "wind_arrow",
+      "display_name": "윈드 애로우",
+      "circle": 1,
+      "school": "elemental",
+      "element": "wind",
+      "skill_type": "active",
+      "role_tags": [
+        "projectile",
+        "starter",
+        "single_target",
+        "wind"
+      ],
+      "description": "약한 넉백으로 거리 조절을 여는 1서클 바람 스타터",
+      "max_level": 30,
+      "growth_tracks": [
+        "damage",
+        "range",
+        "milestone"
+      ],
+      "unlock_state": "starter",
+      "mana_cost_base": 9,
+      "cooldown_base": 0.0,
+      "cast_time": 0.0,
+      "hit_shape": "projectile",
+      "range_base": 420,
+      "duration_base": 0.0,
+      "target_count_base": 1,
+      "pierce_count_base": 0,
+      "projectile_count_base": 1,
+      "tick_interval": 0.0,
+      "damage_formula": {
+        "formula_type": "hit",
+        "coefficient_base": 0.94,
+        "coefficient_per_level": 0.02,
+        "flat_base": 10,
+        "flat_per_level": 1
+      },
+      "mana_reduction_per_level": 0.006,
+      "cooldown_reduction_per_level": 0.0045,
+      "duration_scale_per_level": 0.0,
+      "range_scale_per_level": 0.008,
+      "milestone_bonuses": [
+        {
+          "level": 12,
+          "stat": "pierce_count",
+          "value": 1
+        },
+        {
+          "level": 24,
+          "stat": "pierce_count",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "skill_id": "earth_stone_shot",
+      "canonical_skill_id": "earth_stone_shot",
+      "display_name": "스톤 샷",
+      "circle": 1,
+      "school": "elemental",
+      "element": "earth",
+      "skill_type": "active",
+      "role_tags": [
+        "projectile",
+        "starter",
+        "single_target",
+        "earth"
+      ],
+      "description": "느리지만 묵직한 단일 타격으로 라인을 여는 1서클 대지 기본기",
+      "max_level": 30,
+      "growth_tracks": [
+        "damage",
+        "range"
+      ],
+      "unlock_state": "starter",
+      "mana_cost_base": 10,
+      "cooldown_base": 0.0,
+      "cast_time": 0.0,
+      "hit_shape": "projectile",
+      "range_base": 380,
+      "duration_base": 0.0,
+      "target_count_base": 1,
+      "pierce_count_base": 0,
+      "projectile_count_base": 1,
+      "tick_interval": 0.0,
+      "damage_formula": {
+        "formula_type": "hit",
+        "coefficient_base": 1.18,
+        "coefficient_per_level": 0.024,
+        "flat_base": 14,
+        "flat_per_level": 2
+      },
+      "mana_reduction_per_level": 0.006,
+      "cooldown_reduction_per_level": 0.0045,
+      "duration_scale_per_level": 0.0,
+      "range_scale_per_level": 0.008,
+      "milestone_bonuses": []
+    },
+    {
+      "skill_id": "holy_halo_touch",
+      "canonical_skill_id": "holy_halo_touch",
+      "display_name": "헤일로 터치",
+      "circle": 1,
+      "school": "white",
+      "element": "holy",
+      "skill_type": "active",
+      "role_tags": [
+        "projectile",
+        "heal",
+        "single_target"
+      ],
+      "description": "작은 성광 구체와 짧은 자기 회복으로 템포를 잇는 1서클 백마법 기본기",
+      "max_level": 30,
+      "growth_tracks": [
+        "heal",
+        "damage",
+        "range"
+      ],
+      "unlock_state": "starter",
+      "mana_cost_base": 10,
+      "cooldown_base": 0.0,
+      "cast_time": 0.0,
+      "hit_shape": "projectile",
+      "range_base": 320,
+      "duration_base": 0.0,
+      "target_count_base": 1,
+      "pierce_count_base": 0,
+      "projectile_count_base": 1,
+      "tick_interval": 0.0,
+      "damage_formula": {
+        "formula_type": "heal",
+        "coefficient_base": 0.5,
+        "coefficient_per_level": 0.012,
+        "flat_base": 10,
+        "flat_per_level": 1
+      },
+      "mana_reduction_per_level": 0.006,
+      "cooldown_reduction_per_level": 0.0045,
+      "duration_scale_per_level": 0.0,
+      "range_scale_per_level": 0.008,
+      "milestone_bonuses": [
+        {
+          "level": 12,
+          "stat": "target_count",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "skill_id": "fire_flame_bullet",
+      "canonical_skill_id": "fire_flame_bullet",
+      "display_name": "플레임 불릿",
+      "circle": 2,
+      "school": "elemental",
+      "element": "fire",
+      "skill_type": "active",
+      "role_tags": [
+        "projectile",
+        "fire",
+        "single_target"
+      ],
+      "description": "연사형 화염탄으로 단일 DPS를 밀어 올리는 2서클 화염 액티브",
+      "max_level": 30,
+      "growth_tracks": [
+        "damage",
+        "projectiles",
+        "milestone"
+      ],
+      "unlock_state": "starter",
+      "mana_cost_base": 12,
+      "cooldown_base": 0.0,
+      "cast_time": 0.0,
+      "hit_shape": "projectile",
+      "range_base": 360,
+      "duration_base": 0.0,
+      "target_count_base": 1,
+      "pierce_count_base": 0,
+      "projectile_count_base": 1,
+      "tick_interval": 0.0,
+      "damage_formula": {
+        "formula_type": "hit",
+        "coefficient_base": 0.92,
+        "coefficient_per_level": 0.02,
+        "flat_base": 9,
+        "flat_per_level": 1
+      },
+      "mana_reduction_per_level": 0.006,
+      "cooldown_reduction_per_level": 0.0045,
+      "duration_scale_per_level": 0.0,
+      "range_scale_per_level": 0.008,
+      "milestone_bonuses": [
+        {
+          "level": 10,
+          "stat": "projectile_count",
+          "value": 1
+        },
+        {
+          "level": 20,
+          "stat": "projectile_count",
+          "value": 1
+        },
+        {
+          "level": 30,
+          "stat": "projectile_count",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "skill_id": "water_aqua_spear",
+      "canonical_skill_id": "water_aqua_spear",
+      "display_name": "아쿠아 스피어",
+      "circle": 2,
+      "school": "elemental",
+      "element": "water",
+      "skill_type": "active",
+      "role_tags": [
+        "line",
+        "pierce",
+        "water"
+      ],
+      "description": "관통하는 수압 창으로 라인을 정리하는 2서클 물 직선기",
+      "max_level": 30,
+      "growth_tracks": [
+        "damage",
+        "pierce",
+        "range"
+      ],
+      "unlock_state": "starter",
+      "mana_cost_base": 14,
+      "cooldown_base": 0.0,
+      "cast_time": 0.0,
+      "hit_shape": "line",
+      "range_base": 460,
+      "duration_base": 0.0,
+      "target_count_base": 2,
+      "pierce_count_base": 1,
+      "projectile_count_base": 0,
+      "tick_interval": 0.0,
+      "damage_formula": {
+        "formula_type": "hit",
+        "coefficient_base": 1.28,
+        "coefficient_per_level": 0.028,
+        "flat_base": 18,
+        "flat_per_level": 2
+      },
+      "mana_reduction_per_level": 0.006,
+      "cooldown_reduction_per_level": 0.0045,
+      "duration_scale_per_level": 0.0,
+      "range_scale_per_level": 0.008,
+      "milestone_bonuses": [
+        {
+          "level": 12,
+          "stat": "pierce_count",
+          "value": 1
+        },
+        {
+          "level": 24,
+          "stat": "pierce_count",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "skill_id": "wind_gust_bolt",
+      "canonical_skill_id": "wind_gust_bolt",
+      "display_name": "거스트 볼트",
+      "circle": 2,
+      "school": "elemental",
+      "element": "wind",
+      "skill_type": "active",
+      "role_tags": [
+        "projectile",
+        "push",
+        "wind"
+      ],
+      "description": "강화된 밀어내기로 거리 조절을 확실히 여는 2서클 바람 기본기",
+      "max_level": 30,
+      "growth_tracks": [
+        "damage",
+        "range"
+      ],
+      "unlock_state": "starter",
+      "mana_cost_base": 13,
+      "cooldown_base": 0.0,
+      "cast_time": 0.0,
+      "hit_shape": "projectile",
+      "range_base": 420,
+      "duration_base": 0.0,
+      "target_count_base": 1,
+      "pierce_count_base": 0,
+      "projectile_count_base": 1,
+      "tick_interval": 0.0,
+      "damage_formula": {
+        "formula_type": "hit",
+        "coefficient_base": 1.12,
+        "coefficient_per_level": 0.024,
+        "flat_base": 14,
+        "flat_per_level": 2
+      },
+      "mana_reduction_per_level": 0.006,
+      "cooldown_reduction_per_level": 0.0045,
+      "duration_scale_per_level": 0.0,
+      "range_scale_per_level": 0.008,
+      "milestone_bonuses": []
+    },
+    {
+      "skill_id": "earth_rock_spear",
+      "canonical_skill_id": "earth_rock_spear",
+      "display_name": "락 스피어",
+      "circle": 2,
+      "school": "elemental",
+      "element": "earth",
+      "skill_type": "active",
+      "role_tags": [
+        "projectile",
+        "single_target",
+        "earth"
+      ],
+      "description": "무거운 암창으로 높은 단일 압박을 주는 2서클 대지 단일기",
+      "max_level": 30,
+      "growth_tracks": [
+        "damage",
+        "range"
+      ],
+      "unlock_state": "starter",
+      "mana_cost_base": 15,
+      "cooldown_base": 0.0,
+      "cast_time": 0.0,
+      "hit_shape": "projectile",
+      "range_base": 400,
+      "duration_base": 0.0,
+      "target_count_base": 1,
+      "pierce_count_base": 0,
+      "projectile_count_base": 1,
+      "tick_interval": 0.0,
+      "damage_formula": {
+        "formula_type": "hit",
+        "coefficient_base": 1.3,
+        "coefficient_per_level": 0.03,
+        "flat_base": 19,
+        "flat_per_level": 2
+      },
+      "mana_reduction_per_level": 0.006,
+      "cooldown_reduction_per_level": 0.0045,
+      "duration_scale_per_level": 0.0,
+      "range_scale_per_level": 0.008,
+      "milestone_bonuses": []
+    },
+    {
       "skill_id": "ice_frost_needle",
-      "display_name": "Frost Needle",
+      "canonical_skill_id": "ice_frost_needle",
+      "display_name": "프로스트 니들",
       "circle": 2,
       "school": "elemental",
       "element": "ice",
       "skill_type": "active",
-      "role_tags": ["projectile", "slow", "pierce"],
-      "description": "둔화와 관통이 가능한 빙결 탄환",
+      "role_tags": [
+        "projectile",
+        "slow",
+        "pierce",
+        "poke"
+      ],
+      "description": "짧은 쿨마다 끼워 넣는 둔화·관통형 얼음 견제탄",
       "max_level": 30,
-      "growth_tracks": ["damage", "duration", "milestone"],
+      "growth_tracks": [
+        "damage",
+        "duration",
+        "milestone"
+      ],
       "unlock_state": "starter",
       "mana_cost_base": 12,
-      "cooldown_base": 0.7,
+      "cooldown_base": 0.0,
       "cast_time": 0.0,
       "hit_shape": "projectile",
       "range_base": 460,
@@ -313,31 +1009,59 @@
       "pierce_count_base": 0,
       "projectile_count_base": 1,
       "tick_interval": 0.0,
-      "damage_formula": { "formula_type": "hit", "coefficient_base": 1.22, "coefficient_per_level": 0.028, "flat_base": 18, "flat_per_level": 2 },
-      "utility_effects": [{ "type": "slow", "value": 0.25, "duration": 1.6 }],
+      "damage_formula": {
+        "formula_type": "hit",
+        "coefficient_base": 1.22,
+        "coefficient_per_level": 0.028,
+        "flat_base": 18,
+        "flat_per_level": 2
+      },
+      "utility_effects": [
+        {
+          "type": "slow",
+          "value": 0.25,
+          "duration": 1.6
+        }
+      ],
       "mana_reduction_per_level": 0.006,
       "cooldown_reduction_per_level": 0.0045,
       "duration_scale_per_level": 0.01,
       "range_scale_per_level": 0.0,
       "milestone_bonuses": [
-        { "level": 12, "stat": "pierce_count", "value": 1 },
-        { "level": 24, "stat": "pierce_count", "value": 1 }
+        {
+          "level": 12,
+          "stat": "pierce_count",
+          "value": 1
+        },
+        {
+          "level": 24,
+          "stat": "pierce_count",
+          "value": 1
+        }
       ]
     },
     {
       "skill_id": "wind_gale_cutter",
-      "display_name": "Gale Cutter",
+      "canonical_skill_id": "wind_cutter",
+      "display_name": "윈드 커터",
       "circle": 2,
       "school": "elemental",
       "element": "wind",
       "skill_type": "active",
-      "role_tags": ["melee", "cone", "tempo"],
-      "description": "전방을 길게 베는 풍압 칼날",
+      "role_tags": [
+        "melee",
+        "cone",
+        "tempo"
+      ],
+      "description": "빠른 풍압 참격으로 다수 적을 압박하는 바람 액티브",
       "max_level": 30,
-      "growth_tracks": ["damage", "range"],
+      "growth_tracks": [
+        "damage",
+        "range"
+      ],
       "unlock_state": "starter",
       "mana_cost_base": 13,
-      "cooldown_base": 0.9,
+      "cooldown_base": 0.0,
       "cast_time": 0.0,
       "hit_shape": "cone",
       "range_base": 220,
@@ -346,7 +1070,13 @@
       "pierce_count_base": 0,
       "projectile_count_base": 0,
       "tick_interval": 0.0,
-      "damage_formula": { "formula_type": "hit", "coefficient_base": 1.35, "coefficient_per_level": 0.03, "flat_base": 20, "flat_per_level": 3 },
+      "damage_formula": {
+        "formula_type": "hit",
+        "coefficient_base": 1.35,
+        "coefficient_per_level": 0.03,
+        "flat_base": 20,
+        "flat_per_level": 3
+      },
       "mana_reduction_per_level": 0.006,
       "cooldown_reduction_per_level": 0.0045,
       "duration_scale_per_level": 0.0,
@@ -355,27 +1085,43 @@
     },
     {
       "skill_id": "earth_stone_spire",
-      "display_name": "Stone Spire",
+      "canonical_skill_id": "earth_stone_spire",
+      "display_name": "어스 스파이크",
       "circle": 2,
       "school": "elemental",
       "element": "earth",
       "skill_type": "deploy",
-      "role_tags": ["deploy", "burst", "trap"],
-      "description": "지면에서 솟아올라 적을 타격하는 바위 기둥",
+      "role_tags": [
+        "deploy",
+        "burst",
+        "cone",
+        "main_deploy"
+      ],
+      "description": "즉발 부채꼴 돌출로 전면을 압박하는 2서클 대지 주력 설치기",
       "max_level": 30,
-      "growth_tracks": ["damage", "range"],
+      "growth_tracks": [
+        "damage",
+        "range"
+      ],
       "unlock_state": "starter",
       "mana_cost_base": 14,
       "cooldown_base": 1.2,
       "cast_time": 0.0,
-      "hit_shape": "circle",
+      "hit_shape": "cone",
       "range_base": 80,
       "duration_base": 0.8,
       "target_count_base": 3,
       "pierce_count_base": 0,
       "projectile_count_base": 0,
-      "tick_interval": 0.0,
-      "damage_formula": { "formula_type": "hit", "coefficient_base": 1.45, "coefficient_per_level": 0.032, "flat_base": 22, "flat_per_level": 3 },
+      "knockback_base": 0.0,
+      "tick_interval": 0.2,
+      "damage_formula": {
+        "formula_type": "hit",
+        "coefficient_base": 1.45,
+        "coefficient_per_level": 0.032,
+        "flat_base": 22,
+        "flat_per_level": 3
+      },
       "mana_reduction_per_level": 0.006,
       "cooldown_reduction_per_level": 0.0045,
       "duration_scale_per_level": 0.0,
@@ -384,15 +1130,25 @@
     },
     {
       "skill_id": "plant_vine_snare",
-      "display_name": "Vine Snare",
+      "canonical_skill_id": "plant_root_bind",
+      "display_name": "루트 바인드",
       "circle": 2,
       "school": "elemental",
       "element": "plant",
       "skill_type": "deploy",
-      "role_tags": ["deploy", "dot", "bind"],
-      "description": "덩굴 덫을 설치해 적을 구속하고 지속 피해",
+      "role_tags": [
+        "deploy",
+        "dot",
+        "bind"
+      ],
+      "description": "덩굴 뿌리 장판을 펼쳐 적을 반복 속박하는 저서클 자연 설치기",
       "max_level": 30,
-      "growth_tracks": ["damage", "duration", "range", "targets"],
+      "growth_tracks": [
+        "damage",
+        "duration",
+        "range",
+        "targets"
+      ],
       "unlock_state": "starter",
       "mana_cost_base": 15,
       "cooldown_base": 4.5,
@@ -403,30 +1159,62 @@
       "target_count_base": 3,
       "pierce_count_base": 0,
       "projectile_count_base": 0,
-      "tick_interval": 1.0,
-      "damage_formula": { "formula_type": "tick", "coefficient_base": 0.38, "coefficient_per_level": 0.009, "flat_base": 6, "flat_per_level": 0 },
-      "utility_effects": [{ "type": "root", "value": 1.0, "duration": 0.8 }],
+      "tick_interval": 0.75,
+      "damage_formula": {
+        "formula_type": "tick",
+        "coefficient_base": 0.38,
+        "coefficient_per_level": 0.009,
+        "flat_base": 6,
+        "flat_per_level": 0
+      },
+      "utility_effects": [
+        {
+          "type": "root",
+          "value": 1.0,
+          "duration": 0.8
+        }
+      ],
       "mana_reduction_per_level": 0.006,
       "cooldown_reduction_per_level": 0.0045,
       "duration_scale_per_level": 0.01,
       "range_scale_per_level": 0.008,
       "milestone_bonuses": [
-        { "level": 10, "stat": "target_count", "value": 1 },
-        { "level": 20, "stat": "target_count", "value": 1 },
-        { "level": 30, "stat": "target_count", "value": 1 }
-      ]
+        {
+          "level": 10,
+          "stat": "target_count",
+          "value": 1
+        },
+        {
+          "level": 20,
+          "stat": "target_count",
+          "value": 1
+        },
+        {
+          "level": 30,
+          "stat": "target_count",
+          "value": 1
+        }
+      ],
+      "damage_cadence_reference_interval": 1.0
     },
     {
       "skill_id": "holy_mana_veil",
-      "display_name": "Mana Veil",
+      "canonical_skill_id": "holy_mana_veil",
+      "display_name": "마나 베일",
       "circle": 2,
       "school": "white",
       "element": "holy",
       "skill_type": "buff",
-      "role_tags": ["defense", "stability"],
+      "role_tags": [
+        "defense",
+        "stability"
+      ],
       "description": "짧은 피해 감소 및 경직 안정화",
       "max_level": 30,
-      "growth_tracks": ["duration", "buff_power"],
+      "growth_tracks": [
+        "duration",
+        "buff_power"
+      ],
       "unlock_state": "starter",
       "mana_cost_base": 16,
       "cooldown_base": 24.0,
@@ -436,42 +1224,104 @@
       "stackable": true,
       "stack_rule_id": "default_diminishing_buff",
       "buff_effects": [
-        { "stat": "damage_taken_multiplier", "mode": "mul", "value": 0.82 },
-        { "stat": "poise_bonus", "mode": "add", "value": 20 }
+        {
+          "stat": "damage_taken_multiplier",
+          "mode": "mul",
+          "value": 0.82
+        },
+        {
+          "stat": "poise_bonus",
+          "mode": "add",
+          "value": 20
+        },
+        {
+          "stat": "activation_visual_effect_id",
+          "mode": "set",
+          "value": "holy_guard_activation"
+        },
+        {
+          "stat": "activation_visual_scale",
+          "mode": "set",
+          "value": 0.96
+        },
+        {
+          "stat": "activation_visual_color",
+          "mode": "set",
+          "value": "#fff0a8"
+        },
+        {
+          "stat": "overlay_visual_effect_id",
+          "mode": "set",
+          "value": "holy_guard_overlay"
+        },
+        {
+          "stat": "overlay_visual_scale",
+          "mode": "set",
+          "value": 0.94
+        },
+        {
+          "stat": "overlay_visual_color",
+          "mode": "set",
+          "value": "#fff0a8"
+        }
       ],
       "downside_effects": [],
-      "combo_tags": ["veil", "guard"],
+      "combo_tags": [
+        "veil",
+        "guard"
+      ],
       "mana_reduction_per_level": 0.006,
       "cooldown_reduction_per_level": 0.0045,
       "duration_scale_per_level": 0.01,
+      "damage_taken_reduction_per_level": 0.002,
+      "poise_bonus_per_level": 1.0,
       "range_scale_per_level": 0.0,
       "milestone_bonuses": [
-        { "level": 12, "stat": "shockwave_on_break", "value": 1 }
+        {
+          "level": 12,
+          "stat": "shockwave_on_break",
+          "value": 1
+        }
       ]
     },
     {
       "skill_id": "fire_flame_arc",
-      "display_name": "Flame Arc",
+      "canonical_skill_id": "fire_flame_arc",
+      "display_name": "플레임 써클",
       "circle": 3,
       "school": "elemental",
       "element": "fire",
       "skill_type": "active",
-      "role_tags": ["cone", "close_range", "burst"],
-      "description": "전방 부채꼴 화염 참격",
+      "role_tags": [
+        "circle",
+        "burst",
+        "aoe",
+        "mob_clear"
+      ],
+      "description": "원형 폭발로 무리 정리에 강한 3서클 화염 광역 버스터",
       "max_level": 30,
-      "growth_tracks": ["damage", "range"],
+      "growth_tracks": [
+        "damage",
+        "range"
+      ],
       "unlock_state": "starter",
       "mana_cost_base": 18,
-      "cooldown_base": 1.4,
+      "cooldown_base": 0.0,
       "cast_time": 0.0,
-      "hit_shape": "cone",
+      "hit_shape": "circle",
       "range_base": 180,
       "duration_base": 0.0,
       "target_count_base": 4,
       "pierce_count_base": 0,
       "projectile_count_base": 0,
       "tick_interval": 0.0,
-      "damage_formula": { "formula_type": "hit", "coefficient_base": 1.8, "coefficient_per_level": 0.04, "flat_base": 28, "flat_per_level": 4 },
+      "damage_formula": {
+        "formula_type": "hit",
+        "coefficient_base": 1.8,
+        "coefficient_per_level": 0.04,
+        "flat_base": 28,
+        "flat_per_level": 4
+      },
       "mana_reduction_per_level": 0.006,
       "cooldown_reduction_per_level": 0.0045,
       "duration_scale_per_level": 0.0,
@@ -479,19 +1329,92 @@
       "milestone_bonuses": []
     },
     {
+      "skill_id": "fire_inferno_breath",
+      "canonical_skill_id": "fire_inferno_breath",
+      "display_name": "인페르노 브레스",
+      "circle": 4,
+      "school": "elemental",
+      "element": "fire",
+      "skill_type": "active",
+      "role_tags": [
+        "cone",
+        "burst",
+        "tempo",
+        "fire"
+      ],
+      "description": "전방 부채꼴 화염을 짧게 분사해 근중거리 적을 빠르게 태우는 4서클 화염 압박기",
+      "max_level": 30,
+      "growth_tracks": [
+        "damage",
+        "range",
+        "duration"
+      ],
+      "unlock_state": "story",
+      "mana_cost_base": 28,
+      "cooldown_base": 5.2,
+      "cast_time": 0.05,
+      "hit_shape": "cone",
+      "range_base": 240,
+      "duration_base": 0.42,
+      "target_count_base": 4,
+      "pierce_count_base": 0,
+      "projectile_count_base": 0,
+      "tick_interval": 0.0,
+      "damage_formula": {
+        "formula_type": "hit",
+        "coefficient_base": 1.95,
+        "coefficient_per_level": 0.038,
+        "flat_base": 30,
+        "flat_per_level": 4
+      },
+      "utility_effects": [
+        {
+          "type": "burn",
+          "chance": 0.2,
+          "chance_per_level": 0.004,
+          "value": 1.0,
+          "duration": 1.2
+        }
+      ],
+      "mana_reduction_per_level": 0.006,
+      "cooldown_reduction_per_level": 0.0045,
+      "duration_scale_per_level": 0.01,
+      "range_scale_per_level": 0.008,
+      "milestone_bonuses": [
+        {
+          "level": 16,
+          "stat": "target_count",
+          "value": 1
+        },
+        {
+          "level": 28,
+          "stat": "target_count",
+          "value": 1
+        }
+      ]
+    },
+    {
       "skill_id": "water_tidal_ring",
-      "display_name": "Tidal Ring",
+      "canonical_skill_id": "water_tidal_ring",
+      "display_name": "타이달 링",
       "circle": 3,
       "school": "elemental",
       "element": "water",
       "skill_type": "active",
-      "role_tags": ["circle", "push", "control"],
-      "description": "원형 수압 파동으로 주변 적 밀어냄",
+      "role_tags": [
+        "circle",
+        "push",
+        "control"
+      ],
+      "description": "원형 수압 파동으로 주변 적을 밀어내는 3서클 물 제어기",
       "max_level": 30,
-      "growth_tracks": ["damage", "range"],
+      "growth_tracks": [
+        "damage",
+        "range"
+      ],
       "unlock_state": "starter",
       "mana_cost_base": 20,
-      "cooldown_base": 2.0,
+      "cooldown_base": 0.0,
       "cast_time": 0.0,
       "hit_shape": "circle",
       "range_base": 120,
@@ -500,25 +1423,356 @@
       "pierce_count_base": 0,
       "projectile_count_base": 0,
       "tick_interval": 0.0,
-      "damage_formula": { "formula_type": "hit", "coefficient_base": 1.75, "coefficient_per_level": 0.038, "flat_base": 26, "flat_per_level": 4 },
-      "utility_effects": [{ "type": "knockback", "value": 180, "duration": 0.0 }],
+      "damage_formula": {
+        "formula_type": "hit",
+        "coefficient_base": 1.75,
+        "coefficient_per_level": 0.038,
+        "flat_base": 26,
+        "flat_per_level": 4
+      },
+      "utility_effects": [
+        {
+          "type": "knockback",
+          "value": 180,
+          "duration": 0.0
+        }
+      ],
       "mana_reduction_per_level": 0.006,
       "cooldown_reduction_per_level": 0.0045,
       "duration_scale_per_level": 0.0,
       "range_scale_per_level": 0.008,
+      "knockback_scale_per_level": 0.01,
       "milestone_bonuses": []
     },
     {
+      "skill_id": "water_aqua_geyser",
+      "canonical_skill_id": "water_aqua_geyser",
+      "display_name": "아쿠아 가이저",
+      "circle": 3,
+      "school": "elemental",
+      "element": "water",
+      "skill_type": "active",
+      "role_tags": [
+        "burst",
+        "control",
+        "launch"
+      ],
+      "description": "전방 고정 지점에서 수기둥을 폭발시켜 적을 띄우는 3서클 물 제어기",
+      "max_level": 30,
+      "growth_tracks": [
+        "damage",
+        "range"
+      ],
+      "unlock_state": "starter",
+      "mana_cost_base": 22,
+      "cooldown_base": 6.0,
+      "cast_time": 0.0,
+      "hit_shape": "circle",
+      "range_base": 104,
+      "duration_base": 0.0,
+      "target_count_base": 4,
+      "pierce_count_base": 0,
+      "projectile_count_base": 0,
+      "tick_interval": 0.0,
+      "damage_formula": {
+        "formula_type": "hit",
+        "coefficient_base": 1.48,
+        "coefficient_per_level": 0.03,
+        "flat_base": 20,
+        "flat_per_level": 3
+      },
+      "utility_effects": [
+        {
+          "type": "knockback",
+          "value": 220,
+          "duration": 0.0
+        }
+      ],
+      "mana_reduction_per_level": 0.006,
+      "cooldown_reduction_per_level": 0.0045,
+      "duration_scale_per_level": 0.0,
+      "range_scale_per_level": 0.008,
+      "knockback_scale_per_level": 0.012,
+      "milestone_bonuses": []
+    },
+    {
+      "skill_id": "water_wave",
+      "canonical_skill_id": "water_wave",
+      "display_name": "워터 웨이브",
+      "circle": 3,
+      "school": "elemental",
+      "element": "water",
+      "skill_type": "active",
+      "role_tags": [
+        "line",
+        "control",
+        "slow",
+        "water"
+      ],
+      "description": "전방으로 넓은 수압 파동을 밀어 보내 적 무리를 둔화시키는 3서클 물 제어기",
+      "max_level": 30,
+      "growth_tracks": [
+        "damage",
+        "range",
+        "duration"
+      ],
+      "unlock_state": "starter",
+      "mana_cost_base": 18,
+      "cooldown_base": 0.0,
+      "cast_time": 0.0,
+      "hit_shape": "line",
+      "range_base": 360,
+      "duration_base": 1.2,
+      "target_count_base": 4,
+      "pierce_count_base": 2,
+      "projectile_count_base": 1,
+      "tick_interval": 0.0,
+      "damage_formula": {
+        "formula_type": "hit",
+        "coefficient_base": 1.46,
+        "coefficient_per_level": 0.032,
+        "flat_base": 21,
+        "flat_per_level": 3
+      },
+      "utility_effects": [
+        {
+          "type": "slow",
+          "value": 0.22,
+          "duration": 1.1
+        }
+      ],
+      "mana_reduction_per_level": 0.006,
+      "cooldown_reduction_per_level": 0.0045,
+      "duration_scale_per_level": 0.01,
+      "range_scale_per_level": 0.008,
+      "milestone_bonuses": [
+        {
+          "level": 12,
+          "stat": "pierce_count",
+          "value": 1
+        },
+        {
+          "level": 24,
+          "stat": "pierce_count",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "skill_id": "water_tsunami",
+      "canonical_skill_id": "water_tsunami",
+      "display_name": "쓰나미",
+      "circle": 7,
+      "school": "elemental",
+      "element": "water",
+      "skill_type": "active",
+      "role_tags": [
+        "line",
+        "aoe",
+        "control",
+        "slow",
+        "water"
+      ],
+      "description": "거대한 수평 해일을 밀어 보내 적 무리를 강하게 제압하는 7서클 물 광역 제어기",
+      "max_level": 30,
+      "growth_tracks": [
+        "damage",
+        "range",
+        "duration"
+      ],
+      "unlock_state": "story",
+      "mana_cost_base": 34,
+      "cooldown_base": 4.8,
+      "cast_time": 0.06,
+      "hit_shape": "line",
+      "range_base": 520,
+      "duration_base": 1.4,
+      "target_count_base": 7,
+      "pierce_count_base": 4,
+      "projectile_count_base": 1,
+      "tick_interval": 0.0,
+      "damage_formula": {
+        "formula_type": "hit",
+        "coefficient_base": 2.08,
+        "coefficient_per_level": 0.04,
+        "flat_base": 32,
+        "flat_per_level": 4
+      },
+      "utility_effects": [
+        {
+          "type": "slow",
+          "value": 0.3,
+          "duration": 1.4
+        }
+      ],
+      "mana_reduction_per_level": 0.006,
+      "cooldown_reduction_per_level": 0.0045,
+      "duration_scale_per_level": 0.01,
+      "range_scale_per_level": 0.008,
+      "milestone_bonuses": [
+        {
+          "level": 10,
+          "stat": "pierce_count",
+          "value": 1
+        },
+        {
+          "level": 20,
+          "stat": "range",
+          "value": 18
+        },
+        {
+          "level": 30,
+          "stat": "damage",
+          "value": 16
+        }
+      ]
+    },
+    {
+      "skill_id": "water_ocean_collapse",
+      "canonical_skill_id": "water_ocean_collapse",
+      "display_name": "오션 콜랩스",
+      "circle": 9,
+      "school": "elemental",
+      "element": "water",
+      "skill_type": "active",
+      "role_tags": [
+        "line",
+        "aoe",
+        "control",
+        "slow",
+        "water",
+        "finisher"
+      ],
+      "description": "대해일과 붕괴성 와류를 함께 밀어 보내 넓은 전열을 쓸어 담는 9서클 물 궁극 제압기",
+      "max_level": 30,
+      "growth_tracks": [
+        "damage",
+        "range",
+        "duration"
+      ],
+      "unlock_state": "late_game",
+      "mana_cost_base": 52,
+      "cooldown_base": 9.6,
+      "cast_time": 0.08,
+      "hit_shape": "line",
+      "range_base": 560,
+      "duration_base": 1.55,
+      "target_count_base": 9,
+      "pierce_count_base": 6,
+      "projectile_count_base": 1,
+      "tick_interval": 0.0,
+      "damage_formula": {
+        "formula_type": "hit",
+        "coefficient_base": 2.72,
+        "coefficient_per_level": 0.05,
+        "flat_base": 44,
+        "flat_per_level": 5
+      },
+      "utility_effects": [
+        {
+          "type": "slow",
+          "value": 0.34,
+          "duration": 1.6
+        }
+      ],
+      "mana_reduction_per_level": 0.006,
+      "cooldown_reduction_per_level": 0.0045,
+      "duration_scale_per_level": 0.01,
+      "range_scale_per_level": 0.008,
+      "milestone_bonuses": [
+        {
+          "level": 10,
+          "stat": "pierce_count",
+          "value": 1
+        },
+        {
+          "level": 20,
+          "stat": "range",
+          "value": 20
+        },
+        {
+          "level": 30,
+          "stat": "damage",
+          "value": 18
+        }
+      ]
+    },
+    {
+      "skill_id": "holy_cure_ray",
+      "canonical_skill_id": "holy_cure_ray",
+      "display_name": "큐어 레이",
+      "circle": 3,
+      "school": "white",
+      "element": "holy",
+      "skill_type": "active",
+      "role_tags": [
+        "line",
+        "heal",
+        "stability"
+      ],
+      "description": "시전자 안정화와 직선 성광 견제를 함께 거는 3서클 백마법 지원기",
+      "max_level": 30,
+      "growth_tracks": [
+        "heal",
+        "damage",
+        "range"
+      ],
+      "unlock_state": "starter",
+      "mana_cost_base": 22,
+      "cooldown_base": 0.0,
+      "cast_time": 0.05,
+      "hit_shape": "line",
+      "range_base": 420,
+      "duration_base": 0.0,
+      "target_count_base": 2,
+      "pierce_count_base": 1,
+      "projectile_count_base": 0,
+      "tick_interval": 0.0,
+      "damage_formula": {
+        "formula_type": "heal",
+        "coefficient_base": 0.78,
+        "coefficient_per_level": 0.015,
+        "flat_base": 12,
+        "flat_per_level": 1
+      },
+      "mana_reduction_per_level": 0.006,
+      "cooldown_reduction_per_level": 0.0045,
+      "duration_scale_per_level": 0.0,
+      "range_scale_per_level": 0.008,
+      "milestone_bonuses": [
+        {
+          "level": 10,
+          "stat": "pierce_count",
+          "value": 1
+        },
+        {
+          "level": 20,
+          "stat": "target_count",
+          "value": 1
+        }
+      ]
+    },
+    {
       "skill_id": "dark_shadow_bind",
-      "display_name": "Shadow Bind",
+      "canonical_skill_id": "dark_shadow_bind",
+      "display_name": "섀도우 바인드",
       "circle": 3,
       "school": "black",
       "element": "dark",
       "skill_type": "deploy",
-      "role_tags": ["deploy", "dot", "slow"],
-      "description": "암흑 구속진으로 지속 피해와 둔화를 부여",
+      "role_tags": [
+        "deploy",
+        "dot",
+        "slow"
+      ],
+      "description": "둔화와 지속 피해를 누적시키는 흑마법 설치형 디버프",
       "max_level": 30,
-      "growth_tracks": ["damage", "duration", "range", "targets"],
+      "growth_tracks": [
+        "damage",
+        "duration",
+        "range",
+        "targets"
+      ],
       "unlock_state": "starter",
       "mana_cost_base": 22,
       "cooldown_base": 6.0,
@@ -529,33 +1783,64 @@
       "target_count_base": 4,
       "pierce_count_base": 0,
       "projectile_count_base": 0,
-      "tick_interval": 1.0,
-      "damage_formula": { "formula_type": "tick", "coefficient_base": 0.52, "coefficient_per_level": 0.011, "flat_base": 8, "flat_per_level": 0 },
-      "utility_effects": [{ "type": "slow", "value": 0.2, "duration": 1.0 }],
+      "tick_interval": 0.75,
+      "damage_formula": {
+        "formula_type": "tick",
+        "coefficient_base": 0.52,
+        "coefficient_per_level": 0.011,
+        "flat_base": 8,
+        "flat_per_level": 0
+      },
+      "utility_effects": [
+        {
+          "type": "slow",
+          "value": 0.2,
+          "duration": 1.0
+        }
+      ],
       "mana_reduction_per_level": 0.006,
       "cooldown_reduction_per_level": 0.0045,
       "duration_scale_per_level": 0.01,
       "range_scale_per_level": 0.008,
       "milestone_bonuses": [
-        { "level": 10, "stat": "target_count", "value": 1 },
-        { "level": 20, "stat": "target_count", "value": 1 },
-        { "level": 30, "stat": "target_count", "value": 1 }
-      ]
+        {
+          "level": 10,
+          "stat": "target_count",
+          "value": 1
+        },
+        {
+          "level": 20,
+          "stat": "target_count",
+          "value": 1
+        },
+        {
+          "level": 30,
+          "stat": "target_count",
+          "value": 1
+        }
+      ],
+      "damage_cadence_reference_interval": 1.0
     },
     {
       "skill_id": "holy_healing_pulse",
-      "display_name": "Healing Pulse",
+      "canonical_skill_id": "holy_healing_pulse",
+      "display_name": "힐링 펄스",
       "circle": 4,
       "school": "white",
       "element": "holy",
       "skill_type": "active",
-      "role_tags": ["heal", "stability"],
-      "description": "즉시 회복과 짧은 안정화",
+      "role_tags": [
+        "heal",
+        "stability"
+      ],
+      "description": "즉시 회복과 짧은 안정화를 제공하는 백마법 burst 프록시",
       "max_level": 30,
-      "growth_tracks": ["heal"],
+      "growth_tracks": [
+        "heal"
+      ],
       "unlock_state": "starter",
       "mana_cost_base": 24,
-      "cooldown_base": 10.0,
+      "cooldown_base": 0.0,
       "cast_time": 0.15,
       "hit_shape": "circle",
       "range_base": 96,
@@ -564,27 +1849,43 @@
       "pierce_count_base": 0,
       "projectile_count_base": 0,
       "tick_interval": 0.0,
-      "damage_formula": { "formula_type": "heal", "coefficient_base": 1.4, "coefficient_per_level": 0.02, "flat_base": 35, "flat_per_level": 3 },
+      "damage_formula": {
+        "formula_type": "heal",
+        "coefficient_base": 1.4,
+        "coefficient_per_level": 0.02,
+        "flat_base": 35,
+        "flat_per_level": 3
+      },
       "mana_reduction_per_level": 0.006,
       "cooldown_reduction_per_level": 0.0045,
       "duration_scale_per_level": 0.0,
       "range_scale_per_level": 0.0,
+      "self_heal_scale_per_level": 0.03,
       "milestone_bonuses": []
     },
     {
       "skill_id": "lightning_thunder_lance",
-      "display_name": "Thunder Lance",
+      "canonical_skill_id": "lightning_thunder_lance",
+      "display_name": "썬더 랜스",
       "circle": 4,
       "school": "elemental",
       "element": "lightning",
       "skill_type": "active",
-      "role_tags": ["line", "pierce", "burst"],
-      "description": "일직선 관통 번개 창",
+      "role_tags": [
+        "line",
+        "pierce",
+        "burst",
+        "boss_burst"
+      ],
+      "description": "중간 쿨마다 강한 관통 직선을 꽂아 넣는 보스용 번개 버스터",
       "max_level": 30,
-      "growth_tracks": ["damage", "pierce"],
+      "growth_tracks": [
+        "damage",
+        "pierce"
+      ],
       "unlock_state": "starter",
       "mana_cost_base": 25,
-      "cooldown_base": 2.2,
+      "cooldown_base": 0.0,
       "cast_time": 0.0,
       "hit_shape": "line",
       "range_base": 520,
@@ -593,28 +1894,245 @@
       "pierce_count_base": 2,
       "projectile_count_base": 0,
       "tick_interval": 0.0,
-      "damage_formula": { "formula_type": "hit", "coefficient_base": 2.1, "coefficient_per_level": 0.045, "flat_base": 32, "flat_per_level": 4 },
+      "damage_formula": {
+        "formula_type": "hit",
+        "coefficient_base": 2.1,
+        "coefficient_per_level": 0.045,
+        "flat_base": 32,
+        "flat_per_level": 4
+      },
       "mana_reduction_per_level": 0.006,
       "cooldown_reduction_per_level": 0.0045,
       "duration_scale_per_level": 0.0,
       "range_scale_per_level": 0.0,
       "milestone_bonuses": [
-        { "level": 10, "stat": "pierce_count", "value": 1 },
-        { "level": 20, "stat": "pierce_count", "value": 1 },
-        { "level": 30, "stat": "pierce_count", "value": 1 }
+        {
+          "level": 10,
+          "stat": "pierce_count",
+          "value": 1
+        },
+        {
+          "level": 20,
+          "stat": "pierce_count",
+          "value": 1
+        },
+        {
+          "level": 30,
+          "stat": "pierce_count",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "skill_id": "lightning_bolt",
+      "canonical_skill_id": "lightning_bolt",
+      "display_name": "라이트닝 볼트",
+      "circle": 4,
+      "school": "elemental",
+      "element": "lightning",
+      "skill_type": "active",
+      "role_tags": [
+        "line",
+        "pierce",
+        "control",
+        "lightning"
+      ],
+      "description": "전방으로 튀는 번개선을 밀어 넣어 다수를 감전시키는 4서클 전기 입문 제어기",
+      "max_level": 30,
+      "growth_tracks": [
+        "damage",
+        "pierce",
+        "duration"
+      ],
+      "unlock_state": "starter",
+      "mana_cost_base": 23,
+      "cooldown_base": 0.0,
+      "cast_time": 0.0,
+      "hit_shape": "line",
+      "range_base": 430,
+      "duration_base": 1.0,
+      "target_count_base": 3,
+      "pierce_count_base": 2,
+      "projectile_count_base": 0,
+      "tick_interval": 0.0,
+      "damage_formula": {
+        "formula_type": "hit",
+        "coefficient_base": 1.42,
+        "coefficient_per_level": 0.03,
+        "flat_base": 20,
+        "flat_per_level": 2
+      },
+      "utility_effects": [
+        {
+          "type": "shock",
+          "chance": 1.0,
+          "value": 1.0,
+          "duration": 1.25
+        }
+      ],
+      "mana_reduction_per_level": 0.006,
+      "cooldown_reduction_per_level": 0.0045,
+      "duration_scale_per_level": 0.01,
+      "range_scale_per_level": 0.008,
+      "milestone_bonuses": [
+        {
+          "level": 10,
+          "stat": "pierce_count",
+          "value": 1
+        },
+        {
+          "level": 20,
+          "stat": "pierce_count",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "skill_id": "ice_spear",
+      "canonical_skill_id": "ice_spear",
+      "display_name": "아이스 스피어",
+      "circle": 4,
+      "school": "elemental",
+      "element": "ice",
+      "skill_type": "active",
+      "role_tags": [
+        "projectile",
+        "single_target",
+        "ice",
+        "control"
+      ],
+      "description": "빙결 확률을 얹은 관통 빙창으로 중거리 압박을 여는 4서클 냉기 단일기",
+      "max_level": 30,
+      "growth_tracks": [
+        "damage",
+        "duration",
+        "pierce"
+      ],
+      "unlock_state": "starter",
+      "mana_cost_base": 22,
+      "cooldown_base": 0.0,
+      "cast_time": 0.0,
+      "hit_shape": "projectile",
+      "range_base": 440,
+      "duration_base": 0.9,
+      "target_count_base": 1,
+      "pierce_count_base": 1,
+      "projectile_count_base": 1,
+      "tick_interval": 0.0,
+      "damage_formula": {
+        "formula_type": "hit",
+        "coefficient_base": 1.34,
+        "coefficient_per_level": 0.03,
+        "flat_base": 21,
+        "flat_per_level": 2
+      },
+      "utility_effects": [
+        {
+          "type": "freeze",
+          "chance": 0.28,
+          "value": 1.0,
+          "duration": 0.75
+        }
+      ],
+      "mana_reduction_per_level": 0.006,
+      "cooldown_reduction_per_level": 0.0045,
+      "duration_scale_per_level": 0.01,
+      "range_scale_per_level": 0.008,
+      "milestone_bonuses": [
+        {
+          "level": 20,
+          "stat": "pierce_count",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "skill_id": "lightning_thunder_arrow",
+      "canonical_skill_id": "lightning_thunder_arrow",
+      "display_name": "썬더 애로우",
+      "circle": 4,
+      "school": "elemental",
+      "element": "lightning",
+      "skill_type": "active",
+      "role_tags": [
+        "line",
+        "pierce",
+        "lightning"
+      ],
+      "description": "빠른 관통과 감전 부여로 라인을 관통하는 4서클 번개 기본기",
+      "max_level": 30,
+      "growth_tracks": [
+        "damage",
+        "pierce",
+        "duration"
+      ],
+      "unlock_state": "starter",
+      "mana_cost_base": 21,
+      "cooldown_base": 0.0,
+      "cast_time": 0.0,
+      "hit_shape": "line",
+      "range_base": 470,
+      "duration_base": 1.1,
+      "target_count_base": 2,
+      "pierce_count_base": 1,
+      "projectile_count_base": 0,
+      "tick_interval": 0.0,
+      "damage_formula": {
+        "formula_type": "hit",
+        "coefficient_base": 1.18,
+        "coefficient_per_level": 0.025,
+        "flat_base": 16,
+        "flat_per_level": 2
+      },
+      "utility_effects": [
+        {
+          "type": "shock",
+          "chance": 1.0,
+          "value": 1.0,
+          "duration": 1.1
+        }
+      ],
+      "mana_reduction_per_level": 0.006,
+      "cooldown_reduction_per_level": 0.0045,
+      "duration_scale_per_level": 0.01,
+      "range_scale_per_level": 0.008,
+      "milestone_bonuses": [
+        {
+          "level": 10,
+          "stat": "pierce_count",
+          "value": 1
+        },
+        {
+          "level": 20,
+          "stat": "pierce_count",
+          "value": 1
+        },
+        {
+          "level": 30,
+          "stat": "pierce_count",
+          "value": 1
+        }
       ]
     },
     {
       "skill_id": "ice_ice_wall",
-      "display_name": "Ice Wall",
+      "canonical_skill_id": "ice_ice_wall",
+      "display_name": "아이스 월",
       "circle": 4,
       "school": "elemental",
       "element": "ice",
       "skill_type": "deploy",
-      "role_tags": ["wall", "control", "defense"],
-      "description": "얼음 장벽 생성 및 접촉 피해",
+      "role_tags": [
+        "wall",
+        "control",
+        "defense"
+      ],
+      "description": "전장을 가르는 얼음 장벽으로 진입 경로를 끊는 4서클 냉기 제어기",
       "max_level": 30,
-      "growth_tracks": ["duration", "range"],
+      "growth_tracks": [
+        "duration",
+        "range"
+      ],
       "unlock_state": "starter",
       "mana_cost_base": 26,
       "cooldown_base": 9.0,
@@ -626,7 +2144,83 @@
       "pierce_count_base": 0,
       "projectile_count_base": 0,
       "tick_interval": 0.0,
-      "damage_formula": { "formula_type": "hit", "coefficient_base": 1.25, "coefficient_per_level": 0.0, "flat_base": 18, "flat_per_level": 0 },
+      "damage_formula": {
+        "formula_type": "hit",
+        "coefficient_base": 1.25,
+        "coefficient_per_level": 0.0,
+        "flat_base": 18,
+        "flat_per_level": 0
+      },
+      "utility_effects": [
+        {
+          "type": "slow",
+          "value": 0.26,
+          "duration": 1.2
+        },
+        {
+          "type": "root",
+          "chance": 1.0,
+          "value": 1.0,
+          "duration": 0.4
+        }
+      ],
+      "mana_reduction_per_level": 0.006,
+      "cooldown_reduction_per_level": 0.0045,
+      "duration_scale_per_level": 0.01,
+      "range_scale_per_level": 0.008,
+      "milestone_bonuses": []
+    },
+    {
+      "skill_id": "earth_stone_rampart",
+      "canonical_skill_id": "earth_stone_rampart",
+      "display_name": "스톤 램파트",
+      "circle": 4,
+      "school": "elemental",
+      "element": "earth",
+      "skill_type": "deploy",
+      "role_tags": [
+        "wall",
+        "control",
+        "earth",
+        "defense"
+      ],
+      "description": "짧은 석벽을 솟게 만들어 진입 경로를 끊는 4서클 대지 장벽 제어기",
+      "max_level": 30,
+      "growth_tracks": [
+        "duration",
+        "range"
+      ],
+      "unlock_state": "story",
+      "mana_cost_base": 26,
+      "cooldown_base": 12.0,
+      "cast_time": 0.0,
+      "hit_shape": "wall",
+      "range_base": 168,
+      "duration_base": 4.0,
+      "target_count_base": 3,
+      "pierce_count_base": 0,
+      "projectile_count_base": 0,
+      "tick_interval": 0.0,
+      "damage_formula": {
+        "formula_type": "hit",
+        "coefficient_base": 0.82,
+        "coefficient_per_level": 0.014,
+        "flat_base": 12,
+        "flat_per_level": 0
+      },
+      "utility_effects": [
+        {
+          "type": "slow",
+          "value": 0.18,
+          "duration": 1.0
+        },
+        {
+          "type": "root",
+          "chance": 1.0,
+          "value": 1.0,
+          "duration": 0.28
+        }
+      ],
       "mana_reduction_per_level": 0.006,
       "cooldown_reduction_per_level": 0.0045,
       "duration_scale_per_level": 0.01,
@@ -635,15 +2229,24 @@
     },
     {
       "skill_id": "dark_grave_echo",
-      "display_name": "Grave Echo",
+      "canonical_skill_id": "dark_grave_echo",
+      "display_name": "그레이브 에코",
       "circle": 5,
       "school": "black",
       "element": "dark",
       "skill_type": "toggle",
-      "role_tags": ["aura", "curse", "dot"],
-      "description": "저주 오라 유지",
+      "role_tags": [
+        "aura",
+        "curse",
+        "dot"
+      ],
+      "description": "지속 저주와 누적 압박을 제공하는 흑마법 저주 오라",
       "max_level": 30,
-      "growth_tracks": ["damage", "range", "targets"],
+      "growth_tracks": [
+        "damage",
+        "range",
+        "targets"
+      ],
       "unlock_state": "story",
       "mana_cost_base": 8,
       "cooldown_base": 1.0,
@@ -654,66 +2257,1175 @@
       "target_count_base": 4,
       "pierce_count_base": 0,
       "projectile_count_base": 0,
-      "tick_interval": 1.0,
+      "tick_interval": 0.6,
       "sustain_mana_cost_base": 3.0,
       "sustain_mana_reduction_per_level": 0.004,
       "sustain_mana_min_ratio": 0.65,
-      "damage_formula": { "formula_type": "tick", "coefficient_base": 0.7, "coefficient_per_level": 0.012, "flat_base": 10, "flat_per_level": 0 },
+      "damage_formula": {
+        "formula_type": "tick",
+        "coefficient_base": 0.7,
+        "coefficient_per_level": 0.012,
+        "flat_base": 10,
+        "flat_per_level": 0
+      },
       "mana_reduction_per_level": 0.006,
       "cooldown_reduction_per_level": 0.0045,
       "duration_scale_per_level": 0.0,
       "range_scale_per_level": 0.008,
       "milestone_bonuses": [
-        { "level": 10, "stat": "target_count", "value": 1 },
-        { "level": 20, "stat": "target_count", "value": 1 },
-        { "level": 30, "stat": "target_count", "value": 1 }
-      ]
+        {
+          "level": 10,
+          "stat": "target_count",
+          "value": 1
+        },
+        {
+          "level": 20,
+          "stat": "target_count",
+          "value": 1
+        },
+        {
+          "level": 30,
+          "stat": "target_count",
+          "value": 1
+        }
+      ],
+      "damage_cadence_reference_interval": 1.0
     },
     {
-      "skill_id": "wind_tempest_drive",
-      "display_name": "Tempest Drive",
+      "skill_id": "fire_flame_storm",
+      "canonical_skill_id": "fire_flame_storm",
+      "display_name": "플레임 스톰",
       "circle": 5,
       "school": "elemental",
-      "element": "wind",
-      "skill_type": "buff",
-      "role_tags": ["tempo", "mobility", "cast_speed"],
-      "description": "이동과 연속 시전 리듬 강화",
+      "element": "fire",
+      "skill_type": "deploy",
+      "role_tags": [
+        "deploy",
+        "dot",
+        "aoe",
+        "mob_clear"
+      ],
+      "description": "화염 고리를 설치해 반복 화상 타격을 누적시키는 5서클 화염 장판",
       "max_level": 30,
-      "growth_tracks": ["duration", "buff_power"],
+      "growth_tracks": [
+        "damage",
+        "duration",
+        "range",
+        "targets"
+      ],
       "unlock_state": "story",
       "mana_cost_base": 28,
-      "cooldown_base": 32.0,
+      "cooldown_base": 8.0,
       "cast_time": 0.0,
-      "duration_base": 8.0,
-      "buff_category": "tempo",
-      "stackable": true,
-      "stack_rule_id": "default_diminishing_buff",
-      "buff_effects": [
-        { "stat": "move_speed_multiplier", "mode": "mul", "value": 1.18 },
-        { "stat": "aftercast_multiplier", "mode": "mul", "value": 0.9 },
-        { "stat": "air_cast_stability", "mode": "add", "value": 1 }
+      "hit_shape": "circle",
+      "range_base": 132,
+      "duration_base": 6.0,
+      "target_count_base": 4,
+      "pierce_count_base": 0,
+      "projectile_count_base": 0,
+      "tick_interval": 0.6,
+      "damage_formula": {
+        "formula_type": "tick",
+        "coefficient_base": 0.78,
+        "coefficient_per_level": 0.013,
+        "flat_base": 12,
+        "flat_per_level": 0
+      },
+      "utility_effects": [
+        {
+          "type": "burn",
+          "value": 1.0,
+          "duration": 1.2
+        }
       ],
-      "downside_effects": [
-        { "stat": "stagger_taken_multiplier", "mode": "mul", "value": 1.15, "duration": 2.0 }
-      ],
-      "combo_tags": ["tempo", "wind"],
       "mana_reduction_per_level": 0.006,
       "cooldown_reduction_per_level": 0.0045,
       "duration_scale_per_level": 0.01,
-      "range_scale_per_level": 0.0,
+      "range_scale_per_level": 0.008,
+      "milestone_bonuses": [
+        {
+          "level": 10,
+          "stat": "target_count",
+          "value": 1
+        },
+        {
+          "level": 20,
+          "stat": "target_count",
+          "value": 1
+        },
+        {
+          "level": 30,
+          "stat": "target_count",
+          "value": 1
+        }
+      ],
+      "damage_cadence_reference_interval": 1.0
+    },
+    {
+      "skill_id": "holy_bless_field",
+      "canonical_skill_id": "holy_bless_field",
+      "display_name": "블레스 필드",
+      "circle": 5,
+      "school": "white",
+      "element": "holy",
+      "skill_type": "deploy",
+      "role_tags": [
+        "deploy",
+        "heal",
+        "stability",
+        "utility"
+      ],
+      "description": "축복 장판을 펼쳐 회복 파동과 경직 안정화를 함께 제공하는 5서클 백마법 장판",
+      "max_level": 30,
+      "growth_tracks": [
+        "heal",
+        "duration",
+        "range",
+        "buff_power"
+      ],
+      "unlock_state": "story",
+      "mana_cost_base": 30,
+      "cooldown_base": 10.0,
+      "cast_time": 0.0,
+      "hit_shape": "circle",
+      "range_base": 148,
+      "duration_base": 6.0,
+      "target_count_base": 4,
+      "pierce_count_base": 0,
+      "projectile_count_base": 0,
+      "tick_interval": 1.0,
+      "damage_formula": {
+        "formula_type": "heal",
+        "coefficient_base": 0.62,
+        "coefficient_per_level": 0.012,
+        "flat_base": 12,
+        "flat_per_level": 0
+      },
+      "support_effects": [
+        {
+          "stat": "poise_bonus",
+          "mode": "add",
+          "value": 12
+        }
+      ],
+      "support_effect_duration_base": 1.2,
+      "mana_reduction_per_level": 0.006,
+      "cooldown_reduction_per_level": 0.0045,
+      "duration_scale_per_level": 0.01,
+      "range_scale_per_level": 0.008,
+      "self_heal_scale_per_level": 0.02,
+      "poise_bonus_per_level": 1.0,
+      "milestone_bonuses": [
+        {
+          "level": 10,
+          "stat": "target_count",
+          "value": 1
+        },
+        {
+          "level": 20,
+          "stat": "target_count",
+          "value": 1
+        },
+        {
+          "level": 30,
+          "stat": "target_count",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "skill_id": "ice_storm",
+      "canonical_skill_id": "ice_storm",
+      "display_name": "아이스 스톰",
+      "circle": 5,
+      "school": "elemental",
+      "element": "ice",
+      "skill_type": "deploy",
+      "role_tags": [
+        "deploy",
+        "control",
+        "soft_cc",
+        "aoe"
+      ],
+      "description": "냉기 소용돌이를 설치해 둔화와 빙결 압박을 반복하는 5서클 얼음 장판",
+      "max_level": 30,
+      "growth_tracks": [
+        "damage",
+        "duration",
+        "range",
+        "targets"
+      ],
+      "unlock_state": "story",
+      "mana_cost_base": 29,
+      "cooldown_base": 9.0,
+      "cast_time": 0.0,
+      "hit_shape": "circle",
+      "range_base": 142,
+      "duration_base": 6.0,
+      "target_count_base": 4,
+      "pierce_count_base": 0,
+      "projectile_count_base": 0,
+      "tick_interval": 0.6,
+      "damage_formula": {
+        "formula_type": "tick",
+        "coefficient_base": 0.74,
+        "coefficient_per_level": 0.013,
+        "flat_base": 11,
+        "flat_per_level": 0
+      },
+      "utility_effects": [
+        {
+          "type": "slow",
+          "value": 0.24,
+          "duration": 1.1
+        },
+        {
+          "type": "freeze",
+          "chance": 0.16,
+          "value": 1.0,
+          "duration": 0.55
+        }
+      ],
+      "mana_reduction_per_level": 0.006,
+      "cooldown_reduction_per_level": 0.0045,
+      "duration_scale_per_level": 0.01,
+      "range_scale_per_level": 0.008,
+      "milestone_bonuses": [
+        {
+          "level": 10,
+          "stat": "target_count",
+          "value": 1
+        },
+        {
+          "level": 20,
+          "stat": "target_count",
+          "value": 1
+        },
+        {
+          "level": 30,
+          "stat": "target_count",
+          "value": 1
+        }
+      ],
+      "damage_cadence_reference_interval": 1.0
+    },
+    {
+      "skill_id": "wind_tempest_drive",
+      "canonical_skill_id": "wind_tempest_drive",
+      "display_name": "템페스트 드라이브",
+      "circle": 5,
+      "school": "elemental",
+      "element": "wind",
+      "skill_type": "active",
+      "role_tags": [
+        "burst",
+        "mobility",
+        "slow",
+        "wind"
+      ],
+      "description": "전방으로 중거리 돌진한 뒤 바람 충격파를 터뜨리는 5서클 전투형 이동기",
+      "max_level": 30,
+      "growth_tracks": [
+        "damage",
+        "range",
+        "duration"
+      ],
+      "unlock_state": "story",
+      "mana_cost_base": 28,
+      "cooldown_base": 1.8,
+      "cast_time": 0.0,
+      "hit_shape": "circle",
+      "range_base": 118,
+      "duration_base": 0.16,
+      "target_count_base": 4,
+      "pierce_count_base": 0,
+      "projectile_count_base": 0,
+      "tick_interval": 0.0,
+      "knockback_base": 220,
+      "damage_formula": {
+        "formula_type": "hit",
+        "coefficient_base": 1.42,
+        "coefficient_per_level": 0.03,
+        "flat_base": 18,
+        "flat_per_level": 2
+      },
+      "utility_effects": [
+        {
+          "type": "slow",
+          "value": 0.18,
+          "duration": 0.7
+        }
+      ],
+      "activation_visual_effect_id": "tempest_drive_activation",
+      "activation_visual_scale": 0.96,
+      "activation_visual_color": "#d4ffe3",
+      "dash_speed_base": 980.0,
+      "dash_duration_base": 0.18,
+      "dash_speed_scale_per_level": 0.006,
+      "dash_duration_scale_per_level": 0.004,
+      "mana_reduction_per_level": 0.006,
+      "cooldown_reduction_per_level": 0.0045,
+      "duration_scale_per_level": 0.0,
+      "range_scale_per_level": 0.008,
       "milestone_bonuses": []
     },
     {
+      "skill_id": "ice_absolute_freeze",
+      "canonical_skill_id": "ice_absolute_freeze",
+      "display_name": "앱솔루트 프리즈",
+      "circle": 6,
+      "school": "elemental",
+      "element": "ice",
+      "skill_type": "active",
+      "role_tags": [
+        "circle",
+        "burst",
+        "control",
+        "freeze",
+        "ice"
+      ],
+      "description": "대형 절대영도 파동으로 주변 적을 광역 빙결시키는 6서클 냉기 버스터",
+      "max_level": 30,
+      "growth_tracks": [
+        "damage",
+        "range",
+        "duration"
+      ],
+      "unlock_state": "story",
+      "mana_cost_base": 36,
+      "cooldown_base": 7.8,
+      "cast_time": 0.08,
+      "hit_shape": "circle",
+      "range_base": 156,
+      "duration_base": 0.0,
+      "target_count_base": 7,
+      "pierce_count_base": 0,
+      "projectile_count_base": 0,
+      "tick_interval": 0.0,
+      "damage_formula": {
+        "formula_type": "hit",
+        "coefficient_base": 2.35,
+        "coefficient_per_level": 0.045,
+        "flat_base": 36,
+        "flat_per_level": 4
+      },
+      "utility_effects": [
+        {
+          "type": "freeze",
+          "chance": 1.0,
+          "value": 1.0,
+          "duration": 1.0
+        }
+      ],
+      "mana_reduction_per_level": 0.006,
+      "cooldown_reduction_per_level": 0.0045,
+      "duration_scale_per_level": 0.008,
+      "range_scale_per_level": 0.008,
+      "milestone_bonuses": [
+        {
+          "level": 10,
+          "stat": "range",
+          "value": 12
+        },
+        {
+          "level": 20,
+          "stat": "target_count",
+          "value": 1
+        },
+        {
+          "level": 30,
+          "stat": "damage",
+          "value": 16
+        }
+      ]
+    },
+    {
+      "skill_id": "fire_inferno_buster",
+      "canonical_skill_id": "fire_inferno_buster",
+      "display_name": "인페르노 버스터",
+      "circle": 6,
+      "school": "elemental",
+      "element": "fire",
+      "skill_type": "active",
+      "role_tags": [
+        "circle",
+        "burst",
+        "aoe",
+        "boss_burst",
+        "fire"
+      ],
+      "description": "대형 폭열을 즉시 터뜨려 전투 중심을 비워내는 6서클 화염 버스터",
+      "max_level": 30,
+      "growth_tracks": [
+        "damage",
+        "range",
+        "duration"
+      ],
+      "unlock_state": "story",
+      "mana_cost_base": 38,
+      "cooldown_base": 6.8,
+      "cast_time": 0.08,
+      "hit_shape": "circle",
+      "range_base": 168,
+      "duration_base": 0.0,
+      "target_count_base": 7,
+      "pierce_count_base": 0,
+      "projectile_count_base": 0,
+      "tick_interval": 0.0,
+      "damage_formula": {
+        "formula_type": "hit",
+        "coefficient_base": 2.55,
+        "coefficient_per_level": 0.048,
+        "flat_base": 40,
+        "flat_per_level": 4
+      },
+      "utility_effects": [
+        {
+          "type": "burn",
+          "chance": 1.0,
+          "value": 1.0,
+          "duration": 1.2
+        }
+      ],
+      "mana_reduction_per_level": 0.006,
+      "cooldown_reduction_per_level": 0.0045,
+      "duration_scale_per_level": 0.008,
+      "range_scale_per_level": 0.008,
+      "milestone_bonuses": [
+        {
+          "level": 10,
+          "stat": "range",
+          "value": 14
+        },
+        {
+          "level": 20,
+          "stat": "target_count",
+          "value": 1
+        },
+        {
+          "level": 30,
+          "stat": "damage",
+          "value": 18
+        }
+      ]
+    },
+    {
+      "skill_id": "fire_meteor_strike",
+      "canonical_skill_id": "fire_meteor_strike",
+      "display_name": "메테오 스트라이크",
+      "circle": 7,
+      "school": "elemental",
+      "element": "fire",
+      "skill_type": "active",
+      "role_tags": [
+        "circle",
+        "burst",
+        "aoe",
+        "boss_burst",
+        "fire"
+      ],
+      "description": "낙하형 화염 폭락으로 넓은 범위를 태워 비우는 7서클 화염 딜레이 버스트",
+      "max_level": 30,
+      "growth_tracks": [
+        "damage",
+        "range",
+        "duration"
+      ],
+      "unlock_state": "story",
+      "mana_cost_base": 44,
+      "cooldown_base": 8.6,
+      "cast_time": 0.12,
+      "hit_shape": "circle",
+      "range_base": 184,
+      "duration_base": 0.0,
+      "target_count_base": 8,
+      "pierce_count_base": 0,
+      "projectile_count_base": 0,
+      "tick_interval": 0.0,
+      "damage_formula": {
+        "formula_type": "hit",
+        "coefficient_base": 2.82,
+        "coefficient_per_level": 0.05,
+        "flat_base": 44,
+        "flat_per_level": 5
+      },
+      "utility_effects": [
+        {
+          "type": "burn",
+          "chance": 1.0,
+          "value": 1.0,
+          "duration": 1.4
+        }
+      ],
+      "mana_reduction_per_level": 0.006,
+      "cooldown_reduction_per_level": 0.0045,
+      "duration_scale_per_level": 0.01,
+      "range_scale_per_level": 0.009,
+      "milestone_bonuses": [
+        {
+          "level": 10,
+          "stat": "range",
+          "value": 16
+        },
+        {
+          "level": 20,
+          "stat": "target_count",
+          "value": 1
+        },
+        {
+          "level": 30,
+          "stat": "damage",
+          "value": 20
+        }
+      ]
+    },
+    {
+      "skill_id": "earth_gaia_break",
+      "canonical_skill_id": "earth_gaia_break",
+      "display_name": "가이아 브레이크",
+      "circle": 7,
+      "school": "elemental",
+      "element": "earth",
+      "skill_type": "active",
+      "role_tags": [
+        "burst",
+        "aoe",
+        "boss_burst",
+        "earth"
+      ],
+      "description": "넓은 지반 붕괴를 즉시 일으켜 적 무리를 강하게 밀어내는 7서클 대지 광역 버스트",
+      "max_level": 30,
+      "growth_tracks": [
+        "damage",
+        "range",
+        "duration"
+      ],
+      "unlock_state": "story",
+      "mana_cost_base": 42,
+      "cooldown_base": 5.6,
+      "cast_time": 0.08,
+      "hit_shape": "circle",
+      "range_base": 176,
+      "duration_base": 0.0,
+      "target_count_base": 8,
+      "pierce_count_base": 0,
+      "projectile_count_base": 0,
+      "tick_interval": 0.0,
+      "damage_formula": {
+        "formula_type": "hit",
+        "coefficient_base": 2.76,
+        "coefficient_per_level": 0.048,
+        "flat_base": 42,
+        "flat_per_level": 5
+      },
+      "mana_reduction_per_level": 0.006,
+      "cooldown_reduction_per_level": 0.0045,
+      "duration_scale_per_level": 0.008,
+      "range_scale_per_level": 0.009,
+      "milestone_bonuses": [
+        {
+          "level": 10,
+          "stat": "range",
+          "value": 14
+        },
+        {
+          "level": 20,
+          "stat": "target_count",
+          "value": 1
+        },
+        {
+          "level": 30,
+          "stat": "damage",
+          "value": 18
+        }
+      ]
+    },
+    {
+      "skill_id": "earth_continental_crush",
+      "canonical_skill_id": "earth_continental_crush",
+      "display_name": "컨티넨탈 크러시",
+      "circle": 9,
+      "school": "elemental",
+      "element": "earth",
+      "skill_type": "active",
+      "role_tags": [
+        "burst",
+        "aoe",
+        "boss_burst",
+        "earth",
+        "finisher"
+      ],
+      "description": "대륙이 갈라지는 듯한 지반 붕괴를 일으켜 넓은 범위를 짓누르는 9서클 대지 궁극 버스트",
+      "max_level": 30,
+      "growth_tracks": [
+        "damage",
+        "range",
+        "duration"
+      ],
+      "unlock_state": "late_game",
+      "mana_cost_base": 54,
+      "cooldown_base": 9.8,
+      "cast_time": 0.12,
+      "hit_shape": "circle",
+      "range_base": 198,
+      "duration_base": 0.0,
+      "target_count_base": 10,
+      "pierce_count_base": 0,
+      "projectile_count_base": 0,
+      "tick_interval": 0.0,
+      "damage_formula": {
+        "formula_type": "hit",
+        "coefficient_base": 3.18,
+        "coefficient_per_level": 0.055,
+        "flat_base": 50,
+        "flat_per_level": 6
+      },
+      "mana_reduction_per_level": 0.006,
+      "cooldown_reduction_per_level": 0.0045,
+      "duration_scale_per_level": 0.008,
+      "range_scale_per_level": 0.009,
+      "milestone_bonuses": [
+        {
+          "level": 10,
+          "stat": "range",
+          "value": 16
+        },
+        {
+          "level": 20,
+          "stat": "target_count",
+          "value": 1
+        },
+        {
+          "level": 30,
+          "stat": "damage",
+          "value": 22
+        }
+      ]
+    },
+    {
+      "skill_id": "earth_world_end_break",
+      "canonical_skill_id": "earth_world_end_break",
+      "display_name": "월드 엔드 브레이크",
+      "circle": 10,
+      "school": "elemental",
+      "element": "earth",
+      "skill_type": "active",
+      "role_tags": [
+        "burst",
+        "aoe",
+        "boss_burst",
+        "earth",
+        "finisher"
+      ],
+      "description": "세계가 무너지는 듯한 대지 붕괴를 일으켜 전장을 끝장내는 10서클 대지 최종 궁극",
+      "max_level": 30,
+      "growth_tracks": [
+        "damage",
+        "range",
+        "duration"
+      ],
+      "unlock_state": "late_game",
+      "mana_cost_base": 60,
+      "cooldown_base": 11.0,
+      "cast_time": 0.14,
+      "hit_shape": "circle",
+      "range_base": 214,
+      "duration_base": 0.0,
+      "target_count_base": 12,
+      "pierce_count_base": 0,
+      "projectile_count_base": 0,
+      "tick_interval": 0.0,
+      "damage_formula": {
+        "formula_type": "hit",
+        "coefficient_base": 3.38,
+        "coefficient_per_level": 0.057,
+        "flat_base": 54,
+        "flat_per_level": 6
+      },
+      "mana_reduction_per_level": 0.006,
+      "cooldown_reduction_per_level": 0.0045,
+      "duration_scale_per_level": 0.008,
+      "range_scale_per_level": 0.009,
+      "milestone_bonuses": [
+        {
+          "level": 10,
+          "stat": "range",
+          "value": 18
+        },
+        {
+          "level": 20,
+          "stat": "target_count",
+          "value": 1
+        },
+        {
+          "level": 30,
+          "stat": "damage",
+          "value": 24
+        }
+      ]
+    },
+    {
+      "skill_id": "fire_apocalypse_flame",
+      "canonical_skill_id": "fire_apocalypse_flame",
+      "display_name": "아포칼립스 플레임",
+      "circle": 9,
+      "school": "elemental",
+      "element": "fire",
+      "skill_type": "active",
+      "role_tags": [
+        "burst",
+        "aoe",
+        "boss_burst",
+        "fire",
+        "finisher"
+      ],
+      "description": "종말처럼 폭락하는 대화염을 터뜨려 넓은 범위를 불태우는 9서클 화염 궁극 버스트",
+      "max_level": 30,
+      "growth_tracks": [
+        "damage",
+        "range",
+        "duration"
+      ],
+      "unlock_state": "late_game",
+      "mana_cost_base": 56,
+      "cooldown_base": 10.4,
+      "cast_time": 0.14,
+      "hit_shape": "circle",
+      "range_base": 204,
+      "duration_base": 0.0,
+      "target_count_base": 10,
+      "pierce_count_base": 0,
+      "projectile_count_base": 0,
+      "tick_interval": 0.0,
+      "damage_formula": {
+        "formula_type": "hit",
+        "coefficient_base": 3.24,
+        "coefficient_per_level": 0.056,
+        "flat_base": 52,
+        "flat_per_level": 6
+      },
+      "utility_effects": [
+        {
+          "type": "burn",
+          "chance": 1.0,
+          "value": 1.0,
+          "duration": 1.6
+        }
+      ],
+      "mana_reduction_per_level": 0.006,
+      "cooldown_reduction_per_level": 0.0045,
+      "duration_scale_per_level": 0.008,
+      "range_scale_per_level": 0.009,
+      "milestone_bonuses": [
+        {
+          "level": 10,
+          "stat": "range",
+          "value": 16
+        },
+        {
+          "level": 20,
+          "stat": "target_count",
+          "value": 1
+        },
+        {
+          "level": 30,
+          "stat": "damage",
+          "value": 22
+        }
+      ]
+    },
+    {
+      "skill_id": "fire_solar_cataclysm",
+      "canonical_skill_id": "fire_solar_cataclysm",
+      "display_name": "솔라 카타클리즘",
+      "circle": 10,
+      "school": "elemental",
+      "element": "fire",
+      "skill_type": "active",
+      "role_tags": [
+        "burst",
+        "aoe",
+        "boss_burst",
+        "fire",
+        "finisher"
+      ],
+      "description": "태양 붕괴 같은 대화염 폭락을 터뜨려 전장을 불태우는 10서클 화염 최종 궁극",
+      "max_level": 30,
+      "growth_tracks": [
+        "damage",
+        "range",
+        "duration"
+      ],
+      "unlock_state": "late_game",
+      "mana_cost_base": 62,
+      "cooldown_base": 11.2,
+      "cast_time": 0.16,
+      "hit_shape": "circle",
+      "range_base": 218,
+      "duration_base": 0.0,
+      "target_count_base": 12,
+      "pierce_count_base": 0,
+      "projectile_count_base": 0,
+      "tick_interval": 0.0,
+      "damage_formula": {
+        "formula_type": "hit",
+        "coefficient_base": 3.46,
+        "coefficient_per_level": 0.058,
+        "flat_base": 56,
+        "flat_per_level": 6
+      },
+      "utility_effects": [
+        {
+          "type": "burn",
+          "chance": 1.0,
+          "value": 1.0,
+          "duration": 1.8
+        }
+      ],
+      "mana_reduction_per_level": 0.006,
+      "cooldown_reduction_per_level": 0.0045,
+      "duration_scale_per_level": 0.008,
+      "range_scale_per_level": 0.009,
+      "milestone_bonuses": [
+        {
+          "level": 10,
+          "stat": "range",
+          "value": 18
+        },
+        {
+          "level": 20,
+          "stat": "target_count",
+          "value": 1
+        },
+        {
+          "level": 30,
+          "stat": "damage",
+          "value": 24
+        }
+      ]
+    },
+    {
+      "skill_id": "ice_absolute_zero",
+      "canonical_skill_id": "ice_absolute_zero",
+      "display_name": "앱솔루트 제로",
+      "circle": 10,
+      "school": "elemental",
+      "element": "ice",
+      "skill_type": "active",
+      "role_tags": [
+        "burst",
+        "aoe",
+        "boss_burst",
+        "ice",
+        "finisher",
+        "control"
+      ],
+      "description": "절대영도 폭락을 일으켜 전장을 얼려 버리는 10서클 냉기 최종 궁극",
+      "max_level": 30,
+      "growth_tracks": [
+        "damage",
+        "range",
+        "duration"
+      ],
+      "unlock_state": "late_game",
+      "mana_cost_base": 61,
+      "cooldown_base": 11.1,
+      "cast_time": 0.15,
+      "hit_shape": "circle",
+      "range_base": 216,
+      "duration_base": 0.0,
+      "target_count_base": 12,
+      "pierce_count_base": 0,
+      "projectile_count_base": 0,
+      "tick_interval": 0.0,
+      "damage_formula": {
+        "formula_type": "hit",
+        "coefficient_base": 3.4,
+        "coefficient_per_level": 0.057,
+        "flat_base": 55,
+        "flat_per_level": 6
+      },
+      "utility_effects": [
+        {
+          "type": "freeze",
+          "chance": 1.0,
+          "value": 1.0,
+          "duration": 1.4
+        }
+      ],
+      "mana_reduction_per_level": 0.006,
+      "cooldown_reduction_per_level": 0.0045,
+      "duration_scale_per_level": 0.008,
+      "range_scale_per_level": 0.009,
+      "milestone_bonuses": [
+        {
+          "level": 10,
+          "stat": "range",
+          "value": 18
+        },
+        {
+          "level": 20,
+          "stat": "target_count",
+          "value": 1
+        },
+        {
+          "level": 30,
+          "stat": "damage",
+          "value": 24
+        }
+      ]
+    },
+    {
+      "skill_id": "wind_storm",
+      "canonical_skill_id": "wind_storm",
+      "display_name": "윈드 스톰",
+      "circle": 5,
+      "school": "elemental",
+      "element": "wind",
+      "skill_type": "active",
+      "role_tags": [
+        "burst",
+        "aoe",
+        "control",
+        "wind"
+      ],
+      "description": "격한 풍압 폭발을 즉시 터뜨려 적 무리를 흔들고 둔화시키는 5서클 바람 버스트",
+      "max_level": 30,
+      "growth_tracks": [
+        "damage",
+        "range",
+        "duration"
+      ],
+      "unlock_state": "story",
+      "mana_cost_base": 30,
+      "cooldown_base": 3.4,
+      "cast_time": 0.05,
+      "hit_shape": "circle",
+      "range_base": 148,
+      "duration_base": 0.0,
+      "target_count_base": 6,
+      "pierce_count_base": 0,
+      "projectile_count_base": 0,
+      "tick_interval": 0.0,
+      "damage_formula": {
+        "formula_type": "hit",
+        "coefficient_base": 2.02,
+        "coefficient_per_level": 0.04,
+        "flat_base": 32,
+        "flat_per_level": 4
+      },
+      "utility_effects": [
+        {
+          "type": "slow",
+          "chance": 1.0,
+          "value": 0.28,
+          "duration": 1.2
+        }
+      ],
+      "mana_reduction_per_level": 0.006,
+      "cooldown_reduction_per_level": 0.0045,
+      "duration_scale_per_level": 0.006,
+      "range_scale_per_level": 0.008,
+      "milestone_bonuses": [
+        {
+          "level": 10,
+          "stat": "range",
+          "value": 12
+        },
+        {
+          "level": 20,
+          "stat": "damage",
+          "value": 14
+        },
+        {
+          "level": 30,
+          "stat": "target_count",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "skill_id": "wind_heavenly_storm",
+      "canonical_skill_id": "wind_heavenly_storm",
+      "display_name": "헤븐리 스톰",
+      "circle": 9,
+      "school": "elemental",
+      "element": "wind",
+      "skill_type": "active",
+      "role_tags": [
+        "burst",
+        "aoe",
+        "control",
+        "wind",
+        "finisher"
+      ],
+      "description": "천상풍 폭발을 한 번에 터뜨려 넓은 범위를 쓸어내고 강한 둔화를 거는 9서클 바람 궁극",
+      "max_level": 30,
+      "growth_tracks": [
+        "damage",
+        "range",
+        "duration"
+      ],
+      "unlock_state": "late_game",
+      "mana_cost_base": 50,
+      "cooldown_base": 9.2,
+      "cast_time": 0.08,
+      "hit_shape": "circle",
+      "range_base": 188,
+      "duration_base": 0.0,
+      "target_count_base": 9,
+      "pierce_count_base": 0,
+      "projectile_count_base": 0,
+      "tick_interval": 0.0,
+      "damage_formula": {
+        "formula_type": "hit",
+        "coefficient_base": 2.92,
+        "coefficient_per_level": 0.052,
+        "flat_base": 46,
+        "flat_per_level": 6
+      },
+      "utility_effects": [
+        {
+          "type": "slow",
+          "chance": 1.0,
+          "value": 0.36,
+          "duration": 1.6
+        }
+      ],
+      "mana_reduction_per_level": 0.006,
+      "cooldown_reduction_per_level": 0.0045,
+      "duration_scale_per_level": 0.008,
+      "range_scale_per_level": 0.009,
+      "milestone_bonuses": [
+        {
+          "level": 10,
+          "stat": "range",
+          "value": 16
+        },
+        {
+          "level": 20,
+          "stat": "damage",
+          "value": 18
+        },
+        {
+          "level": 30,
+          "stat": "target_count",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "skill_id": "wind_sky_dominion",
+      "canonical_skill_id": "wind_sky_dominion",
+      "display_name": "스카이 도미니언",
+      "circle": 10,
+      "school": "elemental",
+      "element": "wind",
+      "skill_type": "toggle",
+      "role_tags": [
+        "aura",
+        "mobility",
+        "utility",
+        "wind",
+        "finisher",
+        "tempo"
+      ],
+      "description": "천공 기류를 두른 채 추가 점프와 체공 우위를 여는 10서클 바람 궁극 토글",
+      "max_level": 30,
+      "growth_tracks": [
+        "buff_power",
+        "range",
+        "duration"
+      ],
+      "unlock_state": "late_game",
+      "mana_cost_base": 16,
+      "cooldown_base": 1.0,
+      "cast_time": 0.0,
+      "hit_shape": "aura",
+      "range_base": 236,
+      "duration_base": 0.0,
+      "target_count_base": 0,
+      "pierce_count_base": 0,
+      "projectile_count_base": 0,
+      "tick_interval": 0.45,
+      "sustain_mana_cost_base": 6.5,
+      "sustain_mana_reduction_per_level": 0.006,
+      "sustain_mana_min_ratio": 0.65,
+      "damage_formula": {
+        "formula_type": "tick",
+        "coefficient_base": 0.0,
+        "coefficient_per_level": 0.0,
+        "flat_base": 0,
+        "flat_per_level": 0
+      },
+      "support_effects": [
+        {
+          "stat": "move_speed_multiplier",
+          "mode": "mul",
+          "value": 1.24
+        },
+        {
+          "stat": "jump_velocity_multiplier",
+          "mode": "mul",
+          "value": 1.16
+        },
+        {
+          "stat": "gravity_multiplier",
+          "mode": "mul",
+          "value": 0.72
+        },
+        {
+          "stat": "air_jump_bonus",
+          "mode": "add",
+          "value": 1
+        }
+      ],
+      "support_effect_duration_base": 0.72,
+      "mana_reduction_per_level": 0.006,
+      "cooldown_reduction_per_level": 0.0045,
+      "duration_scale_per_level": 0.0,
+      "range_scale_per_level": 0.008,
+      "move_speed_multiplier_per_level": 0.004,
+      "jump_velocity_multiplier_per_level": 0.003,
+      "gravity_multiplier_reduction_per_level": 0.002,
+      "milestone_bonuses": [
+        {
+          "level": 10,
+          "stat": "range",
+          "value": 18
+        },
+        {
+          "level": 20,
+          "stat": "cooldown",
+          "value": -0.08
+        },
+        {
+          "level": 30,
+          "stat": "range",
+          "value": 22
+        }
+      ],
+      "damage_cadence_reference_interval": 0.9
+    },
+    {
       "skill_id": "holy_crystal_aegis",
-      "display_name": "Crystal Aegis",
+      "canonical_skill_id": "holy_crystal_aegis",
+      "display_name": "크리스탈 이지스",
       "circle": 6,
       "school": "white",
       "element": "holy",
       "skill_type": "buff",
-      "role_tags": ["defense", "super_armor", "resist"],
-      "description": "고등 방어 강화와 상태 안정화",
+      "role_tags": [
+        "defense",
+        "super_armor",
+        "resist"
+      ],
+      "description": "피해 감소와 상태 안정화를 제공하는 상위 방어 버프",
       "max_level": 30,
-      "growth_tracks": ["duration", "buff_power"],
+      "growth_tracks": [
+        "duration",
+        "buff_power"
+      ],
       "unlock_state": "story",
       "mana_cost_base": 34,
       "cooldown_base": 40.0,
@@ -723,29 +3435,155 @@
       "stackable": true,
       "stack_rule_id": "default_diminishing_buff",
       "buff_effects": [
-        { "stat": "damage_taken_multiplier", "mode": "mul", "value": 0.7 },
-        { "stat": "super_armor_charges", "mode": "add", "value": 1 },
-        { "stat": "status_resistance", "mode": "add", "value": 0.25 }
+        {
+          "stat": "damage_taken_multiplier",
+          "mode": "mul",
+          "value": 0.7
+        },
+        {
+          "stat": "super_armor_charges",
+          "mode": "add",
+          "value": 1
+        },
+        {
+          "stat": "status_resistance",
+          "mode": "add",
+          "value": 0.25
+        },
+        {
+          "stat": "activation_visual_effect_id",
+          "mode": "set",
+          "value": "holy_guard_activation"
+        },
+        {
+          "stat": "activation_visual_scale",
+          "mode": "set",
+          "value": 1.08
+        },
+        {
+          "stat": "activation_visual_color",
+          "mode": "set",
+          "value": "#fff8d6"
+        },
+        {
+          "stat": "overlay_visual_effect_id",
+          "mode": "set",
+          "value": "holy_guard_overlay"
+        },
+        {
+          "stat": "overlay_visual_scale",
+          "mode": "set",
+          "value": 1.06
+        },
+        {
+          "stat": "overlay_visual_color",
+          "mode": "set",
+          "value": "#fff8d6"
+        }
       ],
       "downside_effects": [],
-      "combo_tags": ["guard", "holy"],
+      "combo_tags": [
+        "guard",
+        "holy"
+      ],
       "mana_reduction_per_level": 0.006,
       "cooldown_reduction_per_level": 0.0045,
       "duration_scale_per_level": 0.01,
+      "damage_taken_reduction_per_level": 0.004,
+      "status_resistance_per_level": 0.003,
       "range_scale_per_level": 0.0,
       "milestone_bonuses": []
     },
     {
+      "skill_id": "earth_fortress",
+      "canonical_skill_id": "earth_fortress",
+      "display_name": "어스 포트리스",
+      "circle": 6,
+      "school": "elemental",
+      "element": "earth",
+      "skill_type": "toggle",
+      "role_tags": [
+        "aura",
+        "defense",
+        "stability",
+        "resist"
+      ],
+      "description": "암반 성채를 몸 주위에 둘러 방어력과 안정성을 높이는 6서클 대지 방어 토글",
+      "max_level": 30,
+      "growth_tracks": [
+        "buff_power",
+        "range"
+      ],
+      "unlock_state": "story",
+      "mana_cost_base": 13,
+      "cooldown_base": 1.0,
+      "cast_time": 0.0,
+      "hit_shape": "aura",
+      "range_base": 168,
+      "duration_base": 0.0,
+      "target_count_base": 0,
+      "pierce_count_base": 0,
+      "projectile_count_base": 0,
+      "tick_interval": 0.6,
+      "sustain_mana_cost_base": 5.0,
+      "sustain_mana_reduction_per_level": 0.005,
+      "sustain_mana_min_ratio": 0.65,
+      "damage_formula": {
+        "formula_type": "tick",
+        "coefficient_base": 0.0,
+        "coefficient_per_level": 0.0,
+        "flat_base": 0,
+        "flat_per_level": 0
+      },
+      "support_effects": [
+        {
+          "stat": "defense_multiplier",
+          "mode": "mul",
+          "value": 1.24
+        },
+        {
+          "stat": "poise_bonus",
+          "mode": "add",
+          "value": 10
+        },
+        {
+          "stat": "status_resistance",
+          "mode": "add",
+          "value": 0.14
+        }
+      ],
+      "support_effect_duration_base": 0.85,
+      "mana_reduction_per_level": 0.006,
+      "cooldown_reduction_per_level": 0.0045,
+      "duration_scale_per_level": 0.0,
+      "range_scale_per_level": 0.008,
+      "defense_multiplier_per_level": 0.007,
+      "poise_bonus_per_level": 0.6,
+      "status_resistance_per_level": 0.004,
+      "milestone_bonuses": [],
+      "damage_cadence_reference_interval": 1.1
+    },
+    {
       "skill_id": "plant_worldroot_bastion",
-      "display_name": "Worldroot Bastion",
+      "canonical_skill_id": "plant_worldroot_bastion",
+      "display_name": "월드루트 바스천",
       "circle": 6,
       "school": "elemental",
       "element": "plant",
       "skill_type": "deploy",
-      "role_tags": ["deploy", "dot", "fortress"],
-      "description": "식물 성채를 설치해 적을 묶고 지속 피해",
+      "role_tags": [
+        "deploy",
+        "dot",
+        "fortress"
+      ],
+      "description": "구속과 누적 피해를 제공하는 식물 성채형 설치 스킬",
       "max_level": 30,
-      "growth_tracks": ["damage", "duration", "range", "targets"],
+      "growth_tracks": [
+        "damage",
+        "duration",
+        "range",
+        "targets"
+      ],
       "unlock_state": "story",
       "mana_cost_base": 36,
       "cooldown_base": 14.0,
@@ -756,30 +3594,66 @@
       "target_count_base": 5,
       "pierce_count_base": 0,
       "projectile_count_base": 0,
-      "tick_interval": 1.0,
-      "damage_formula": { "formula_type": "tick", "coefficient_base": 0.88, "coefficient_per_level": 0.014, "flat_base": 14, "flat_per_level": 0 },
-      "utility_effects": [{ "type": "root", "value": 1.0, "duration": 0.8 }],
+      "tick_interval": 0.6,
+      "damage_formula": {
+        "formula_type": "tick",
+        "coefficient_base": 0.88,
+        "coefficient_per_level": 0.014,
+        "flat_base": 14,
+        "flat_per_level": 0
+      },
+      "utility_effects": [
+        {
+          "type": "root",
+          "value": 1.0,
+          "duration": 0.8
+        }
+      ],
       "mana_reduction_per_level": 0.006,
       "cooldown_reduction_per_level": 0.0045,
       "duration_scale_per_level": 0.01,
       "range_scale_per_level": 0.008,
       "milestone_bonuses": [
-        { "level": 10, "stat": "target_count", "value": 1 },
-        { "level": 20, "stat": "target_count", "value": 1 },
-        { "level": 30, "stat": "target_count", "value": 1 }
-      ]
+        {
+          "level": 10,
+          "stat": "target_count",
+          "value": 1
+        },
+        {
+          "level": 20,
+          "stat": "target_count",
+          "value": 1
+        },
+        {
+          "level": 30,
+          "stat": "target_count",
+          "value": 1
+        }
+      ],
+      "damage_cadence_reference_interval": 1.0
     },
     {
       "skill_id": "fire_inferno_sigil",
-      "display_name": "Inferno Sigil",
+      "canonical_skill_id": "fire_inferno_sigil",
+      "display_name": "인페르노 시길",
       "circle": 7,
       "school": "elemental",
       "element": "fire",
       "skill_type": "deploy",
-      "role_tags": ["deploy", "burst", "ritual"],
-      "description": "대형 화염 마법진 반복 폭발",
+      "role_tags": [
+        "deploy",
+        "circle",
+        "burst",
+        "boss_burst",
+        "mob_clear"
+      ],
+      "description": "대형 화염 마법진의 반복 폭발로 보스와 무리를 함께 압박하는 7서클 화염 버스터",
       "max_level": 30,
-      "growth_tracks": ["damage", "range", "projectiles"],
+      "growth_tracks": [
+        "damage",
+        "range",
+        "projectiles"
+      ],
       "unlock_state": "boss",
       "mana_cost_base": 42,
       "cooldown_base": 18.0,
@@ -790,62 +3664,205 @@
       "target_count_base": 6,
       "pierce_count_base": 0,
       "projectile_count_base": 3,
-      "tick_interval": 2.0,
-      "damage_formula": { "formula_type": "hit", "coefficient_base": 2.2, "coefficient_per_level": 0.05, "flat_base": 36, "flat_per_level": 5 },
+      "tick_interval": 0.4,
+      "damage_formula": {
+        "formula_type": "hit",
+        "coefficient_base": 2.2,
+        "coefficient_per_level": 0.05,
+        "flat_base": 36,
+        "flat_per_level": 5
+      },
       "mana_reduction_per_level": 0.006,
       "cooldown_reduction_per_level": 0.0045,
       "duration_scale_per_level": 0.0,
       "range_scale_per_level": 0.008,
       "milestone_bonuses": [
-        { "level": 8, "stat": "projectile_count", "value": 1 },
-        { "level": 16, "stat": "projectile_count", "value": 1 },
-        { "level": 24, "stat": "projectile_count", "value": 1 },
-        { "level": 30, "stat": "projectile_count", "value": 1 }
-      ]
+        {
+          "level": 8,
+          "stat": "projectile_count",
+          "value": 1
+        },
+        {
+          "level": 16,
+          "stat": "projectile_count",
+          "value": 1
+        },
+        {
+          "level": 24,
+          "stat": "projectile_count",
+          "value": 1
+        },
+        {
+          "level": 30,
+          "stat": "projectile_count",
+          "value": 1
+        }
+      ],
+      "damage_cadence_reference_interval": 2.4
     },
     {
-      "skill_id": "holy_sanctuary_of_reversal",
-      "display_name": "Sanctuary of Reversal",
+      "skill_id": "wind_cyclone_prison",
+      "canonical_skill_id": "wind_cyclone_prison",
+      "display_name": "사이클론 프리즌",
       "circle": 7,
-      "school": "white",
-      "element": "holy",
+      "school": "elemental",
+      "element": "wind",
       "skill_type": "deploy",
-      "role_tags": ["deploy", "heal", "cleanse"],
-      "description": "회복과 정화 성역",
+      "role_tags": [
+        "deploy",
+        "control",
+        "aoe"
+      ],
+      "description": "준비 동작 뒤 적을 안쪽으로 끌어당기고 묶어 두는 회오리 감옥",
       "max_level": 30,
-      "growth_tracks": ["heal", "duration", "range"],
-      "unlock_state": "record",
-      "mana_cost_base": 40,
-      "cooldown_base": 24.0,
-      "cast_time": 0.2,
+      "growth_tracks": [
+        "damage",
+        "duration",
+        "range",
+        "targets"
+      ],
+      "unlock_state": "story",
+      "mana_cost_base": 36,
+      "cooldown_base": 10.0,
+      "cast_time": 0.15,
       "hit_shape": "circle",
-      "range_base": 170,
-      "duration_base": 8.0,
+      "range_base": 120,
+      "duration_base": 10.0,
       "target_count_base": 4,
       "pierce_count_base": 0,
       "projectile_count_base": 0,
-      "tick_interval": 1.0,
-      "damage_formula": { "formula_type": "heal", "coefficient_base": 0.55, "coefficient_per_level": 0.01, "flat_base": 12, "flat_per_level": 0 },
+      "knockback_base": 0.0,
+      "pull_strength_base": 140.0,
+      "tick_interval": 0.5,
+      "damage_formula": {
+        "formula_type": "tick",
+        "coefficient_base": 0.55,
+        "coefficient_per_level": 0.01,
+        "flat_base": 9,
+        "flat_per_level": 0
+      },
+      "utility_effects": [
+        {
+          "type": "slow",
+          "value": 0.28,
+          "duration": 1.1
+        },
+        {
+          "type": "root",
+          "value": 1.0,
+          "duration": 0.35
+        }
+      ],
       "mana_reduction_per_level": 0.006,
       "cooldown_reduction_per_level": 0.0045,
       "duration_scale_per_level": 0.01,
       "range_scale_per_level": 0.008,
+      "pull_strength_scale_per_level": 0.012,
+      "milestone_bonuses": [
+        {
+          "level": 10,
+          "stat": "target_count",
+          "value": 1
+        },
+        {
+          "level": 20,
+          "stat": "target_count",
+          "value": 1
+        },
+        {
+          "level": 30,
+          "stat": "target_count",
+          "value": 1
+        }
+      ],
+      "damage_cadence_reference_interval": 1.0
+    },
+    {
+      "skill_id": "holy_sanctuary_of_reversal",
+      "canonical_skill_id": "holy_sanctuary_of_reversal",
+      "display_name": "생츄어리 오브 리버설",
+      "circle": 7,
+      "school": "white",
+      "element": "holy",
+      "skill_type": "deploy",
+      "role_tags": [
+        "deploy",
+        "heal",
+        "defense",
+        "stability",
+        "utility"
+      ],
+      "description": "짧은 성역을 펼쳐 즉시 회복과 피해 경감을 묶어 전세를 뒤집는 7서클 백마법 생존기",
+      "max_level": 30,
+      "growth_tracks": [
+        "heal",
+        "duration",
+        "range",
+        "buff_power"
+      ],
+      "unlock_state": "record",
+      "mana_cost_base": 40,
+      "cooldown_base": 22.0,
+      "cast_time": 0.08,
+      "hit_shape": "circle",
+      "range_base": 156,
+      "duration_base": 2.4,
+      "target_count_base": 4,
+      "pierce_count_base": 0,
+      "projectile_count_base": 0,
+      "tick_interval": 0.35,
+      "damage_formula": {
+        "formula_type": "heal",
+        "coefficient_base": 1.32,
+        "coefficient_per_level": 0.026,
+        "flat_base": 22,
+        "flat_per_level": 0
+      },
+      "support_effects": [
+        {
+          "stat": "damage_taken_multiplier",
+          "mode": "mul",
+          "value": 0.62
+        },
+        {
+          "stat": "poise_bonus",
+          "mode": "add",
+          "value": 20
+        }
+      ],
+      "support_effect_duration_base": 0.7,
+      "mana_reduction_per_level": 0.006,
+      "cooldown_reduction_per_level": 0.0045,
+      "duration_scale_per_level": 0.01,
+      "range_scale_per_level": 0.008,
+      "self_heal_scale_per_level": 0.04,
+      "damage_taken_reduction_per_level": 0.003,
+      "poise_bonus_per_level": 1.0,
       "milestone_bonuses": []
     },
     {
       "skill_id": "dark_abyss_gate",
-      "display_name": "Abyss Gate",
+      "canonical_skill_id": "dark_abyss_gate",
+      "display_name": "어비스 게이트",
       "circle": 8,
       "school": "black",
       "element": "dark",
       "skill_type": "active",
-      "role_tags": ["pull", "burst", "aoe"],
-      "description": "적을 끌어당긴 뒤 폭발하는 심연 균열",
+      "role_tags": [
+        "pull",
+        "burst",
+        "aoe"
+      ],
+      "description": "적을 끌어당긴 뒤 폭발하는 흑마법 burst 프록시",
       "max_level": 30,
-      "growth_tracks": ["damage", "range", "targets"],
+      "growth_tracks": [
+        "damage",
+        "range",
+        "targets"
+      ],
       "unlock_state": "boss",
       "mana_cost_base": 48,
-      "cooldown_base": 20.0,
+      "cooldown_base": 0.45,
       "cast_time": 0.2,
       "hit_shape": "circle",
       "range_base": 160,
@@ -854,29 +3871,277 @@
       "pierce_count_base": 0,
       "projectile_count_base": 0,
       "tick_interval": 0.0,
-      "damage_formula": { "formula_type": "hit", "coefficient_base": 2.75, "coefficient_per_level": 0.055, "flat_base": 44, "flat_per_level": 5 },
-      "utility_effects": [{ "type": "pull", "value": 220, "duration": 0.5 }],
+      "damage_formula": {
+        "formula_type": "hit",
+        "coefficient_base": 2.75,
+        "coefficient_per_level": 0.055,
+        "flat_base": 44,
+        "flat_per_level": 5
+      },
+      "utility_effects": [
+        {
+          "type": "pull",
+          "value": 220,
+          "duration": 0.5
+        }
+      ],
       "mana_reduction_per_level": 0.006,
       "cooldown_reduction_per_level": 0.0045,
       "duration_scale_per_level": 0.0,
       "range_scale_per_level": 0.008,
       "milestone_bonuses": [
-        { "level": 10, "stat": "target_count", "value": 1 },
-        { "level": 20, "stat": "target_count", "value": 1 },
-        { "level": 30, "stat": "target_count", "value": 1 }
+        {
+          "level": 10,
+          "stat": "target_count",
+          "value": 1
+        },
+        {
+          "level": 20,
+          "stat": "target_count",
+          "value": 1
+        },
+        {
+          "level": 30,
+          "stat": "target_count",
+          "value": 1
+        }
       ]
     },
     {
+      "skill_id": "fire_hellfire_field",
+      "canonical_skill_id": "fire_hellfire_field",
+      "display_name": "헬파이어 필드",
+      "circle": 8,
+      "school": "elemental",
+      "element": "fire",
+      "skill_type": "deploy",
+      "role_tags": [
+        "deploy",
+        "dot",
+        "aoe",
+        "boss_burst",
+        "field_control"
+      ],
+      "description": "넓은 헬파이어 영역을 남겨 반복 폭염 타격으로 전장을 지배하는 8서클 화염 필드",
+      "max_level": 30,
+      "growth_tracks": [
+        "damage",
+        "duration",
+        "range",
+        "targets"
+      ],
+      "unlock_state": "boss",
+      "mana_cost_base": 46,
+      "cooldown_base": 18.0,
+      "cast_time": 0.2,
+      "hit_shape": "circle",
+      "range_base": 196,
+      "duration_base": 8.0,
+      "target_count_base": 6,
+      "pierce_count_base": 0,
+      "projectile_count_base": 0,
+      "tick_interval": 0.5,
+      "damage_formula": {
+        "formula_type": "tick",
+        "coefficient_base": 1.08,
+        "coefficient_per_level": 0.017,
+        "flat_base": 18,
+        "flat_per_level": 0
+      },
+      "utility_effects": [
+        {
+          "type": "burn",
+          "value": 1.0,
+          "duration": 1.4
+        }
+      ],
+      "mana_reduction_per_level": 0.006,
+      "cooldown_reduction_per_level": 0.0045,
+      "duration_scale_per_level": 0.01,
+      "range_scale_per_level": 0.008,
+      "milestone_bonuses": [
+        {
+          "level": 10,
+          "stat": "target_count",
+          "value": 1
+        },
+        {
+          "level": 20,
+          "stat": "target_count",
+          "value": 1
+        },
+        {
+          "level": 30,
+          "stat": "target_count",
+          "value": 1
+        }
+      ],
+      "damage_cadence_reference_interval": 1.0
+    },
+    {
+      "skill_id": "wind_storm_zone",
+      "canonical_skill_id": "wind_storm_zone",
+      "display_name": "스톰 존",
+      "circle": 8,
+      "school": "elemental",
+      "element": "wind",
+      "skill_type": "toggle",
+      "role_tags": [
+        "aura",
+        "control",
+        "utility",
+        "wind"
+      ],
+      "description": "폭풍 기류장을 유지해 근처 적을 둔화시키고 중심부로 끌어당기는 8서클 바람 제어 존",
+      "max_level": 30,
+      "growth_tracks": [
+        "damage",
+        "range",
+        "targets"
+      ],
+      "unlock_state": "late_game",
+      "mana_cost_base": 12,
+      "cooldown_base": 1.0,
+      "cast_time": 0.0,
+      "hit_shape": "aura",
+      "range_base": 196,
+      "duration_base": 0.0,
+      "target_count_base": 5,
+      "pierce_count_base": 0,
+      "projectile_count_base": 0,
+      "pull_strength_base": 132.0,
+      "tick_interval": 0.5,
+      "sustain_mana_cost_base": 5.0,
+      "sustain_mana_reduction_per_level": 0.005,
+      "sustain_mana_min_ratio": 0.65,
+      "damage_formula": {
+        "formula_type": "tick",
+        "coefficient_base": 0.94,
+        "coefficient_per_level": 0.015,
+        "flat_base": 14,
+        "flat_per_level": 0
+      },
+      "utility_effects": [
+        {
+          "type": "slow",
+          "value": 0.24,
+          "duration": 1.0
+        }
+      ],
+      "mana_reduction_per_level": 0.006,
+      "cooldown_reduction_per_level": 0.0045,
+      "duration_scale_per_level": 0.0,
+      "range_scale_per_level": 0.008,
+      "pull_strength_scale_per_level": 0.01,
+      "milestone_bonuses": [
+        {
+          "level": 10,
+          "stat": "target_count",
+          "value": 1
+        },
+        {
+          "level": 20,
+          "stat": "target_count",
+          "value": 1
+        },
+        {
+          "level": 30,
+          "stat": "target_count",
+          "value": 1
+        }
+      ],
+      "damage_cadence_reference_interval": 1.0
+    },
+    {
+      "skill_id": "plant_world_root",
+      "canonical_skill_id": "plant_world_root",
+      "display_name": "월드 루트",
+      "circle": 8,
+      "school": "elemental",
+      "element": "plant",
+      "skill_type": "deploy",
+      "role_tags": [
+        "deploy",
+        "bind",
+        "control",
+        "plant"
+      ],
+      "description": "광역 뿌리장을 설치해 적을 묶고 누적 피해를 주는 8서클 자연 설치기",
+      "max_level": 30,
+      "growth_tracks": [
+        "damage",
+        "duration",
+        "range",
+        "targets"
+      ],
+      "unlock_state": "late_game",
+      "mana_cost_base": 42,
+      "cooldown_base": 18.0,
+      "cast_time": 0.2,
+      "hit_shape": "circle",
+      "range_base": 186,
+      "duration_base": 8.0,
+      "target_count_base": 6,
+      "pierce_count_base": 0,
+      "projectile_count_base": 0,
+      "tick_interval": 0.5,
+      "damage_formula": {
+        "formula_type": "tick",
+        "coefficient_base": 1.02,
+        "coefficient_per_level": 0.016,
+        "flat_base": 17,
+        "flat_per_level": 0
+      },
+      "utility_effects": [
+        {
+          "type": "root",
+          "value": 1.0,
+          "duration": 0.9
+        }
+      ],
+      "mana_reduction_per_level": 0.006,
+      "cooldown_reduction_per_level": 0.0045,
+      "duration_scale_per_level": 0.01,
+      "range_scale_per_level": 0.008,
+      "milestone_bonuses": [
+        {
+          "level": 10,
+          "stat": "target_count",
+          "value": 1
+        },
+        {
+          "level": 20,
+          "stat": "target_count",
+          "value": 1
+        },
+        {
+          "level": 30,
+          "stat": "target_count",
+          "value": 1
+        }
+      ],
+      "damage_cadence_reference_interval": 1.0
+    },
+    {
       "skill_id": "ice_glacial_dominion",
-      "display_name": "Glacial Dominion",
+      "canonical_skill_id": "ice_frozen_domain",
+      "display_name": "프로즌 도메인",
       "circle": 8,
       "school": "elemental",
       "element": "ice",
       "skill_type": "toggle",
-      "role_tags": ["aura", "dot", "slow"],
-      "description": "주변을 얼려 둔화와 다중 타격을 유도",
+      "role_tags": [
+        "aura",
+        "dot",
+        "slow"
+      ],
+      "description": "범위 CC 필드를 시연하는 냉기 토글 오라 프록시",
       "max_level": 30,
-      "growth_tracks": ["damage", "range", "targets"],
+      "growth_tracks": [
+        "damage",
+        "range",
+        "targets"
+      ],
       "unlock_state": "late_game",
       "mana_cost_base": 12,
       "cooldown_base": 1.0,
@@ -887,33 +4152,68 @@
       "target_count_base": 5,
       "pierce_count_base": 0,
       "projectile_count_base": 0,
-      "tick_interval": 1.0,
+      "tick_interval": 0.5,
       "sustain_mana_cost_base": 4.0,
       "sustain_mana_reduction_per_level": 0.005,
       "sustain_mana_min_ratio": 0.65,
-      "damage_formula": { "formula_type": "tick", "coefficient_base": 1.02, "coefficient_per_level": 0.016, "flat_base": 16, "flat_per_level": 0 },
-      "utility_effects": [{ "type": "slow", "value": 0.28, "duration": 1.0 }],
+      "damage_formula": {
+        "formula_type": "tick",
+        "coefficient_base": 1.02,
+        "coefficient_per_level": 0.016,
+        "flat_base": 16,
+        "flat_per_level": 0
+      },
+      "utility_effects": [
+        {
+          "type": "slow",
+          "value": 0.28,
+          "duration": 1.0
+        }
+      ],
       "mana_reduction_per_level": 0.006,
       "cooldown_reduction_per_level": 0.0045,
       "duration_scale_per_level": 0.0,
       "range_scale_per_level": 0.008,
       "milestone_bonuses": [
-        { "level": 10, "stat": "target_count", "value": 1 },
-        { "level": 20, "stat": "target_count", "value": 1 },
-        { "level": 30, "stat": "target_count", "value": 1 }
-      ]
+        {
+          "level": 10,
+          "stat": "target_count",
+          "value": 1
+        },
+        {
+          "level": 20,
+          "stat": "target_count",
+          "value": 1
+        },
+        {
+          "level": 30,
+          "stat": "target_count",
+          "value": 1
+        }
+      ],
+      "damage_cadence_reference_interval": 1.0
     },
     {
       "skill_id": "lightning_tempest_crown",
-      "display_name": "Tempest Crown",
+      "canonical_skill_id": "lightning_tempest_crown",
+      "display_name": "템페스트 크라운",
       "circle": 9,
       "school": "elemental",
       "element": "lightning",
       "skill_type": "toggle",
-      "role_tags": ["aura", "chain", "auto_strike"],
-      "description": "자동 번개 낙하와 연쇄 타격",
+      "role_tags": [
+        "aura",
+        "chain",
+        "auto_strike"
+      ],
+      "description": "자동 번개 낙하와 연쇄 타격을 제공하는 전기 토글 오라",
       "max_level": 30,
-      "growth_tracks": ["damage", "range", "targets", "pierce"],
+      "growth_tracks": [
+        "damage",
+        "range",
+        "targets",
+        "pierce"
+      ],
       "unlock_state": "late_game",
       "mana_cost_base": 14,
       "cooldown_base": 1.0,
@@ -924,37 +4224,148 @@
       "target_count_base": 6,
       "pierce_count_base": 2,
       "projectile_count_base": 0,
-      "tick_interval": 1.2,
+      "tick_interval": 0.4,
       "sustain_mana_cost_base": 6.0,
       "sustain_mana_reduction_per_level": 0.006,
       "sustain_mana_min_ratio": 0.65,
-      "damage_formula": { "formula_type": "hit", "coefficient_base": 1.85, "coefficient_per_level": 0.018, "flat_base": 24, "flat_per_level": 0 },
+      "damage_formula": {
+        "formula_type": "hit",
+        "coefficient_base": 1.85,
+        "coefficient_per_level": 0.018,
+        "flat_base": 24,
+        "flat_per_level": 0
+      },
       "mana_reduction_per_level": 0.006,
       "cooldown_reduction_per_level": 0.0045,
       "duration_scale_per_level": 0.0,
       "range_scale_per_level": 0.008,
       "milestone_bonuses": [
-        { "level": 10, "stat": "target_count", "value": 1 },
-        { "level": 20, "stat": "target_count", "value": 1 },
-        { "level": 30, "stat": "target_count", "value": 1 },
-        { "level": 12, "stat": "pierce_count", "value": 1 },
-        { "level": 24, "stat": "pierce_count", "value": 1 }
+        {
+          "level": 10,
+          "stat": "target_count",
+          "value": 1
+        },
+        {
+          "level": 20,
+          "stat": "target_count",
+          "value": 1
+        },
+        {
+          "level": 30,
+          "stat": "target_count",
+          "value": 1
+        },
+        {
+          "level": 12,
+          "stat": "pierce_count",
+          "value": 1
+        },
+        {
+          "level": 24,
+          "stat": "pierce_count",
+          "value": 1
+        }
+      ],
+      "damage_cadence_reference_interval": 1.2
+    },
+    {
+      "skill_id": "holy_seraph_chorus",
+      "canonical_skill_id": "holy_seraph_chorus",
+      "display_name": "세라프 코러스",
+      "circle": 8,
+      "school": "white",
+      "element": "holy",
+      "skill_type": "toggle",
+      "role_tags": [
+        "aura",
+        "heal",
+        "stability",
+        "utility"
+      ],
+      "description": "성가를 둘러 성광 파동으로 적을 타격하고 시전자를 치유/안정화하는 8서클 백마법 혼합 오라",
+      "max_level": 30,
+      "growth_tracks": [
+        "damage",
+        "heal",
+        "range",
+        "targets"
+      ],
+      "unlock_state": "late_game",
+      "mana_cost_base": 13,
+      "cooldown_base": 1.0,
+      "cast_time": 0.0,
+      "hit_shape": "aura",
+      "range_base": 184,
+      "duration_base": 0.0,
+      "target_count_base": 5,
+      "pierce_count_base": 0,
+      "projectile_count_base": 0,
+      "tick_interval": 1.1,
+      "sustain_mana_cost_base": 5.0,
+      "sustain_mana_reduction_per_level": 0.005,
+      "sustain_mana_min_ratio": 0.65,
+      "damage_formula": {
+        "formula_type": "tick",
+        "coefficient_base": 0.72,
+        "coefficient_per_level": 0.012,
+        "flat_base": 12,
+        "flat_per_level": 0
+      },
+      "self_heal_base": 7,
+      "support_effects": [
+        {
+          "stat": "poise_bonus",
+          "mode": "add",
+          "value": 14
+        }
+      ],
+      "support_effect_duration_base": 0.9,
+      "mana_reduction_per_level": 0.006,
+      "cooldown_reduction_per_level": 0.0045,
+      "duration_scale_per_level": 0.0,
+      "range_scale_per_level": 0.008,
+      "self_heal_scale_per_level": 0.03,
+      "poise_bonus_per_level": 1.0,
+      "milestone_bonuses": [
+        {
+          "level": 10,
+          "stat": "target_count",
+          "value": 1
+        },
+        {
+          "level": 20,
+          "stat": "target_count",
+          "value": 1
+        },
+        {
+          "level": 30,
+          "stat": "target_count",
+          "value": 1
+        }
       ]
     },
     {
       "skill_id": "earth_terra_break",
-      "display_name": "Terra Break",
+      "canonical_skill_id": "earth_quake_break",
+      "display_name": "퀘이크 브레이크",
       "circle": 9,
       "school": "elemental",
       "element": "earth",
       "skill_type": "active",
-      "role_tags": ["line", "burst", "heavy"],
-      "description": "지면 대균열 폭파",
+      "role_tags": [
+        "line",
+        "burst",
+        "heavy"
+      ],
+      "description": "광역 기절을 시연하는 대지 burst 프록시",
       "max_level": 30,
-      "growth_tracks": ["damage", "range"],
+      "growth_tracks": [
+        "damage",
+        "range"
+      ],
       "unlock_state": "late_game",
       "mana_cost_base": 52,
-      "cooldown_base": 22.0,
+      "cooldown_base": 0.9,
       "cast_time": 0.25,
       "hit_shape": "line",
       "range_base": 260,
@@ -963,7 +4374,13 @@
       "pierce_count_base": 0,
       "projectile_count_base": 0,
       "tick_interval": 0.0,
-      "damage_formula": { "formula_type": "hit", "coefficient_base": 3.0, "coefficient_per_level": 0.06, "flat_base": 48, "flat_per_level": 6 },
+      "damage_formula": {
+        "formula_type": "hit",
+        "coefficient_base": 3.0,
+        "coefficient_per_level": 0.06,
+        "flat_base": 48,
+        "flat_per_level": 6
+      },
       "mana_reduction_per_level": 0.006,
       "cooldown_reduction_per_level": 0.0045,
       "duration_scale_per_level": 0.0,
@@ -972,15 +4389,26 @@
     },
     {
       "skill_id": "plant_genesis_arbor",
-      "display_name": "Genesis Arbor",
+      "canonical_skill_id": "plant_genesis_arbor",
+      "display_name": "제네시스 아버",
       "circle": 10,
       "school": "elemental",
       "element": "plant",
       "skill_type": "deploy",
-      "role_tags": ["deploy", "dot", "bind", "summon"],
-      "description": "거목을 소환해 광역 구속과 연속 타격",
+      "role_tags": [
+        "deploy",
+        "dot",
+        "bind",
+        "summon"
+      ],
+      "description": "거목을 소환해 광역 구속과 연속 타격을 가하는 최종 자연 설치기",
       "max_level": 30,
-      "growth_tracks": ["damage", "duration", "range", "targets"],
+      "growth_tracks": [
+        "damage",
+        "duration",
+        "range",
+        "targets"
+      ],
       "unlock_state": "late_game",
       "mana_cost_base": 60,
       "cooldown_base": 28.0,
@@ -991,30 +4419,65 @@
       "target_count_base": 8,
       "pierce_count_base": 0,
       "projectile_count_base": 0,
-      "tick_interval": 1.0,
-      "damage_formula": { "formula_type": "tick", "coefficient_base": 1.28, "coefficient_per_level": 0.02, "flat_base": 20, "flat_per_level": 0 },
-      "utility_effects": [{ "type": "root", "value": 1.0, "duration": 1.0 }],
+      "tick_interval": 0.4,
+      "damage_formula": {
+        "formula_type": "tick",
+        "coefficient_base": 1.28,
+        "coefficient_per_level": 0.02,
+        "flat_base": 20,
+        "flat_per_level": 0
+      },
+      "utility_effects": [
+        {
+          "type": "root",
+          "value": 1.0,
+          "duration": 1.0
+        }
+      ],
       "mana_reduction_per_level": 0.006,
       "cooldown_reduction_per_level": 0.0045,
       "duration_scale_per_level": 0.01,
       "range_scale_per_level": 0.008,
       "milestone_bonuses": [
-        { "level": 10, "stat": "target_count", "value": 1 },
-        { "level": 20, "stat": "target_count", "value": 1 },
-        { "level": 30, "stat": "target_count", "value": 1 }
-      ]
+        {
+          "level": 10,
+          "stat": "target_count",
+          "value": 1
+        },
+        {
+          "level": 20,
+          "stat": "target_count",
+          "value": 1
+        },
+        {
+          "level": 30,
+          "stat": "target_count",
+          "value": 1
+        }
+      ],
+      "damage_cadence_reference_interval": 1.0
     },
     {
       "skill_id": "dark_soul_dominion",
-      "display_name": "Soul Dominion",
+      "canonical_skill_id": "dark_soul_dominion",
+      "display_name": "소울 도미니언",
       "circle": 10,
       "school": "black",
       "element": "dark",
       "skill_type": "toggle",
-      "role_tags": ["aura", "rule_break", "finisher"],
-      "description": "최종 단계 전투 규칙 변경",
+      "role_tags": [
+        "aura",
+        "rule_break",
+        "finisher"
+      ],
+      "description": "규칙 변조와 하이리스크 피니셔 압박을 제공하는 흑마법 토글 오라",
       "max_level": 30,
-      "growth_tracks": ["damage", "duration", "range", "targets"],
+      "growth_tracks": [
+        "damage",
+        "duration",
+        "range",
+        "targets"
+      ],
       "unlock_state": "late_game",
       "mana_cost_base": 18,
       "cooldown_base": 45.0,
@@ -1025,36 +4488,73 @@
       "target_count_base": 8,
       "pierce_count_base": 0,
       "projectile_count_base": 0,
-      "tick_interval": 1.0,
+      "tick_interval": 0.4,
       "sustain_mana_cost_base": 9.0,
       "sustain_mana_reduction_per_level": 0.007,
       "sustain_mana_min_ratio": 0.6,
-      "damage_formula": { "formula_type": "tick", "coefficient_base": 1.65, "coefficient_per_level": 0.022, "flat_base": 26, "flat_per_level": 0 },
+      "damage_formula": {
+        "formula_type": "tick",
+        "coefficient_base": 1.65,
+        "coefficient_per_level": 0.022,
+        "flat_base": 26,
+        "flat_per_level": 0
+      },
       "downside_effects": [
-        { "stat": "mana_regen_multiplier", "mode": "mul", "value": 0.0, "duration": 6.0 },
-        { "stat": "damage_taken_multiplier", "mode": "mul", "value": 1.2, "duration": 6.0 }
+        {
+          "stat": "mana_regen_multiplier",
+          "mode": "mul",
+          "value": 0.0,
+          "duration": 6.0
+        },
+        {
+          "stat": "damage_taken_multiplier",
+          "mode": "mul",
+          "value": 1.2,
+          "duration": 6.0
+        }
       ],
       "mana_reduction_per_level": 0.006,
       "cooldown_reduction_per_level": 0.0045,
       "duration_scale_per_level": 0.01,
       "range_scale_per_level": 0.008,
       "milestone_bonuses": [
-        { "level": 10, "stat": "target_count", "value": 1 },
-        { "level": 20, "stat": "target_count", "value": 1 },
-        { "level": 30, "stat": "target_count", "value": 1 }
-      ]
+        {
+          "level": 10,
+          "stat": "target_count",
+          "value": 1
+        },
+        {
+          "level": 20,
+          "stat": "target_count",
+          "value": 1
+        },
+        {
+          "level": 30,
+          "stat": "target_count",
+          "value": 1
+        }
+      ],
+      "damage_cadence_reference_interval": 1.0
     },
     {
       "skill_id": "fire_pyre_heart",
-      "display_name": "Pyre Heart",
+      "canonical_skill_id": "fire_pyre_heart",
+      "display_name": "파이어 하트",
       "circle": 4,
       "school": "elemental",
       "element": "fire",
       "skill_type": "buff",
-      "role_tags": ["offense", "fire", "burst"],
-      "description": "화염 폭딜 시동 버프",
+      "role_tags": [
+        "offense",
+        "fire",
+        "burst"
+      ],
+      "description": "화염 폭딜 창구를 여는 4서클 화염 공격 버프",
       "max_level": 30,
-      "growth_tracks": ["duration", "buff_power"],
+      "growth_tracks": [
+        "duration",
+        "buff_power"
+      ],
       "unlock_state": "story",
       "mana_cost_base": 24,
       "cooldown_base": 34.0,
@@ -1064,30 +4564,85 @@
       "stackable": true,
       "stack_rule_id": "default_diminishing_buff",
       "buff_effects": [
-        { "stat": "fire_final_damage_multiplier", "mode": "mul", "value": 1.16 },
-        { "stat": "fire_melee_burst", "mode": "add", "value": 1 }
+        {
+          "stat": "activation_visual_effect_id",
+          "mode": "set",
+          "value": "pyre_heart_activation"
+        },
+        {
+          "stat": "activation_visual_scale",
+          "mode": "set",
+          "value": 1.02
+        },
+        {
+          "stat": "activation_visual_color",
+          "mode": "set",
+          "value": "#ffb47f"
+        },
+        {
+          "stat": "overlay_visual_effect_id",
+          "mode": "set",
+          "value": "pyre_heart_overlay"
+        },
+        {
+          "stat": "overlay_visual_scale",
+          "mode": "set",
+          "value": 0.98
+        },
+        {
+          "stat": "overlay_visual_color",
+          "mode": "set",
+          "value": "#ffd8c2"
+        },
+        {
+          "stat": "fire_final_damage_multiplier",
+          "mode": "mul",
+          "value": 1.16
+        },
+        {
+          "stat": "fire_melee_burst",
+          "mode": "add",
+          "value": 1
+        }
       ],
       "downside_effects": [
-        { "stat": "self_burn", "mode": "add", "value": 1, "duration": 4.0 }
+        {
+          "stat": "self_burn",
+          "mode": "add",
+          "value": 1,
+          "duration": 4.0
+        }
       ],
-      "combo_tags": ["fire", "ignition"],
+      "combo_tags": [
+        "fire",
+        "ignition"
+      ],
       "mana_reduction_per_level": 0.006,
       "cooldown_reduction_per_level": 0.0045,
       "duration_scale_per_level": 0.01,
+      "fire_final_damage_multiplier_per_level": 0.003,
       "range_scale_per_level": 0.0,
       "milestone_bonuses": []
     },
     {
       "skill_id": "ice_frostblood_ward",
-      "display_name": "Frostblood Ward",
+      "canonical_skill_id": "ice_frostblood_ward",
+      "display_name": "프로스트블러드 워드",
       "circle": 4,
       "school": "elemental",
       "element": "ice",
       "skill_type": "buff",
-      "role_tags": ["defense", "ice", "reflect"],
-      "description": "빙결 제어와 안정성 강화",
+      "role_tags": [
+        "defense",
+        "ice",
+        "reflect"
+      ],
+      "description": "빙결 제어와 반사 파동으로 안정성을 높이는 4서클 냉기 방어 버프",
       "max_level": 30,
-      "growth_tracks": ["duration", "buff_power"],
+      "growth_tracks": [
+        "duration",
+        "buff_power"
+      ],
       "unlock_state": "story",
       "mana_cost_base": 24,
       "cooldown_base": 32.0,
@@ -1097,30 +4652,110 @@
       "stackable": true,
       "stack_rule_id": "default_diminishing_buff",
       "buff_effects": [
-        { "stat": "ice_status_duration_multiplier", "mode": "mul", "value": 1.2 },
-        { "stat": "ice_reflect_wave", "mode": "add", "value": 1 }
+        {
+          "stat": "activation_visual_effect_id",
+          "mode": "set",
+          "value": "frostblood_ward_activation"
+        },
+        {
+          "stat": "activation_visual_scale",
+          "mode": "set",
+          "value": 1.04
+        },
+        {
+          "stat": "activation_visual_color",
+          "mode": "set",
+          "value": "#c9f4ff"
+        },
+        {
+          "stat": "overlay_visual_effect_id",
+          "mode": "set",
+          "value": "frostblood_ward_overlay"
+        },
+        {
+          "stat": "overlay_visual_scale",
+          "mode": "set",
+          "value": 1.02
+        },
+        {
+          "stat": "overlay_visual_color",
+          "mode": "set",
+          "value": "#e3fbff"
+        },
+        {
+          "stat": "ice_status_duration_multiplier",
+          "mode": "mul",
+          "value": 1.2
+        },
+        {
+          "stat": "ice_reflect_wave",
+          "mode": "add",
+          "value": 1
+        },
+        {
+          "stat": "ice_reflect_wave_effect_id",
+          "mode": "set",
+          "value": "ice_reflect_wave"
+        },
+        {
+          "stat": "ice_reflect_wave_damage_ratio",
+          "mode": "set",
+          "value": 0.35
+        },
+        {
+          "stat": "ice_reflect_wave_radius",
+          "mode": "set",
+          "value": 60.0
+        },
+        {
+          "stat": "ice_reflect_wave_school",
+          "mode": "set",
+          "value": "ice"
+        },
+        {
+          "stat": "ice_reflect_wave_color",
+          "mode": "set",
+          "value": "#b8e8ff"
+        }
       ],
       "downside_effects": [
-        { "stat": "move_speed_multiplier", "mode": "mul", "value": 0.85, "duration": 5.0 }
+        {
+          "stat": "move_speed_multiplier",
+          "mode": "mul",
+          "value": 0.85,
+          "duration": 5.0
+        }
       ],
-      "combo_tags": ["ice", "ward"],
+      "combo_tags": [
+        "ice",
+        "ward"
+      ],
       "mana_reduction_per_level": 0.006,
       "cooldown_reduction_per_level": 0.0045,
       "duration_scale_per_level": 0.01,
+      "ice_status_duration_multiplier_per_level": 0.004,
       "range_scale_per_level": 0.0,
       "milestone_bonuses": []
     },
     {
       "skill_id": "lightning_conductive_surge",
-      "display_name": "Conductive Surge",
+      "canonical_skill_id": "lightning_conductive_surge",
+      "display_name": "컨덕티브 서지",
       "circle": 5,
       "school": "elemental",
       "element": "lightning",
       "skill_type": "buff",
-      "role_tags": ["offense", "lightning", "chain"],
-      "description": "번개 폭딜 보조",
+      "role_tags": [
+        "offense",
+        "lightning",
+        "chain"
+      ],
+      "description": "연쇄 강화와 추가 전하 파동으로 폭딜 창을 여는 5서클 전기 버프",
       "max_level": 30,
-      "growth_tracks": ["duration", "buff_power"],
+      "growth_tracks": [
+        "duration",
+        "buff_power"
+      ],
       "unlock_state": "story",
       "mana_cost_base": 30,
       "cooldown_base": 38.0,
@@ -1130,31 +4765,116 @@
       "stackable": true,
       "stack_rule_id": "default_diminishing_buff",
       "buff_effects": [
-        { "stat": "lightning_final_damage_multiplier", "mode": "mul", "value": 1.18 },
-        { "stat": "chain_bonus", "mode": "add", "value": 1 },
-        { "stat": "extra_lightning_ping", "mode": "add", "value": 1 }
+        {
+          "stat": "lightning_final_damage_multiplier",
+          "mode": "mul",
+          "value": 1.18
+        },
+        {
+          "stat": "chain_bonus",
+          "mode": "add",
+          "value": 1
+        },
+        {
+          "stat": "extra_lightning_ping",
+          "mode": "add",
+          "value": 1
+        },
+        {
+          "stat": "lightning_ping_effect_id",
+          "mode": "set",
+          "value": "lightning_ping"
+        },
+        {
+          "stat": "lightning_ping_damage_ratio",
+          "mode": "set",
+          "value": 0.45
+        },
+        {
+          "stat": "lightning_ping_radius",
+          "mode": "set",
+          "value": 52.0
+        },
+        {
+          "stat": "lightning_ping_school",
+          "mode": "set",
+          "value": "lightning"
+        },
+        {
+          "stat": "lightning_ping_color",
+          "mode": "set",
+          "value": "#a8c8ff"
+        },
+        {
+          "stat": "activation_visual_effect_id",
+          "mode": "set",
+          "value": "conductive_surge_activation"
+        },
+        {
+          "stat": "activation_visual_scale",
+          "mode": "set",
+          "value": 1.08
+        },
+        {
+          "stat": "activation_visual_color",
+          "mode": "set",
+          "value": "#fff2a6"
+        },
+        {
+          "stat": "overlay_visual_effect_id",
+          "mode": "set",
+          "value": "conductive_surge_overlay"
+        },
+        {
+          "stat": "overlay_visual_scale",
+          "mode": "set",
+          "value": 1.02
+        },
+        {
+          "stat": "overlay_visual_color",
+          "mode": "set",
+          "value": "#fff7c7"
+        }
       ],
       "downside_effects": [
-        { "stat": "mana_regen_multiplier", "mode": "mul", "value": 0.0, "duration": 6.0 }
+        {
+          "stat": "mana_regen_multiplier",
+          "mode": "mul",
+          "value": 0.0,
+          "duration": 6.0
+        }
       ],
-      "combo_tags": ["lightning", "tempo"],
+      "combo_tags": [
+        "lightning",
+        "tempo"
+      ],
       "mana_reduction_per_level": 0.006,
       "cooldown_reduction_per_level": 0.0045,
       "duration_scale_per_level": 0.01,
+      "lightning_final_damage_multiplier_per_level": 0.004,
       "range_scale_per_level": 0.0,
       "milestone_bonuses": []
     },
     {
       "skill_id": "dark_grave_pact",
-      "display_name": "Grave Pact",
+      "canonical_skill_id": "dark_grave_pact",
+      "display_name": "그레이브 팩트",
       "circle": 6,
       "school": "black",
       "element": "dark",
       "skill_type": "buff",
-      "role_tags": ["offense", "dark", "drain"],
-      "description": "리스크를 동반한 흑마법 증폭",
+      "role_tags": [
+        "ritual",
+        "offense",
+        "dark",
+        "drain"
+      ],
+      "description": "생명을 태워 흑마법 폭딜과 처치 흡수를 여는 6서클 리스크 버프",
       "max_level": 30,
-      "growth_tracks": ["duration", "buff_power"],
+      "growth_tracks": [
+        "duration",
+        "buff_power"
+      ],
       "unlock_state": "story",
       "mana_cost_base": 34,
       "cooldown_base": 42.0,
@@ -1164,30 +4884,84 @@
       "stackable": true,
       "stack_rule_id": "default_diminishing_buff",
       "buff_effects": [
-        { "stat": "dark_final_damage_multiplier", "mode": "mul", "value": 1.18 },
-        { "stat": "kill_leech", "mode": "add", "value": 1 }
+        {
+          "stat": "activation_visual_effect_id",
+          "mode": "set",
+          "value": "grave_pact_activation"
+        },
+        {
+          "stat": "activation_visual_scale",
+          "mode": "set",
+          "value": 1.02
+        },
+        {
+          "stat": "activation_visual_color",
+          "mode": "set",
+          "value": "#b58ad1"
+        },
+        {
+          "stat": "overlay_visual_effect_id",
+          "mode": "set",
+          "value": "grave_pact_overlay"
+        },
+        {
+          "stat": "overlay_visual_scale",
+          "mode": "set",
+          "value": 1.0
+        },
+        {
+          "stat": "overlay_visual_color",
+          "mode": "set",
+          "value": "#d5c0e6"
+        },
+        {
+          "stat": "dark_final_damage_multiplier",
+          "mode": "mul",
+          "value": 1.18
+        },
+        {
+          "stat": "kill_leech",
+          "mode": "add",
+          "value": 1
+        }
       ],
       "downside_effects": [
-        { "stat": "hp_drain_percent_per_second", "mode": "add", "value": 0.015 }
+        {
+          "stat": "hp_drain_percent_per_second",
+          "mode": "add",
+          "value": 0.015
+        }
       ],
-      "combo_tags": ["dark", "ritual"],
+      "combo_tags": [
+        "dark",
+        "ritual"
+      ],
       "mana_reduction_per_level": 0.006,
       "cooldown_reduction_per_level": 0.0045,
       "duration_scale_per_level": 0.01,
+      "dark_final_damage_multiplier_per_level": 0.004,
       "range_scale_per_level": 0.0,
       "milestone_bonuses": []
     },
     {
       "skill_id": "plant_verdant_overflow",
-      "display_name": "Verdant Overflow",
+      "canonical_skill_id": "plant_verdant_overflow",
+      "display_name": "버던트 오버플로",
       "circle": 7,
       "school": "elemental",
       "element": "plant",
       "skill_type": "buff",
-      "role_tags": ["utility", "deploy", "plant"],
-      "description": "설치형 빌드 폭발 창구",
+      "role_tags": [
+        "utility",
+        "deploy",
+        "plant"
+      ],
+      "description": "설치기 범위와 유지력을 끌어올려 장송 개화 창을 여는 7서클 자연 증폭 버프",
       "max_level": 30,
-      "growth_tracks": ["duration", "buff_power"],
+      "growth_tracks": [
+        "duration",
+        "buff_power"
+      ],
       "unlock_state": "record",
       "mana_cost_base": 40,
       "cooldown_base": 48.0,
@@ -1197,31 +4971,136 @@
       "stackable": true,
       "stack_rule_id": "default_diminishing_buff",
       "buff_effects": [
-        { "stat": "deploy_range_multiplier", "mode": "mul", "value": 1.18 },
-        { "stat": "deploy_duration_multiplier", "mode": "mul", "value": 1.2 },
-        { "stat": "deploy_target_bonus", "mode": "add", "value": 1 }
+        {
+          "stat": "deploy_range_multiplier",
+          "mode": "mul",
+          "value": 1.18
+        },
+        {
+          "stat": "deploy_duration_multiplier",
+          "mode": "mul",
+          "value": 1.2
+        },
+        {
+          "stat": "deploy_target_bonus",
+          "mode": "add",
+          "value": 1
+        },
+        {
+          "stat": "activation_visual_effect_id",
+          "mode": "set",
+          "value": "verdant_overflow_activation"
+        },
+        {
+          "stat": "activation_visual_scale",
+          "mode": "set",
+          "value": 1.04
+        },
+        {
+          "stat": "activation_visual_color",
+          "mode": "set",
+          "value": "#baffb0"
+        },
+        {
+          "stat": "overlay_visual_effect_id",
+          "mode": "set",
+          "value": "verdant_overflow_overlay"
+        },
+        {
+          "stat": "overlay_visual_scale",
+          "mode": "set",
+          "value": 0.98
+        },
+        {
+          "stat": "overlay_visual_color",
+          "mode": "set",
+          "value": "#d9ffd2"
+        }
       ],
       "downside_effects": [
-        { "stat": "deploy_recast_delay", "mode": "add", "value": 1, "duration": 6.0 }
+        {
+          "stat": "deploy_recast_delay",
+          "mode": "add",
+          "value": 1,
+          "duration": 6.0
+        }
       ],
-      "combo_tags": ["plant", "deploy"],
+      "combo_tags": [
+        "plant",
+        "deploy"
+      ],
       "mana_reduction_per_level": 0.006,
       "cooldown_reduction_per_level": 0.0045,
       "duration_scale_per_level": 0.01,
+      "deploy_range_multiplier_per_level": 0.004,
+      "deploy_duration_multiplier_per_level": 0.004,
       "range_scale_per_level": 0.0,
       "milestone_bonuses": []
     },
     {
+      "skill_id": "arcane_force_pulse",
+      "canonical_skill_id": "arcane_force_pulse",
+      "display_name": "아케인 포스 펄스",
+      "circle": 2,
+      "school": "arcane",
+      "element": "arcane",
+      "skill_type": "active",
+      "role_tags": [
+        "projectile",
+        "single_target",
+        "arcane"
+      ],
+      "description": "회전하는 비전 파동으로 단일 압박을 시작하는 2서클 아케인 기본기",
+      "max_level": 30,
+      "growth_tracks": [
+        "damage",
+        "range",
+        "knockback"
+      ],
+      "unlock_state": "starter",
+      "mana_cost_base": 15,
+      "cooldown_base": 0.0,
+      "cast_time": 0.0,
+      "hit_shape": "projectile",
+      "range_base": 460,
+      "duration_base": 0.0,
+      "target_count_base": 1,
+      "pierce_count_base": 0,
+      "projectile_count_base": 1,
+      "tick_interval": 0.0,
+      "damage_formula": {
+        "formula_type": "hit",
+        "coefficient_base": 1.18,
+        "coefficient_per_level": 0.026,
+        "flat_base": 17,
+        "flat_per_level": 2
+      },
+      "mana_reduction_per_level": 0.006,
+      "cooldown_reduction_per_level": 0.0045,
+      "duration_scale_per_level": 0.0,
+      "range_scale_per_level": 0.008,
+      "knockback_scale_per_level": 0.01,
+      "milestone_bonuses": []
+    },
+    {
       "skill_id": "arcane_astral_compression",
-      "display_name": "Astral Compression",
+      "canonical_skill_id": "arcane_astral_compression",
+      "display_name": "아스트랄 압축",
       "circle": 8,
       "school": "arcane",
       "element": "arcane",
       "skill_type": "buff",
-      "role_tags": ["offense", "arcane", "universal"],
-      "description": "중후반 공통 딜 버프",
+      "role_tags": [
+        "offense",
+        "arcane",
+        "universal"
+      ],
+      "description": "모든 마법의 마나 효율을 끌어올리는 8서클 공용 아케인 버프",
       "max_level": 30,
-      "growth_tracks": ["duration", "buff_power"],
+      "growth_tracks": [
+        "duration",
+        "buff_power"
+      ],
       "unlock_state": "late_game",
       "mana_cost_base": 44,
       "cooldown_base": 55.0,
@@ -1231,30 +5110,85 @@
       "stackable": true,
       "stack_rule_id": "heavy_diminishing_buff",
       "buff_effects": [
-        { "stat": "final_damage_multiplier", "mode": "mul", "value": 1.16 },
-        { "stat": "mana_efficiency_multiplier", "mode": "mul", "value": 0.88 }
+        {
+          "stat": "activation_visual_effect_id",
+          "mode": "set",
+          "value": "astral_compression_activation"
+        },
+        {
+          "stat": "activation_visual_scale",
+          "mode": "set",
+          "value": 1.04
+        },
+        {
+          "stat": "activation_visual_color",
+          "mode": "set",
+          "value": "#dbc9ff"
+        },
+        {
+          "stat": "overlay_visual_effect_id",
+          "mode": "set",
+          "value": "astral_compression_overlay"
+        },
+        {
+          "stat": "overlay_visual_scale",
+          "mode": "set",
+          "value": 1.0
+        },
+        {
+          "stat": "overlay_visual_color",
+          "mode": "set",
+          "value": "#efe7ff"
+        },
+        {
+          "stat": "final_damage_multiplier",
+          "mode": "mul",
+          "value": 1.16
+        },
+        {
+          "stat": "mana_efficiency_multiplier",
+          "mode": "mul",
+          "value": 0.88
+        }
       ],
       "downside_effects": [
-        { "stat": "damage_taken_multiplier", "mode": "mul", "value": 1.2, "duration": 5.0 }
+        {
+          "stat": "damage_taken_multiplier",
+          "mode": "mul",
+          "value": 1.2,
+          "duration": 5.0
+        }
       ],
-      "combo_tags": ["arcane", "compression"],
+      "combo_tags": [
+        "arcane",
+        "compression"
+      ],
       "mana_reduction_per_level": 0.006,
       "cooldown_reduction_per_level": 0.0045,
       "duration_scale_per_level": 0.01,
+      "final_damage_multiplier_per_level": 0.003,
       "range_scale_per_level": 0.0,
       "milestone_bonuses": []
     },
     {
       "skill_id": "arcane_world_hourglass",
-      "display_name": "World Hourglass",
+      "canonical_skill_id": "arcane_world_hourglass",
+      "display_name": "월드 아워글래스 오브 아케인",
       "circle": 9,
       "school": "arcane",
       "element": "arcane",
       "skill_type": "buff",
-      "role_tags": ["tempo", "arcane", "burst_window"],
-      "description": "극딜 창구를 여는 시간 압축 버프",
+      "role_tags": [
+        "tempo",
+        "arcane",
+        "burst_window"
+      ],
+      "description": "모든 마법의 극딜 창구를 여는 9서클 공용 아케인 버프",
       "max_level": 30,
-      "growth_tracks": ["duration", "buff_power"],
+      "growth_tracks": [
+        "duration",
+        "buff_power"
+      ],
       "unlock_state": "late_game",
       "mana_cost_base": 50,
       "cooldown_base": 70.0,
@@ -1264,30 +5198,234 @@
       "stackable": true,
       "stack_rule_id": "heavy_diminishing_buff",
       "buff_effects": [
-        { "stat": "cast_speed_multiplier", "mode": "mul", "value": 1.3 },
-        { "stat": "cooldown_flow_multiplier", "mode": "mul", "value": 0.78 }
+        {
+          "stat": "activation_visual_effect_id",
+          "mode": "set",
+          "value": "world_hourglass_activation"
+        },
+        {
+          "stat": "activation_visual_scale",
+          "mode": "set",
+          "value": 1.08
+        },
+        {
+          "stat": "activation_visual_color",
+          "mode": "set",
+          "value": "#ffe2c2"
+        },
+        {
+          "stat": "overlay_visual_effect_id",
+          "mode": "set",
+          "value": "world_hourglass_overlay"
+        },
+        {
+          "stat": "overlay_visual_scale",
+          "mode": "set",
+          "value": 1.04
+        },
+        {
+          "stat": "overlay_visual_color",
+          "mode": "set",
+          "value": "#fff1e3"
+        },
+        {
+          "stat": "cast_speed_multiplier",
+          "mode": "mul",
+          "value": 1.3
+        },
+        {
+          "stat": "cooldown_flow_multiplier",
+          "mode": "mul",
+          "value": 0.78
+        }
       ],
       "downside_effects": [
-        { "stat": "cast_speed_multiplier", "mode": "mul", "value": 0.75, "duration": 8.0 }
+        {
+          "stat": "cast_speed_multiplier",
+          "mode": "mul",
+          "value": 0.75,
+          "duration": 8.0
+        }
       ],
-      "combo_tags": ["arcane", "time"],
+      "combo_tags": [
+        "arcane",
+        "time"
+      ],
       "mana_reduction_per_level": 0.006,
       "cooldown_reduction_per_level": 0.0045,
       "duration_scale_per_level": 0.01,
+      "cast_speed_multiplier_per_level": 0.004,
+      "cooldown_flow_multiplier_reduction_per_level": 0.0025,
       "range_scale_per_level": 0.0,
       "milestone_bonuses": []
     },
     {
+      "skill_id": "holy_dawn_oath",
+      "canonical_skill_id": "holy_dawn_oath",
+      "display_name": "던 오스",
+      "circle": 9,
+      "school": "white",
+      "element": "holy",
+      "skill_type": "buff",
+      "role_tags": [
+        "defense",
+        "super_armor",
+        "resist",
+        "stability"
+      ],
+      "description": "강한 피해 경감과 최종 성역 보호를 부여하는 9서클 백마법 최종 보호 버프",
+      "max_level": 30,
+      "growth_tracks": [
+        "duration",
+        "buff_power"
+      ],
+      "unlock_state": "late_game",
+      "mana_cost_base": 52,
+      "cooldown_base": 55.0,
+      "cast_time": 0.0,
+      "duration_base": 8.0,
+      "buff_category": "defense",
+      "stackable": true,
+      "stack_rule_id": "heavy_diminishing_buff",
+      "buff_effects": [
+        {
+          "stat": "damage_taken_multiplier",
+          "mode": "mul",
+          "value": 0.5
+        },
+        {
+          "stat": "super_armor_charges",
+          "mode": "add",
+          "value": 2
+        },
+        {
+          "stat": "status_resistance",
+          "mode": "add",
+          "value": 0.36
+        },
+        {
+          "stat": "activation_visual_effect_id",
+          "mode": "set",
+          "value": "holy_dawn_oath_activation"
+        },
+        {
+          "stat": "activation_visual_scale",
+          "mode": "set",
+          "value": 1.18
+        },
+        {
+          "stat": "activation_visual_color",
+          "mode": "set",
+          "value": "#fff7cf"
+        },
+        {
+          "stat": "overlay_visual_effect_id",
+          "mode": "set",
+          "value": "holy_dawn_oath_overlay"
+        },
+        {
+          "stat": "overlay_visual_scale",
+          "mode": "set",
+          "value": 1.15
+        },
+        {
+          "stat": "overlay_visual_color",
+          "mode": "set",
+          "value": "#fff9de"
+        }
+      ],
+      "downside_effects": [],
+      "combo_tags": [
+        "guard",
+        "holy"
+      ],
+      "mana_reduction_per_level": 0.006,
+      "cooldown_reduction_per_level": 0.0045,
+      "duration_scale_per_level": 0.01,
+      "damage_taken_reduction_per_level": 0.005,
+      "status_resistance_per_level": 0.004,
+      "range_scale_per_level": 0.0,
+      "milestone_bonuses": []
+    },
+    {
+      "skill_id": "holy_judgment_halo",
+      "canonical_skill_id": "holy_judgment_halo",
+      "display_name": "저지먼트 헤일로",
+      "circle": 10,
+      "school": "white",
+      "element": "holy",
+      "skill_type": "active",
+      "role_tags": [
+        "aoe",
+        "burst",
+        "finisher",
+        "mob_clear"
+      ],
+      "description": "대형 성광 심판을 내려 광범위 burst를 여는 최종 백마법기",
+      "max_level": 30,
+      "growth_tracks": [
+        "damage",
+        "range"
+      ],
+      "unlock_state": "late_game",
+      "mana_cost_base": 62,
+      "cooldown_base": 8.5,
+      "cast_time": 0.18,
+      "hit_shape": "circle",
+      "range_base": 160,
+      "duration_base": 0.0,
+      "target_count_base": 8,
+      "pierce_count_base": 0,
+      "projectile_count_base": 0,
+      "tick_interval": 0.0,
+      "damage_formula": {
+        "formula_type": "hit",
+        "coefficient_base": 3.25,
+        "coefficient_per_level": 0.055,
+        "flat_base": 56,
+        "flat_per_level": 5
+      },
+      "mana_reduction_per_level": 0.006,
+      "cooldown_reduction_per_level": 0.0045,
+      "duration_scale_per_level": 0.0,
+      "range_scale_per_level": 0.008,
+      "milestone_bonuses": [
+        {
+          "level": 10,
+          "stat": "range",
+          "value": 16
+        },
+        {
+          "level": 20,
+          "stat": "target_count",
+          "value": 1
+        },
+        {
+          "level": 30,
+          "stat": "damage",
+          "value": 18
+        }
+      ]
+    },
+    {
       "skill_id": "dark_throne_of_ash",
-      "display_name": "Throne of Ash",
+      "canonical_skill_id": "dark_throne_of_ash",
+      "display_name": "스론 오브 애시",
       "circle": 10,
       "school": "black",
       "element": "fire",
       "skill_type": "buff",
-      "role_tags": ["ritual", "finisher", "fire_dark"],
-      "description": "극딜 창구, 화염 및 흑마법 최종 배수 강화",
+      "role_tags": [
+        "ritual",
+        "finisher",
+        "fire_dark"
+      ],
+      "description": "화염과 흑마법 최종 배수를 끌어올리고 잿가루 폭발을 부르는 10서클 흑마법 최종 의식 버프",
       "max_level": 30,
-      "growth_tracks": ["duration", "buff_power"],
+      "growth_tracks": [
+        "duration",
+        "buff_power"
+      ],
       "unlock_state": "late_game",
       "mana_cost_base": 64,
       "cooldown_base": 90.0,
@@ -1297,18 +5435,75 @@
       "stackable": true,
       "stack_rule_id": "ritual_single_focus",
       "buff_effects": [
-        { "stat": "fire_final_damage_multiplier", "mode": "mul", "value": 1.22 },
-        { "stat": "dark_final_damage_multiplier", "mode": "mul", "value": 1.22 },
-        { "stat": "ash_residue_burst", "mode": "add", "value": 1 }
+        {
+          "stat": "fire_final_damage_multiplier",
+          "mode": "mul",
+          "value": 1.22
+        },
+        {
+          "stat": "dark_final_damage_multiplier",
+          "mode": "mul",
+          "value": 1.22
+        },
+        {
+          "stat": "ash_residue_burst",
+          "mode": "add",
+          "value": 1
+        },
+        {
+          "stat": "activation_visual_effect_id",
+          "mode": "set",
+          "value": "dark_throne_activation"
+        },
+        {
+          "stat": "activation_visual_scale",
+          "mode": "set",
+          "value": 1.18
+        },
+        {
+          "stat": "activation_visual_color",
+          "mode": "set",
+          "value": "#ff9d7a"
+        },
+        {
+          "stat": "overlay_visual_effect_id",
+          "mode": "set",
+          "value": "dark_throne_overlay"
+        },
+        {
+          "stat": "overlay_visual_scale",
+          "mode": "set",
+          "value": 1.14
+        },
+        {
+          "stat": "overlay_visual_color",
+          "mode": "set",
+          "value": "#d68f84"
+        }
       ],
       "downside_effects": [
-        { "stat": "mana_percent", "mode": "set", "value": 0.0 },
-        { "stat": "defense_multiplier", "mode": "mul", "value": 0.75, "duration": 10.0 }
+        {
+          "stat": "mana_percent",
+          "mode": "set",
+          "value": 0.0
+        },
+        {
+          "stat": "defense_multiplier",
+          "mode": "mul",
+          "value": 0.75,
+          "duration": 10.0
+        }
       ],
-      "combo_tags": ["ritual", "ash", "dark"],
+      "combo_tags": [
+        "ritual",
+        "ash",
+        "dark"
+      ],
       "mana_reduction_per_level": 0.006,
       "cooldown_reduction_per_level": 0.0045,
       "duration_scale_per_level": 0.01,
+      "fire_final_damage_multiplier_per_level": 0.004,
+      "dark_final_damage_multiplier_per_level": 0.004,
       "range_scale_per_level": 0.0,
       "milestone_bonuses": []
     }

@@ -1,18 +1,19 @@
-[gd_scene load_steps=83 format=3]
+[gd_scene load_steps=84 format=3]
 
 [ext_resource type="Script" path="res://scripts/main/main.gd" id="1_main"]
 [ext_resource type="Script" path="res://scripts/player/player.gd" id="2_player"]
 [ext_resource type="Script" path="res://scripts/ui/game_ui.gd" id="3_ui"]
 [ext_resource type="Script" path="res://addons/phantom_camera/scripts/phantom_camera_host/phantom_camera_host.gd" id="4_pcam_host"]
 [ext_resource type="Script" path="res://addons/phantom_camera/scripts/phantom_camera/phantom_camera_2d.gd" id="5_pcam"]
-[ext_resource type="Texture2D" path="res://asset_sample/Character/male_hero_free/individual_sheets/male_hero-idle.png" id="tex_0"]
-[ext_resource type="Texture2D" path="res://asset_sample/Character/male_hero_free/individual_sheets/male_hero-run.png" id="tex_1"]
-[ext_resource type="Texture2D" path="res://asset_sample/Character/male_hero_free/individual_sheets/male_hero-jump.png" id="tex_2"]
-[ext_resource type="Texture2D" path="res://asset_sample/Character/male_hero_free/individual_sheets/male_hero-fall.png" id="tex_3"]
-[ext_resource type="Texture2D" path="res://asset_sample/Character/male_hero_free/individual_sheets/male_hero-fall_loop.png" id="tex_4"]
-[ext_resource type="Texture2D" path="res://asset_sample/Character/male_hero_free/individual_sheets/male_hero-dash.png" id="tex_5"]
-[ext_resource type="Texture2D" path="res://asset_sample/Character/male_hero_free/individual_sheets/male_hero-hurt.png" id="tex_6"]
-[ext_resource type="Texture2D" path="res://asset_sample/Character/male_hero_free/individual_sheets/male_hero-death.png" id="tex_7"]
+[ext_resource type="Script" path="res://scripts/ui/window_manager.gd" id="6_window_manager"]
+[ext_resource type="Texture2D" path="res://assets/player/male_hero/male_hero-idle.png" id="tex_0"]
+[ext_resource type="Texture2D" path="res://assets/player/male_hero/male_hero-run.png" id="tex_1"]
+[ext_resource type="Texture2D" path="res://assets/player/male_hero/male_hero-jump.png" id="tex_2"]
+[ext_resource type="Texture2D" path="res://assets/player/male_hero/male_hero-fall.png" id="tex_3"]
+[ext_resource type="Texture2D" path="res://assets/player/male_hero/male_hero-fall_loop.png" id="tex_4"]
+[ext_resource type="Texture2D" path="res://assets/player/male_hero/male_hero-dash.png" id="tex_5"]
+[ext_resource type="Texture2D" path="res://assets/player/male_hero/male_hero-hurt.png" id="tex_6"]
+[ext_resource type="Texture2D" path="res://assets/player/male_hero/male_hero-death.png" id="tex_7"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_player"]
 size = Vector2(30, 56)
@@ -421,3 +422,40 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 20
 autowrap_mode = 3
 text = "Hints"
+
+[node name="WindowLayer" type="Control" parent="CanvasLayer"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="WindowManager" type="Control" parent="CanvasLayer/WindowLayer"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("6_window_manager")
+
+[node name="ModalLayer" type="Control" parent="CanvasLayer"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="TooltipLayer" type="Control" parent="CanvasLayer"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2

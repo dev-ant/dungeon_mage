@@ -1,0 +1,160 @@
+{
+  "image": "/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/tmp/flux_klein_tests/male_hero-idle_center_idle_profile.png",
+  "size": {
+    "width": 1280,
+    "height": 128
+  },
+  "frame_contract": {
+    "frame_width": 128,
+    "frame_height": 128,
+    "frame_count": 10
+  },
+  "alpha_bbox": [
+    12,
+    8,
+    1240,
+    121
+  ],
+  "edge_touch": false,
+  "opaque_pixels": 45759,
+  "frames": [
+    {
+      "index": 0,
+      "bbox": [
+        12,
+        9,
+        91,
+        118
+      ],
+      "edge_touch": false,
+      "opaque_pixels": 4778
+    },
+    {
+      "index": 1,
+      "bbox": [
+        12,
+        9,
+        91,
+        118
+      ],
+      "edge_touch": false,
+      "opaque_pixels": 4778
+    },
+    {
+      "index": 2,
+      "bbox": [
+        26,
+        8,
+        83,
+        119
+      ],
+      "edge_touch": false,
+      "opaque_pixels": 4491
+    },
+    {
+      "index": 3,
+      "bbox": [
+        12,
+        8,
+        85,
+        120
+      ],
+      "edge_touch": false,
+      "opaque_pixels": 4772
+    },
+    {
+      "index": 4,
+      "bbox": [
+        12,
+        8,
+        88,
+        120
+      ],
+      "edge_touch": false,
+      "opaque_pixels": 4750
+    },
+    {
+      "index": 5,
+      "bbox": [
+        12,
+        8,
+        88,
+        120
+      ],
+      "edge_touch": false,
+      "opaque_pixels": 4750
+    },
+    {
+      "index": 6,
+      "bbox": [
+        39,
+        8,
+        76,
+        116
+      ],
+      "edge_touch": false,
+      "opaque_pixels": 3013
+    },
+    {
+      "index": 7,
+      "bbox": [
+        15,
+        9,
+        88,
+        121
+      ],
+      "edge_touch": false,
+      "opaque_pixels": 4809
+    },
+    {
+      "index": 8,
+      "bbox": [
+        15,
+        9,
+        88,
+        121
+      ],
+      "edge_touch": false,
+      "opaque_pixels": 4809
+    },
+    {
+      "index": 9,
+      "bbox": [
+        15,
+        9,
+        88,
+        121
+      ],
+      "edge_touch": false,
+      "opaque_pixels": 4809
+    }
+  ],
+  "reference": null,
+  "motion_profile": "idle",
+  "motion_thresholds": {
+    "max_center_jump": 65.0,
+    "max_center_jump_ratio": 0.52,
+    "max_area_ratio": 2.3,
+    "min_area_ratio": 0.42,
+    "max_diff_ratio": 0.42,
+    "min_mean_diff_ratio": 0.0012
+  },
+  "checks": [
+    "basic contract validation passed",
+    "animation naturalness checks passed",
+    "motion profile used: idle"
+  ],
+  "verdict": "PASS",
+  "gif_preview": "/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/tmp/flux_klein_tests/male_hero-idle_center_idle_profile.gif",
+  "animation": {
+    "pairs": 9,
+    "mean_diff_ratio": 0.052733,
+    "max_diff_ratio": 0.115943,
+    "max_center_jump": 7.762,
+    "max_center_jump_ratio": 0.060641,
+    "max_center_jump_diag_ratio": 0.04288,
+    "max_area_ratio": 2.046,
+    "min_area_ratio": 0.469,
+    "frozen_pairs": 4
+  }
+}

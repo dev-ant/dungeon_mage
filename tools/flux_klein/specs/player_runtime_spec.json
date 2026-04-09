@@ -1,0 +1,53 @@
+{
+  "player_scene": {
+    "scene_path": "res://scenes/main/Main.tscn",
+    "sprite_node_path": "Player/Sprite",
+    "frame_width": 128,
+    "frame_height": 128,
+    "sprite_position": [0, 7],
+    "sprite_scale": [1.4, 1.4],
+    "texture_filter": "nearest"
+  },
+  "states": {
+    "idle": {
+      "frame_count": 10,
+      "source_strip": "/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/assets/player/male_hero/male_hero-idle.png",
+      "target_strip": "/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/assets/player/male_hero/male_hero-idle.png"
+    },
+    "run": {
+      "frame_count": 10,
+      "source_strip": "/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/assets/player/male_hero/male_hero-run.png",
+      "target_strip": "/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/assets/player/male_hero/male_hero-run.png"
+    },
+    "jump": {
+      "frame_count": 6,
+      "source_strip": "/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/assets/player/male_hero/male_hero-jump.png",
+      "target_strip": "/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/assets/player/male_hero/male_hero-jump.png"
+    },
+    "fall": {
+      "frame_count": 4,
+      "source_strip": "/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/assets/player/male_hero/male_hero-fall.png",
+      "target_strip": "/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/assets/player/male_hero/male_hero-fall.png"
+    },
+    "fall_loop": {
+      "frame_count": 3,
+      "source_strip": "/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/assets/player/male_hero/male_hero-fall_loop.png",
+      "target_strip": "/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/assets/player/male_hero/male_hero-fall_loop.png"
+    },
+    "dash": {
+      "frame_count": 5,
+      "source_strip": "/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/assets/player/male_hero/male_hero-dash.png",
+      "target_strip": "/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/assets/player/male_hero/male_hero-dash.png"
+    },
+    "hurt": {
+      "frame_count": 6,
+      "source_strip": "/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/assets/player/male_hero/male_hero-hurt.png",
+      "target_strip": "/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/assets/player/male_hero/male_hero-hurt.png"
+    },
+    "death": {
+      "frame_count": 23,
+      "source_strip": "/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/assets/player/male_hero/male_hero-death.png",
+      "target_strip": "/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/assets/player/male_hero/male_hero-death.png"
+    }
+  }
+}

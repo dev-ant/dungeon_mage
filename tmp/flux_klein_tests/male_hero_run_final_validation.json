@@ -1,0 +1,160 @@
+{
+  "image": "/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/assets/player/male_hero/male_hero-run.png",
+  "size": {
+    "width": 1280,
+    "height": 128
+  },
+  "frame_contract": {
+    "frame_width": 128,
+    "frame_height": 128,
+    "frame_count": 10
+  },
+  "alpha_bbox": [
+    40,
+    13,
+    1239,
+    120
+  ],
+  "edge_touch": false,
+  "opaque_pixels": 47454,
+  "frames": [
+    {
+      "index": 0,
+      "bbox": [
+        40,
+        13,
+        120,
+        120
+      ],
+      "edge_touch": false,
+      "opaque_pixels": 4780
+    },
+    {
+      "index": 1,
+      "bbox": [
+        40,
+        13,
+        120,
+        120
+      ],
+      "edge_touch": false,
+      "opaque_pixels": 4780
+    },
+    {
+      "index": 2,
+      "bbox": [
+        8,
+        13,
+        83,
+        120
+      ],
+      "edge_touch": false,
+      "opaque_pixels": 4581
+    },
+    {
+      "index": 3,
+      "bbox": [
+        14,
+        15,
+        120,
+        120
+      ],
+      "edge_touch": false,
+      "opaque_pixels": 4290
+    },
+    {
+      "index": 4,
+      "bbox": [
+        8,
+        15,
+        89,
+        120
+      ],
+      "edge_touch": false,
+      "opaque_pixels": 4683
+    },
+    {
+      "index": 5,
+      "bbox": [
+        7,
+        15,
+        120,
+        120
+      ],
+      "edge_touch": false,
+      "opaque_pixels": 4712
+    },
+    {
+      "index": 6,
+      "bbox": [
+        8,
+        15,
+        79,
+        120
+      ],
+      "edge_touch": false,
+      "opaque_pixels": 4225
+    },
+    {
+      "index": 7,
+      "bbox": [
+        26,
+        14,
+        120,
+        120
+      ],
+      "edge_touch": false,
+      "opaque_pixels": 5380
+    },
+    {
+      "index": 8,
+      "bbox": [
+        26,
+        14,
+        120,
+        120
+      ],
+      "edge_touch": false,
+      "opaque_pixels": 5380
+    },
+    {
+      "index": 9,
+      "bbox": [
+        8,
+        15,
+        87,
+        120
+      ],
+      "edge_touch": false,
+      "opaque_pixels": 4643
+    }
+  ],
+  "reference": null,
+  "motion_profile": "run",
+  "motion_thresholds": {
+    "max_center_jump": 40.0,
+    "max_center_jump_ratio": 0.32,
+    "max_area_ratio": 2.0,
+    "min_area_ratio": 0.45,
+    "max_diff_ratio": 0.6,
+    "min_mean_diff_ratio": 0.002
+  },
+  "checks": [
+    "basic contract validation passed",
+    "animation naturalness checks passed",
+    "motion profile used: run"
+  ],
+  "verdict": "PASS",
+  "gif_preview": "/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/tmp/flux_klein_tests/male_hero_run_final_validation.gif",
+  "animation": {
+    "pairs": 9,
+    "mean_diff_ratio": 0.149128,
+    "max_diff_ratio": 0.282369,
+    "max_center_jump": 34.5,
+    "max_center_jump_ratio": 0.269531,
+    "max_center_jump_diag_ratio": 0.190587,
+    "max_area_ratio": 1.395,
+    "min_area_ratio": 0.628,
+    "frozen_pairs": 2
+  }
+}

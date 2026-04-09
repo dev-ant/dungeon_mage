@@ -1,0 +1,28 @@
+{
+  "state": "idle",
+  "source_strip": "/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/assets/player/male_hero/male_hero-idle.png",
+  "frame_size": {
+    "width": 128,
+    "height": 128
+  },
+  "frame_count": 10,
+  "frames": [
+    "/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/tools/flux_klein/workdirs/v37_idle_frame_first/frames/frame_00.png",
+    "/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/tools/flux_klein/workdirs/v37_idle_frame_first/frames/frame_01.png",
+    "/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/tools/flux_klein/workdirs/v37_idle_frame_first/frames/frame_02.png",
+    "/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/tools/flux_klein/workdirs/v37_idle_frame_first/frames/frame_03.png",
+    "/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/tools/flux_klein/workdirs/v37_idle_frame_first/frames/frame_04.png",
+    "/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/tools/flux_klein/workdirs/v37_idle_frame_first/frames/frame_05.png",
+    "/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/tools/flux_klein/workdirs/v37_idle_frame_first/frames/frame_06.png",
+    "/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/tools/flux_klein/workdirs/v37_idle_frame_first/frames/frame_07.png",
+    "/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/tools/flux_klein/workdirs/v37_idle_frame_first/frames/frame_08.png",
+    "/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/tools/flux_klein/workdirs/v37_idle_frame_first/frames/frame_09.png"
+  ],
+  "workflow": [
+    "Generate each frame separately, in index order.",
+    "Use only the source strip and the approved character references for each frame.",
+    "Validate each generated frame if the body or silhouette changed.",
+    "Rebuild the strip from ordered frames after review."
+  ],
+  "rebuild_command": "python3 /Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/tools/flux_klein/rebuild_strip_from_frames.py --frame-dir <frames_dir> --output <strip_output>"
+}

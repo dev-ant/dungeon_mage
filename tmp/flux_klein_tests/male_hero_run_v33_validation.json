@@ -1,0 +1,164 @@
+{
+  "image": "/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/tmp/flux_klein_tests/male_hero_run_v33.png",
+  "size": {
+    "width": 1280,
+    "height": 128
+  },
+  "frame_contract": {
+    "frame_width": 128,
+    "frame_height": 128,
+    "frame_count": 10
+  },
+  "alpha_bbox": [
+    48,
+    18,
+    1231,
+    125
+  ],
+  "edge_touch": false,
+  "opaque_pixels": 39825,
+  "frames": [
+    {
+      "index": 0,
+      "bbox": [
+        48,
+        18,
+        128,
+        125
+      ],
+      "edge_touch": true,
+      "opaque_pixels": 4780
+    },
+    {
+      "index": 1,
+      "bbox": [
+        0,
+        27,
+        128,
+        123
+      ],
+      "edge_touch": true,
+      "opaque_pixels": 1392
+    },
+    {
+      "index": 2,
+      "bbox": [
+        0,
+        18,
+        75,
+        125
+      ],
+      "edge_touch": true,
+      "opaque_pixels": 4581
+    },
+    {
+      "index": 3,
+      "bbox": [
+        22,
+        19,
+        128,
+        124
+      ],
+      "edge_touch": true,
+      "opaque_pixels": 4290
+    },
+    {
+      "index": 4,
+      "bbox": [
+        0,
+        20,
+        81,
+        125
+      ],
+      "edge_touch": true,
+      "opaque_pixels": 4683
+    },
+    {
+      "index": 5,
+      "bbox": [
+        13,
+        19,
+        128,
+        125
+      ],
+      "edge_touch": true,
+      "opaque_pixels": 4867
+    },
+    {
+      "index": 6,
+      "bbox": [
+        0,
+        20,
+        71,
+        125
+      ],
+      "edge_touch": true,
+      "opaque_pixels": 4225
+    },
+    {
+      "index": 7,
+      "bbox": [
+        28,
+        19,
+        122,
+        125
+      ],
+      "edge_touch": false,
+      "opaque_pixels": 5380
+    },
+    {
+      "index": 8,
+      "bbox": [
+        100,
+        48,
+        128,
+        111
+      ],
+      "edge_touch": true,
+      "opaque_pixels": 984
+    },
+    {
+      "index": 9,
+      "bbox": [
+        0,
+        19,
+        79,
+        124
+      ],
+      "edge_touch": true,
+      "opaque_pixels": 4643
+    }
+  ],
+  "reference": null,
+  "motion_profile": "run",
+  "motion_thresholds": {
+    "max_center_jump": 34.0,
+    "max_center_jump_ratio": 0.27,
+    "max_area_ratio": 2.0,
+    "min_area_ratio": 0.48,
+    "max_diff_ratio": 0.6,
+    "min_mean_diff_ratio": 0.002
+  },
+  "checks": [],
+  "verdict": "FAIL",
+  "gif_preview": "/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/tmp/flux_klein_tests/male_hero_run_v33_validation.gif",
+  "animation": {
+    "pairs": 9,
+    "mean_diff_ratio": 0.208743,
+    "max_diff_ratio": 0.288414,
+    "max_center_jump": 74.928,
+    "max_center_jump_ratio": 0.585377,
+    "max_center_jump_diag_ratio": 0.413924,
+    "max_area_ratio": 4.702,
+    "min_area_ratio": 0.177,
+    "frozen_pairs": 0
+  },
+  "fail_reasons": [
+    "one or more frames touch the canvas edge",
+    "max center jump 74.928px exceeds 34.0px",
+    "max center jump ratio 0.585 exceeds 0.27",
+    "max consecutive area ratio 4.702 exceeds 2.0",
+    "min consecutive area ratio 0.177 is below 0.48"
+  ],
+  "recommendation": "Inspect the GIF preview for stutter, teleporting limbs, frozen frames, or pose jumps; then regenerate or normalize as needed."
+}

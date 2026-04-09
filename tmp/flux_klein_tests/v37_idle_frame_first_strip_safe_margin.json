@@ -1,0 +1,214 @@
+{
+  "frames": [
+    {
+      "source_bbox": [
+        16,
+        0,
+        93,
+        117
+      ],
+      "scale": 0.9134,
+      "shift": [
+        0,
+        1
+      ],
+      "normalized_bbox": [
+        21,
+        6,
+        98,
+        123
+      ],
+      "filled_empty": false,
+      "index": 0
+    },
+    {
+      "source_bbox": [
+        9,
+        7,
+        93,
+        123
+      ],
+      "scale": 1.0,
+      "shift": [
+        0,
+        -1
+      ],
+      "normalized_bbox": [
+        9,
+        6,
+        93,
+        122
+      ],
+      "filled_empty": false,
+      "index": 1
+    },
+    {
+      "source_bbox": [
+        16,
+        4,
+        82,
+        122
+      ],
+      "scale": 0.9508,
+      "shift": [
+        0,
+        -3
+      ],
+      "normalized_bbox": [
+        19,
+        4,
+        85,
+        122
+      ],
+      "filled_empty": false,
+      "index": 2
+    },
+    {
+      "source_bbox": [
+        13,
+        7,
+        93,
+        123
+      ],
+      "scale": 0.9915,
+      "shift": [
+        0,
+        -1
+      ],
+      "normalized_bbox": [
+        13,
+        6,
+        93,
+        122
+      ],
+      "filled_empty": false,
+      "index": 3
+    },
+    {
+      "source_bbox": [
+        11,
+        7,
+        89,
+        123
+      ],
+      "scale": 1.0,
+      "shift": [
+        0,
+        -1
+      ],
+      "normalized_bbox": [
+        11,
+        6,
+        89,
+        122
+      ],
+      "filled_empty": false,
+      "index": 4
+    },
+    {
+      "source_bbox": [
+        11,
+        8,
+        87,
+        122
+      ],
+      "scale": 1.0,
+      "shift": [
+        0,
+        0
+      ],
+      "normalized_bbox": [
+        11,
+        8,
+        87,
+        122
+      ],
+      "filled_empty": false,
+      "index": 5
+    },
+    {
+      "source_bbox": [
+        23,
+        11,
+        90,
+        122
+      ],
+      "scale": 1.0,
+      "shift": [
+        0,
+        0
+      ],
+      "normalized_bbox": [
+        23,
+        11,
+        90,
+        122
+      ],
+      "filled_empty": false,
+      "index": 6
+    },
+    {
+      "source_bbox": [
+        30,
+        9,
+        92,
+        125
+      ],
+      "scale": 1.0,
+      "shift": [
+        0,
+        -3
+      ],
+      "normalized_bbox": [
+        30,
+        6,
+        92,
+        122
+      ],
+      "filled_empty": false,
+      "index": 7
+    },
+    {
+      "source_bbox": [
+        22,
+        7,
+        91,
+        123
+      ],
+      "scale": 0.9748,
+      "shift": [
+        0,
+        -2
+      ],
+      "normalized_bbox": [
+        23,
+        6,
+        92,
+        122
+      ],
+      "filled_empty": false,
+      "index": 8
+    },
+    {
+      "source_bbox": [
+        28,
+        9,
+        92,
+        125
+      ],
+      "scale": 0.9915,
+      "shift": [
+        0,
+        -3
+      ],
+      "normalized_bbox": [
+        28,
+        6,
+        92,
+        122
+      ],
+      "filled_empty": false,
+      "index": 9
+    }
+  ]
+}

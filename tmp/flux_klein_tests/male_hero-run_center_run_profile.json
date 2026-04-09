@@ -1,0 +1,224 @@
+{
+  "input": "/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/assets/player/male_hero/male_hero-run.png",
+  "output": "/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/tmp/flux_klein_tests/male_hero-run_center_run_profile.png",
+  "frame_count": 10,
+  "target_anchor": [
+    58.941,
+    49.287
+  ],
+  "profile": "run",
+  "top_fraction": 0.58,
+  "margin": 10,
+  "frames": [
+    {
+      "index": 0,
+      "anchor": [
+        62.588,
+        47.651
+      ],
+      "target_anchor": [
+        58.941,
+        49.287
+      ],
+      "shift": [
+        0,
+        0
+      ],
+      "bbox": [
+        10,
+        11,
+        90,
+        118
+      ]
+    },
+    {
+      "index": 1,
+      "anchor": [
+        62.588,
+        47.651
+      ],
+      "target_anchor": [
+        58.941,
+        49.287
+      ],
+      "shift": [
+        0,
+        0
+      ],
+      "bbox": [
+        10,
+        11,
+        90,
+        118
+      ]
+    },
+    {
+      "index": 2,
+      "anchor": [
+        58.955,
+        48.876
+      ],
+      "target_anchor": [
+        58.941,
+        49.287
+      ],
+      "shift": [
+        0,
+        0
+      ],
+      "bbox": [
+        24,
+        11,
+        99,
+        118
+      ]
+    },
+    {
+      "index": 3,
+      "anchor": [
+        58.205,
+        48.07
+      ],
+      "target_anchor": [
+        58.941,
+        49.287
+      ],
+      "shift": [
+        1,
+        0
+      ],
+      "bbox": [
+        12,
+        13,
+        118,
+        118
+      ]
+    },
+    {
+      "index": 4,
+      "anchor": [
+        58.524,
+        49.406
+      ],
+      "target_anchor": [
+        58.941,
+        49.287
+      ],
+      "shift": [
+        0,
+        0
+      ],
+      "bbox": [
+        17,
+        13,
+        98,
+        118
+      ]
+    },
+    {
+      "index": 5,
+      "anchor": [
+        53.977,
+        50.499
+      ],
+      "target_anchor": [
+        58.941,
+        49.287
+      ],
+      "shift": [
+        0,
+        -1
+      ],
+      "bbox": [
+        5,
+        12,
+        118,
+        117
+      ]
+    },
+    {
+      "index": 6,
+      "anchor": [
+        58.406,
+        49.445
+      ],
+      "target_anchor": [
+        58.941,
+        49.287
+      ],
+      "shift": [
+        1,
+        0
+      ],
+      "bbox": [
+        24,
+        13,
+        95,
+        118
+      ]
+    },
+    {
+      "index": 7,
+      "anchor": [
+        63.646,
+        49.287
+      ],
+      "target_anchor": [
+        58.941,
+        49.287
+      ],
+      "shift": [
+        0,
+        0
+      ],
+      "bbox": [
+        10,
+        12,
+        104,
+        118
+      ]
+    },
+    {
+      "index": 8,
+      "anchor": [
+        63.646,
+        49.287
+      ],
+      "target_anchor": [
+        58.941,
+        49.287
+      ],
+      "shift": [
+        0,
+        0
+      ],
+      "bbox": [
+        10,
+        12,
+        104,
+        118
+      ]
+    },
+    {
+      "index": 9,
+      "anchor": [
+        58.928,
+        50.322
+      ],
+      "target_anchor": [
+        58.941,
+        49.287
+      ],
+      "shift": [
+        0,
+        -1
+      ],
+      "bbox": [
+        22,
+        12,
+        101,
+        117
+      ]
+    }
+  ]
+}

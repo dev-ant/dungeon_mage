@@ -1,0 +1,214 @@
+{
+  "frames": [
+    {
+      "index": 0,
+      "original_bbox": [
+        50,
+        43,
+        65,
+        80
+      ],
+      "generated_bbox": [
+        50,
+        41,
+        104,
+        86
+      ],
+      "normalized_bbox": [
+        50,
+        68,
+        65,
+        80
+      ]
+    },
+    {
+      "index": 1,
+      "original_bbox": [
+        50,
+        43,
+        65,
+        80
+      ],
+      "generated_bbox": [
+        83,
+        41,
+        127,
+        86
+      ],
+      "normalized_bbox": [
+        50,
+        65,
+        65,
+        80
+      ]
+    },
+    {
+      "index": 2,
+      "original_bbox": [
+        50,
+        43,
+        65,
+        80
+      ],
+      "generated_bbox": [
+        125,
+        58,
+        128,
+        65
+      ],
+      "normalized_bbox": [
+        50,
+        47,
+        65,
+        80
+      ]
+    },
+    {
+      "index": 3,
+      "original_bbox": [
+        50,
+        44,
+        65,
+        80
+      ],
+      "generated_bbox": [
+        0,
+        40,
+        45,
+        87
+      ],
+      "normalized_bbox": [
+        50,
+        64,
+        65,
+        80
+      ]
+    },
+    {
+      "index": 4,
+      "original_bbox": [
+        50,
+        44,
+        65,
+        80
+      ],
+      "generated_bbox": [
+        35,
+        42,
+        77,
+        86
+      ],
+      "normalized_bbox": [
+        50,
+        64,
+        65,
+        80
+      ]
+    },
+    {
+      "index": 5,
+      "original_bbox": [
+        50,
+        44,
+        65,
+        80
+      ],
+      "generated_bbox": [
+        57,
+        41,
+        98,
+        86
+      ],
+      "normalized_bbox": [
+        50,
+        64,
+        65,
+        80
+      ]
+    },
+    {
+      "index": 6,
+      "original_bbox": [
+        50,
+        44,
+        65,
+        80
+      ],
+      "generated_bbox": [
+        84,
+        42,
+        126,
+        86
+      ],
+      "normalized_bbox": [
+        50,
+        64,
+        65,
+        80
+      ]
+    },
+    {
+      "index": 7,
+      "original_bbox": [
+        50,
+        44,
+        65,
+        80
+      ],
+      "generated_bbox": [
+        126,
+        57,
+        128,
+        61
+      ],
+      "normalized_bbox": [
+        50,
+        50,
+        65,
+        80
+      ]
+    },
+    {
+      "index": 8,
+      "original_bbox": [
+        50,
+        44,
+        65,
+        80
+      ],
+      "generated_bbox": [
+        0,
+        42,
+        40,
+        86
+      ],
+      "normalized_bbox": [
+        50,
+        64,
+        65,
+        80
+      ]
+    },
+    {
+      "index": 9,
+      "original_bbox": [
+        50,
+        43,
+        65,
+        80
+      ],
+      "generated_bbox": [
+        26,
+        41,
+        69,
+        86
+      ],
+      "normalized_bbox": [
+        51,
+        64,
+        65,
+        80
+      ]
+    }
+  ]
+}

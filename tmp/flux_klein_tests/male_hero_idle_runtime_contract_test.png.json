@@ -1,0 +1,232 @@
+{
+  "state": "idle",
+  "scene_contract": {
+    "scene_path": "res://scenes/main/Main.tscn",
+    "sprite_node_path": "Player/Sprite",
+    "frame_width": 128,
+    "frame_height": 128,
+    "sprite_position": [
+      0,
+      7
+    ],
+    "sprite_scale": [
+      1.4,
+      1.4
+    ]
+  },
+  "target_strip": "/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/assets/player/male_hero/male_hero-idle.png",
+  "saved_to": "/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/tmp/flux_klein_tests/male_hero_idle_runtime_contract_test.png",
+  "wrote_target": false,
+  "frames": [
+    {
+      "index": 0,
+      "target_bbox": [
+        41,
+        43,
+        73,
+        80
+      ],
+      "generated_bbox": [
+        41,
+        43,
+        73,
+        80
+      ],
+      "normalized_bbox": [
+        41,
+        43,
+        73,
+        80
+      ]
+    },
+    {
+      "index": 1,
+      "target_bbox": [
+        41,
+        43,
+        73,
+        80
+      ],
+      "generated_bbox": [
+        41,
+        43,
+        73,
+        80
+      ],
+      "normalized_bbox": [
+        41,
+        43,
+        73,
+        80
+      ]
+    },
+    {
+      "index": 2,
+      "target_bbox": [
+        41,
+        43,
+        73,
+        80
+      ],
+      "generated_bbox": [
+        41,
+        43,
+        73,
+        80
+      ],
+      "normalized_bbox": [
+        41,
+        43,
+        73,
+        80
+      ]
+    },
+    {
+      "index": 3,
+      "target_bbox": [
+        41,
+        44,
+        73,
+        80
+      ],
+      "generated_bbox": [
+        41,
+        44,
+        73,
+        80
+      ],
+      "normalized_bbox": [
+        41,
+        44,
+        73,
+        80
+      ]
+    },
+    {
+      "index": 4,
+      "target_bbox": [
+        42,
+        44,
+        73,
+        80
+      ],
+      "generated_bbox": [
+        42,
+        44,
+        73,
+        80
+      ],
+      "normalized_bbox": [
+        42,
+        44,
+        73,
+        80
+      ]
+    },
+    {
+      "index": 5,
+      "target_bbox": [
+        43,
+        44,
+        73,
+        80
+      ],
+      "generated_bbox": [
+        43,
+        44,
+        73,
+        80
+      ],
+      "normalized_bbox": [
+        43,
+        44,
+        73,
+        80
+      ]
+    },
+    {
+      "index": 6,
+      "target_bbox": [
+        42,
+        44,
+        73,
+        80
+      ],
+      "generated_bbox": [
+        42,
+        44,
+        73,
+        80
+      ],
+      "normalized_bbox": [
+        42,
+        44,
+        73,
+        80
+      ]
+    },
+    {
+      "index": 7,
+      "target_bbox": [
+        42,
+        44,
+        73,
+        80
+      ],
+      "generated_bbox": [
+        42,
+        44,
+        73,
+        80
+      ],
+      "normalized_bbox": [
+        42,
+        44,
+        73,
+        80
+      ]
+    },
+    {
+      "index": 8,
+      "target_bbox": [
+        41,
+        44,
+        73,
+        80
+      ],
+      "generated_bbox": [
+        41,
+        44,
+        73,
+        80
+      ],
+      "normalized_bbox": [
+        41,
+        44,
+        73,
+        80
+      ]
+    },
+    {
+      "index": 9,
+      "target_bbox": [
+        41,
+        43,
+        73,
+        80
+      ],
+      "generated_bbox": [
+        41,
+        43,
+        73,
+        80
+      ],
+      "normalized_bbox": [
+        41,
+        43,
+        73,
+        80
+      ]
+    }
+  ]
+}

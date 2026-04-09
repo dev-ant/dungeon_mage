@@ -1,0 +1,13 @@
+Use image 1 as the exact composition, silhouette, frame timing, empty padding, center alignment, motion direction, body ratio, head size, limb length, face placement, hand placement, foot placement, and idle animation reference.
+
+This is the player character idle strip for Dungeon Mage. Keep the current runtime proportions exactly and preserve the same readable side-scrolling gameplay silhouette. Redesign only the character styling details while keeping anatomy and animation intact.
+
+Restyle the character as a handsome blond teenage academy mage who entered the labyrinth for his graduation exam. He should read as a trained elite student, kind and intelligent, with slightly sharp eyes, a refined straight nose, and a clean noble fantasy-student presence. His body should read as lean and athletic, closer to a 174 cm / 64 kg trained student mage, slim rather than bulky, with light muscle definition instead of a heavy torso or thick body mass.
+
+His hair should be blond, short like a typical young male haircut, neatly swept slightly backward, still a little sharp at the tips, and should stay close to the current head silhouette without becoming long or messy.
+
+The costume should be cloth-and-robe driven and readable at small gameplay scale. Make the gray robe the dominant overall silhouette. The robe should visually cover most of the torso and be the first clothing layer the player reads. Only show a slight hint of the blue outerwear and a slight hint of the white-and-gold high-neck inner layer around the neck area. Do not let the blue outerwear dominate the chest or torso. Keep the gold school emblem restrained. Blue trousers may remain mostly hidden under the robe. Shoes should be leather and harmonize with the robe palette. No gloves. A brown leather crossbody bag may be visible only subtly because it sits mostly behind the body.
+
+For this idle state specifically, do not show the wand in the character's hands. The idle strip may hide the wand completely or make it unreadable in the hands, as long as the pose, hand placement, and gameplay silhouette remain stable.
+
+Style: pixel-friendly 2D fantasy action RPG character, same visual family as Dungeon Mage monsters but cleaner, more disciplined, and more heroic. Lighting and mood: bright readable character treatment over subdued dungeon gameplay backgrounds. Background handling: transparent background, isolated sprite strip. Important: preserve the current pose and composition exactly and do not redesign the anatomy or animation.

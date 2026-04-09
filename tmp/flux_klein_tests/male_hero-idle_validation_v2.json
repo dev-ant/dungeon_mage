@@ -1,0 +1,163 @@
+{
+  "image": "/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/assets/player/male_hero/male_hero-idle.png",
+  "size": {
+    "width": 1280,
+    "height": 128
+  },
+  "frame_contract": {
+    "frame_width": 128,
+    "frame_height": 128,
+    "frame_count": 10
+  },
+  "alpha_bbox": [
+    59,
+    3,
+    1213,
+    126
+  ],
+  "edge_touch": false,
+  "opaque_pixels": 38861,
+  "frames": [
+    {
+      "index": 0,
+      "bbox": [
+        59,
+        4,
+        119,
+        126
+      ],
+      "edge_touch": false,
+      "opaque_pixels": 4810
+    },
+    {
+      "index": 1,
+      "bbox": [
+        116,
+        42,
+        126,
+        126
+      ],
+      "edge_touch": false,
+      "opaque_pixels": 379
+    },
+    {
+      "index": 2,
+      "bbox": [
+        2,
+        3,
+        51,
+        126
+      ],
+      "edge_touch": false,
+      "opaque_pixels": 4436
+    },
+    {
+      "index": 3,
+      "bbox": [
+        42,
+        3,
+        102,
+        126
+      ],
+      "edge_touch": false,
+      "opaque_pixels": 4806
+    },
+    {
+      "index": 4,
+      "bbox": [
+        70,
+        3,
+        126,
+        126
+      ],
+      "edge_touch": false,
+      "opaque_pixels": 4845
+    },
+    {
+      "index": 5,
+      "bbox": [
+        2,
+        49,
+        126,
+        125
+      ],
+      "edge_touch": false,
+      "opaque_pixels": 279
+    },
+    {
+      "index": 6,
+      "bbox": [
+        2,
+        3,
+        53,
+        126
+      ],
+      "edge_touch": false,
+      "opaque_pixels": 4637
+    },
+    {
+      "index": 7,
+      "bbox": [
+        61,
+        3,
+        121,
+        126
+      ],
+      "edge_touch": false,
+      "opaque_pixels": 4891
+    },
+    {
+      "index": 8,
+      "bbox": [
+        61,
+        3,
+        121,
+        126
+      ],
+      "edge_touch": false,
+      "opaque_pixels": 4891
+    },
+    {
+      "index": 9,
+      "bbox": [
+        2,
+        3,
+        61,
+        126
+      ],
+      "edge_touch": false,
+      "opaque_pixels": 4887
+    }
+  ],
+  "reference": null,
+  "motion_profile": "idle",
+  "motion_thresholds": {
+    "max_center_jump": 20.0,
+    "max_center_jump_ratio": 0.16,
+    "max_area_ratio": 1.55,
+    "min_area_ratio": 0.62,
+    "max_diff_ratio": 0.42,
+    "min_mean_diff_ratio": 0.0012
+  },
+  "checks": [],
+  "verdict": "FAIL",
+  "gif_preview": "/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/tmp/flux_klein_tests/male_hero-idle_validation_v2.gif",
+  "animation": {
+    "pairs": 9,
+    "mean_diff_ratio": 0.197745,
+    "max_diff_ratio": 0.315672,
+    "max_center_jump": 96.491,
+    "max_center_jump_ratio": 0.753835,
+    "max_center_jump_diag_ratio": 0.533042,
+    "max_area_ratio": 7.175,
+    "min_area_ratio": 0.115,
+    "frozen_pairs": 1
+  },
+  "fail_reasons": [
+    "max center jump 96.491px exceeds 20.0px",
+    "max center jump ratio 0.754 exceeds 0.16",
+    "max consecutive area ratio 7.175 exceeds 1.55",
+    "min consecutive area ratio 0.115 is below 0.62"
+  ],
+  "recommendation": "Inspect the GIF preview for stutter, teleporting limbs, frozen frames, or pose jumps; then regenerate or normalize as needed."
+}

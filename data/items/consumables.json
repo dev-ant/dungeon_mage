@@ -1,0 +1,35 @@
+{
+  "consumables": [
+    {
+      "item_id": "consumable_minor_hp_potion",
+      "display_name": "작은 HP 포션",
+      "description": "붉은 약초 향이 남아 있는 기본 회복 물약. HP를 35 회복한다.",
+      "max_stack": 9999,
+      "effect": {
+        "effect_type": "restore_hp",
+        "amount": 35
+      }
+    },
+    {
+      "item_id": "consumable_minor_mp_potion",
+      "display_name": "작은 MP 포션",
+      "description": "응축된 마력 용액이 담긴 기본 회복 물약. MP를 45 회복한다.",
+      "max_stack": 9999,
+      "effect": {
+        "effect_type": "restore_mp",
+        "amount": 45
+      }
+    },
+    {
+      "item_id": "consumable_focus_elixir",
+      "display_name": "포커스 엘릭서",
+      "description": "전투 직전 집중을 끌어올리는 혼합 엘릭서. HP 20, MP 20을 함께 회복한다.",
+      "max_stack": 10,
+      "effect": {
+        "effect_type": "restore_hp_mp",
+        "hp_amount": 20,
+        "mp_amount": 20
+      }
+    }
+  ]
+}

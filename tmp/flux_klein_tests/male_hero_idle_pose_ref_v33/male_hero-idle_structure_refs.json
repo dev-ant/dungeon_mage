@@ -1,0 +1,27 @@
+{
+  "source_image": "/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/asset_sample/Character/male_hero_free/individual_sheets/male_hero-idle.png",
+  "frame_size": {
+    "width": 128,
+    "height": 128
+  },
+  "frame_count": 10,
+  "representative_frame_index": 0,
+  "bbox_union": {
+    "left": 35,
+    "top": 37,
+    "right": 79,
+    "bottom": 86,
+    "width": 44,
+    "height": 49
+  },
+  "generated": {
+    "input_image": "/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/tmp/flux_klein_tests/male_hero_idle_pose_ref_v33/male_hero-idle_strip_x4.png",
+    "input_image_2_focus": "/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/tmp/flux_klein_tests/male_hero_idle_pose_ref_v33/male_hero-idle_frame_00_focus_x8.png",
+    "full_frame_reference": "/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/tmp/flux_klein_tests/male_hero_idle_pose_ref_v33/male_hero-idle_frame_00_full_x8.png"
+  },
+  "recommended_usage": {
+    "input_image": "Use as the exact upscaled runtime strip structure source.",
+    "input_image_2": "Use as the enlarged full-body structure reference from the same original source.",
+    "full_frame_reference": "Optional inspection asset for prompt tuning and human review."
+  }
+}

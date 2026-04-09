@@ -1,0 +1,16 @@
+{
+  "other_items": [
+    {
+      "item_id": "etc_broken_core_fragment",
+      "display_name": "부서진 코어 파편",
+      "description": "붕괴된 마력핵에서 떨어진 잔해. 연성 재료나 퀘스트 요구품으로 쓰일 수 있다.",
+      "max_stack": 9999
+    },
+    {
+      "item_id": "etc_sealed_archive_page",
+      "display_name": "봉인된 기록 조각",
+      "description": "봉인문이 새겨진 오래된 기록의 파편. 아직 읽을 수는 없지만 누군가 찾고 있을 듯하다.",
+      "max_stack": 9999
+    }
+  ]
+}

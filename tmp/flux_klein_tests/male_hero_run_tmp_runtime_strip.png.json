@@ -1,0 +1,220 @@
+{
+  "original_strip": "/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/assets/player/male_hero/male_hero-run.png",
+  "frame_width": 128,
+  "frame_height": 128,
+  "frame_count": 10,
+  "manifest": null,
+  "saved_to": "/Users/leesanghyun/git-projects/java-projects/old/dungeon_mage/tmp/flux_klein_tests/male_hero_run_tmp_runtime_strip.png",
+  "frames": [
+    {
+      "index": 0,
+      "target_bbox": [
+        47,
+        44,
+        80,
+        80
+      ],
+      "generated_bbox": [
+        251,
+        197,
+        768,
+        904
+      ],
+      "normalized_bbox": [
+        50,
+        44,
+        76,
+        80
+      ]
+    },
+    {
+      "index": 1,
+      "target_bbox": [
+        47,
+        46,
+        78,
+        80
+      ],
+      "generated_bbox": [
+        251,
+        197,
+        768,
+        904
+      ],
+      "normalized_bbox": [
+        50,
+        46,
+        75,
+        80
+      ]
+    },
+    {
+      "index": 2,
+      "target_bbox": [
+        46,
+        47,
+        78,
+        80
+      ],
+      "generated_bbox": [
+        251,
+        197,
+        768,
+        904
+      ],
+      "normalized_bbox": [
+        50,
+        47,
+        74,
+        80
+      ]
+    },
+    {
+      "index": 3,
+      "target_bbox": [
+        46,
+        45,
+        86,
+        80
+      ],
+      "generated_bbox": [
+        251,
+        197,
+        768,
+        904
+      ],
+      "normalized_bbox": [
+        53,
+        45,
+        79,
+        80
+      ]
+    },
+    {
+      "index": 4,
+      "target_bbox": [
+        47,
+        44,
+        86,
+        77
+      ],
+      "generated_bbox": [
+        251,
+        197,
+        768,
+        904
+      ],
+      "normalized_bbox": [
+        54,
+        44,
+        78,
+        77
+      ]
+    },
+    {
+      "index": 5,
+      "target_bbox": [
+        46,
+        44,
+        85,
+        80
+      ],
+      "generated_bbox": [
+        251,
+        197,
+        768,
+        904
+      ],
+      "normalized_bbox": [
+        52,
+        44,
+        78,
+        80
+      ]
+    },
+    {
+      "index": 6,
+      "target_bbox": [
+        46,
+        46,
+        78,
+        80
+      ],
+      "generated_bbox": [
+        251,
+        197,
+        768,
+        904
+      ],
+      "normalized_bbox": [
+        50,
+        46,
+        75,
+        80
+      ]
+    },
+    {
+      "index": 7,
+      "target_bbox": [
+        45,
+        47,
+        77,
+        80
+      ],
+      "generated_bbox": [
+        251,
+        197,
+        768,
+        904
+      ],
+      "normalized_bbox": [
+        49,
+        47,
+        73,
+        80
+      ]
+    },
+    {
+      "index": 8,
+      "target_bbox": [
+        44,
+        45,
+        81,
+        80
+      ],
+      "generated_bbox": [
+        251,
+        197,
+        768,
+        904
+      ],
+      "normalized_bbox": [
+        50,
+        45,
+        76,
+        80
+      ]
+    },
+    {
+      "index": 9,
+      "target_bbox": [
+        45,
+        43,
+        81,
+        77
+      ],
+      "generated_bbox": [
+        251,
+        197,
+        768,
+        904
+      ],
+      "normalized_bbox": [
+        50,
+        43,
+        75,
+        77
+      ]
+    }
+  ]
+}
